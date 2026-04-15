@@ -1,0 +1,45 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" uid="uid://bx7n4q8f2ycu" path="res://scripts/Main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="2_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/DialogueBox.tscn" id="3_dialogue"]
+[ext_resource type="PackedScene" path="res://scenes/ui/GameOver.tscn" id="4_gameover"]
+
+[node name="Main" type="Control"]
+script = ExtResource("1_main")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="SplitContainer" type="HBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="LeftContainer" type="SubViewportContainer" parent="SplitContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="LeftViewport" type="SubViewport" parent="SplitContainer/LeftContainer"]
+handle_input_locally = false
+size = Vector2i(688, 768)
+
+[node name="Divider" type="ColorRect" parent="SplitContainer"]
+custom_minimum_size = Vector2(2, 0)
+color = Color(0.1, 0.1, 0.12, 1)
+
+[node name="RightContainer" type="SubViewportContainer" parent="SplitContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="RightViewport" type="SubViewport" parent="SplitContainer/RightContainer"]
+handle_input_locally = false
+size = Vector2i(688, 768)
+
+[node name="HUD" parent="." instance=ExtResource("2_hud")]
+
+[node name="DialogueBox" parent="." instance=ExtResource("3_dialogue")]
+
+[node name="GameOver" parent="." instance=ExtResource("4_gameover")]

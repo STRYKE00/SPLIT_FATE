@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="AIAssistantResource" format=3 uid="uid://xxfg1h81axe3"]
+
+[ext_resource type="Script" uid="uid://lb0o6kbj0wy2" path="res://addons/ai_assistant_hub/quick_prompts/ai_quick_prompt_resource.gd" id="1_370ub"]
+[ext_resource type="Script" uid="uid://23lk70b571ee" path="res://addons/ai_assistant_hub/assistants/ai_assistant_resource.gd" id="2_mjses"]
+
+[resource]
+script = ExtResource("2_mjses")
+type_name = "SAM ALTMAN"
+metadata/_custom_type_script = "uid://23lk70b571ee"

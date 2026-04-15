@@ -1,0 +1,51 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="RPG_SLOP"
+run/main_scene="res://scenes/main_menu.tscn"
+config/features=PackedStringArray("4.6", "Forward Plus")
+config/icon="res://icon.svg"
+
+[autoload]
+
+DialogueManager="*res://autoloads/DialogueManager.gd"
+GameState="*res://autoloads/GameState.gd"
+TimelineManager="*res://autoloads/TimelineManager.gd"
+AudioManager="*res://autoloads/AudioManager.gd"
+
+[display]
+
+window/size/viewport_width=1376
+window/size/viewport_height=768
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/ai_assistant_hub/plugin.cfg")
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[plugins]
+
+ai_assistant_hub/options/debug_mode=0
+ai_assistant_hub/llm_api="ollama_api"
+ai_assistant_hub/preferences/thinking_target=0
+ai_assistant_hub/preferences/skip_greeting=false
+ai_assistant_hub/preferences/always_scroll_to_bottom=false
+ai_assistant_hub/preferences/audio_hints=true
+
+[rendering]
+
+rendering_device/driver.windows="d3d12"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
