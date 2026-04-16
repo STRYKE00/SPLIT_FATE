@@ -235,7 +235,7 @@ func _on_hitbox_area_entered(area: Area2D) -> void:
 		_has_hit = true
 		var dir: Vector2 = (hit_target.global_position - global_position).normalized()
 		hit_target.receive_hit(attack_damage, dir)
-		hitbox.monitoring = false
+		hitbox.set_deferred("monitoring", false)
 
 
 func _on_player_detected(body: Node2D) -> void:

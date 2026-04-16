@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://c3x4nrira7ssg"]
+
+[ext_resource type="Script" uid="uid://ddaron4w1di8n" path="res://scripts/PlayerBase.gd" id="1_kapy6"]
+[ext_resource type="Texture2D" uid="uid://db5nfsf382sx5" path="res://assets/Character/Ren/ren.png" id="2_6hc3a"]
+[ext_resource type="Texture2D" uid="uid://dsloelybw68sv" path="res://assets/Character/Enemies/Orc.png" id="3_vumo0"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_31h1d"]
+atlas = ExtResource("3_vumo0")
+region = Rect2(0, 300, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dfwqp"]
+atlas = ExtResource("3_vumo0")
+region = Rect2(100, 300, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d22v1"]
+atlas = ExtResource("3_vumo0")
+region = Rect2(200, 300, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wpvyt"]
+atlas = ExtResource("3_vumo0")
+region = Rect2(300, 300, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5atpf"]
+atlas = ExtResource("3_vumo0")
+region = Rect2(400, 300, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_elqaq"]
+atlas = ExtResource("3_vumo0")
+region = Rect2(500, 300, 100, 100)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_yo07l"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_6hc3a")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_31h1d")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dfwqp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d22v1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wpvyt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5atpf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_elqaq")
+}],
+"loop": true,
+"name": &"Attack",
+"speed": 5.0
+}]
+
+[node name="Orc" type="CharacterBody2D" unique_id=1504960661]
+script = ExtResource("1_kapy6")
+metadata/_custom_type_script = "uid://ddaron4w1di8n"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=646391950]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1070539929]
+sprite_frames = SubResource("SpriteFrames_yo07l")
+animation = &"Attack"

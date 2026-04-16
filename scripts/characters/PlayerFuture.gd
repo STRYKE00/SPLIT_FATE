@@ -8,6 +8,7 @@ func _ready() -> void:
 	action_up      = "future_up"
 	action_down    = "future_down"
 	action_attack  = "future_attack"
+	action_heavy   = "future_heavy"
 	action_interact = "future_interact"
 	action_dash    = "future_dash"
 	slash_color = Color(0.7, 0.5, 1.0)

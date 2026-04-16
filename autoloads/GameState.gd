@@ -17,6 +17,7 @@ func _setup_input_map() -> void:
 	_add_key("past_up", KEY_W)
 	_add_key("past_down", KEY_S)
 	_add_key("past_attack", KEY_SPACE)
+	_add_key("past_heavy", KEY_Q)
 	_add_key("past_interact", KEY_E)
 	_add_key("past_dash", KEY_SHIFT)
 
@@ -25,6 +26,7 @@ func _setup_input_map() -> void:
 	_add_key("future_up", KEY_UP)
 	_add_key("future_down", KEY_DOWN)
 	_add_key("future_attack", KEY_ENTER)
+	_add_key("future_heavy", KEY_COMMA)
 	_add_key("future_interact", KEY_PERIOD)
 	_add_key("future_dash", KEY_SLASH)
 

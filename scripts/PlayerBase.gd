@@ -4,25 +4,45 @@ class_name PlayerBase
 const SPEED            := 130.0
 const ACCEL_WEIGHT     := 12.0
 const DECEL_WEIGHT     := 18.0
-const ATTACK_COOLDOWN  := 0.45
-const ATTACK_DURATION  := 0.3
 const HURT_DURATION    := 0.25
 const INVINCIBLE_TIME  := 0.7
 const KNOCKBACK_FORCE  := 220.0
-const ATTACK_RANGE     := 26.0
-const ATTACK_DAMAGE    := 1
 const DASH_SPEED       := 360.0
 const DASH_DURATION    := 0.22
 const DASH_COOLDOWN    := 0.7
+
+# Light combo: three chained swings, each faster / stronger than the last.
+const LIGHT_RANGE         := 26.0
+const LIGHT_DAMAGES       := [1, 1, 2]
+const LIGHT_DURATIONS     := [0.26, 0.24, 0.32]  # total anim length per stage
+const LIGHT_HIT_START     := 0.06                 # hitbox active after this much of anim
+const LIGHT_COMBO_WINDOW  := 0.35                 # time after stage to press next
+
+# Heavy attack: slow windup, big damage + knockback, cannot chain.
+const HEAVY_RANGE         := 34.0
+const HEAVY_DAMAGE        := 3
+const HEAVY_DURATION      := 0.65
+const HEAVY_HIT_START     := 0.28
+const HEAVY_HIT_DURATION  := 0.18
+const HEAVY_COOLDOWN      := 0.9
+const HEAVY_KNOCKBACK     := 340.0
 
 enum State { IDLE, MOVE, ATTACK, HURT, DASH, DEAD }
 
 var state: State = State.IDLE
 var facing: Vector2 = Vector2.DOWN
-var attack_timer: float = 0.0
 var hurt_timer: float = 0.0
 var invincible_timer: float = 0.0
-var attack_active_timer: float = 0.0
+var attack_timer: float = 0.0               # remaining anim time for current swing
+var attack_hit_timer: float = 0.0           # remaining active-hitbox time
+var attack_windup_timer: float = 0.0        # delay before hitbox activates
+var attack_damage: int = 1
+var attack_knockback: float = 220.0
+var is_heavy: bool = false
+var combo_stage: int = 0                    # 0 = not in combo; 1..3 = current light stage
+var combo_queued: bool = false              # player tapped attack during active swing
+var combo_window_timer: float = 0.0         # time left to continue light combo
+var heavy_cooldown_timer: float = 0.0
 var dash_timer: float = 0.0
 var dash_cooldown_timer: float = 0.0
 var dash_dir: Vector2 = Vector2.RIGHT
@@ -35,6 +55,7 @@ var action_right   := ""
 var action_up      := ""
 var action_down    := ""
 var action_attack  := ""
+var action_heavy   := ""
 var action_interact := ""
 var action_dash    := ""
 
@@ -80,6 +101,31 @@ func _build_frames() -> SpriteFrames:
 	for i in range(1, 7):
 		sf.add_frame("walk", _frame("res://assets/Character/Ren/walk/%d.png" % i))
 
+	# Light combo (5 frames in "Light Combat/") split into three chained stages.
+	sf.add_animation("light1")
+	sf.set_animation_speed("light1", 16.0)
+	sf.set_animation_loop("light1", false)
+	for i in [1, 2]:
+		sf.add_frame("light1", _frame("res://assets/Character/Ren/Light Combat/%d.png" % i))
+
+	sf.add_animation("light2")
+	sf.set_animation_speed("light2", 16.0)
+	sf.set_animation_loop("light2", false)
+	for i in [3, 4]:
+		sf.add_frame("light2", _frame("res://assets/Character/Ren/Light Combat/%d.png" % i))
+
+	sf.add_animation("light3")
+	sf.set_animation_speed("light3", 12.0)
+	sf.set_animation_loop("light3", false)
+	sf.add_frame("light3", _frame("res://assets/Character/Ren/Light Combat/5.png"))
+
+	sf.add_animation("heavy")
+	sf.set_animation_speed("heavy", 11.0)
+	sf.set_animation_loop("heavy", false)
+	for i in range(1, 8):
+		sf.add_frame("heavy", _frame("res://assets/Character/Ren/Heavy Attack/%d.png" % i))
+
+	# "attack" kept as an alias for the roll/dash afterimage animation.
 	sf.add_animation("attack")
 	sf.set_animation_speed("attack", 14.0)
 	sf.set_animation_loop("attack", false)
@@ -119,8 +165,9 @@ func _physics_process(delta: float) -> void:
 		State.DEAD:   velocity = Vector2.ZERO
 
 	_tick_invincibility(delta)
-	_tick_attack_cooldown(delta)
 	_tick_dash_cooldown(delta)
+	_tick_heavy_cooldown(delta)
+	_tick_combo_window(delta)
 	_tick_camera_shake(delta)
 	move_and_slide()
 
@@ -135,8 +182,11 @@ func _state_idle(delta: float) -> void:
 	if _dash_pressed():
 		_begin_dash()
 		return
+	if _heavy_pressed():
+		_begin_heavy()
+		return
 	if _attack_pressed():
-		_begin_attack()
+		_begin_light(combo_stage + 1 if combo_window_timer > 0 else 1)
 
 
 func _state_move(delta: float) -> void:
@@ -151,8 +201,11 @@ func _state_move(delta: float) -> void:
 	if _dash_pressed():
 		_begin_dash()
 		return
+	if _heavy_pressed():
+		_begin_heavy()
+		return
 	if _attack_pressed():
-		_begin_attack()
+		_begin_light(combo_stage + 1 if combo_window_timer > 0 else 1)
 
 
 func _state_dash(delta: float) -> void:
@@ -165,12 +218,41 @@ func _state_dash(delta: float) -> void:
 
 
 func _state_attack(delta: float) -> void:
-	attack_active_timer -= delta
-	if attack_active_timer <= 0 and hitbox.monitoring:
-		hitbox.monitoring = false
-	velocity = velocity.lerp(Vector2.ZERO, 8.0 * delta)
-	if not sprite.is_playing() or sprite.animation != "attack":
-		hitbox.monitoring = false
+	attack_timer -= delta
+
+	# Activate the hitbox after the windup finishes.
+	if attack_windup_timer > 0.0:
+		attack_windup_timer -= delta
+		if attack_windup_timer <= 0.0:
+			hitbox.monitoring = true
+
+	# Deactivate the hitbox when its active window ends.
+	if attack_hit_timer > 0.0:
+		attack_hit_timer -= delta
+		if attack_hit_timer <= 0.0 and hitbox.monitoring:
+			hitbox.set_deferred("monitoring", false)
+
+	# Queue the next light combo step if the player taps during the current swing.
+	if not is_heavy and combo_stage < 3 and _attack_pressed():
+		combo_queued = true
+
+	# Heavy cancels the combo queue — the player is committing.
+	if _heavy_pressed() and heavy_cooldown_timer <= 0.0 and not is_heavy:
+		combo_queued = false
+
+	var decel := 12.0 if is_heavy else 8.0
+	velocity = velocity.lerp(Vector2.ZERO, decel * delta)
+
+	if attack_timer <= 0.0:
+		hitbox.set_deferred("monitoring", false)
+		if not is_heavy and combo_queued and combo_stage < 3:
+			combo_queued = false
+			_begin_light(combo_stage + 1)
+			return
+		if not is_heavy and combo_stage > 0:
+			combo_window_timer = LIGHT_COMBO_WINDOW
+		combo_queued = false
+		is_heavy = false
 		state = State.IDLE
 
 
@@ -211,33 +293,50 @@ func _dash_pressed() -> bool:
 	return Input.is_action_just_pressed(action_dash)
 
 
-func _begin_attack() -> void:
-	if attack_timer > 0:
+func _begin_light(stage: int) -> void:
+	stage = clamp(stage, 1, 3)
+	state = State.ATTACK
+	is_heavy = false
+	combo_stage = stage
+	combo_queued = false
+	combo_window_timer = 0.0
+	_hit_targets.clear()
+
+	var idx := stage - 1
+	attack_timer = LIGHT_DURATIONS[idx]
+	attack_windup_timer = LIGHT_HIT_START
+	attack_hit_timer = LIGHT_DURATIONS[idx] - LIGHT_HIT_START
+	attack_damage = LIGHT_DAMAGES[idx]
+	attack_knockback = 180.0 + 50.0 * idx
+
+	hitbox_collision.position = facing * LIGHT_RANGE
+	hitbox.monitoring = false  # activated after windup
+	velocity = facing * SPEED * (0.6 if stage == 1 else 0.5)
+	_play("light%d" % stage)
+
+
+func _begin_heavy() -> void:
+	if heavy_cooldown_timer > 0.0:
 		return
 	state = State.ATTACK
-	attack_timer = ATTACK_COOLDOWN
-	attack_active_timer = ATTACK_DURATION
+	is_heavy = true
+	combo_stage = 0
+	combo_queued = false
+	combo_window_timer = 0.0
 	_hit_targets.clear()
-	hitbox_collision.position = facing * ATTACK_RANGE
-	hitbox.monitoring = true
-	velocity = facing * SPEED * 0.6
-	_play("attack")
-	_spawn_slash()
 
+	attack_timer = HEAVY_DURATION
+	attack_windup_timer = HEAVY_HIT_START
+	attack_hit_timer = HEAVY_HIT_DURATION
+	attack_damage = HEAVY_DAMAGE
+	attack_knockback = HEAVY_KNOCKBACK
+	heavy_cooldown_timer = HEAVY_COOLDOWN
 
-func _spawn_slash() -> void:
-	var slash := Line2D.new()
-	slash.width = 2.5
-	slash.default_color = slash_color
-	slash.z_index = 10
-	var base_angle := facing.angle()
-	for i in 9:
-		var angle := base_angle - PI / 3.0 + (2.0 * PI / 3.0) * (float(i) / 8.0)
-		slash.add_point(Vector2.from_angle(angle) * 30.0)
-	add_child(slash)
-	var tw := create_tween()
-	tw.tween_property(slash, "modulate:a", 0.0, 0.2)
-	tw.tween_callback(slash.queue_free)
+	hitbox_collision.position = facing * HEAVY_RANGE
+	hitbox.monitoring = false
+	velocity = facing * SPEED * 0.25
+	_play("heavy")
+	shake_amount = 1.5  # windup rumble
 
 
 func receive_hit(damage: int, knockback_dir: Vector2) -> void:
@@ -263,8 +362,8 @@ func _on_hitbox_area_entered(area: Area2D) -> void:
 	_hit_targets.append(target)
 	if target.has_method("receive_hit"):
 		var dir: Vector2 = (target.global_position - global_position).normalized()
-		target.receive_hit(ATTACK_DAMAGE, dir)
-		shake_amount = 2.5
+		target.receive_hit(attack_damage, dir * (attack_knockback / 220.0))
+		shake_amount = 4.0 if is_heavy else 2.5
 
 
 func _on_died() -> void:
@@ -290,9 +389,16 @@ func _tick_invincibility(delta: float) -> void:
 			sprite.visible = true
 
 
-func _tick_attack_cooldown(delta: float) -> void:
-	if attack_timer > 0:
-		attack_timer -= delta
+func _tick_heavy_cooldown(delta: float) -> void:
+	if heavy_cooldown_timer > 0.0:
+		heavy_cooldown_timer -= delta
+
+
+func _tick_combo_window(delta: float) -> void:
+	if combo_window_timer > 0.0:
+		combo_window_timer -= delta
+		if combo_window_timer <= 0.0:
+			combo_stage = 0
 
 
 func _tick_camera_shake(delta: float) -> void:
@@ -317,6 +423,10 @@ func _input_dir() -> Vector2:
 
 func _attack_pressed() -> bool:
 	return Input.is_action_just_pressed(action_attack)
+
+
+func _heavy_pressed() -> bool:
+	return action_heavy != "" and Input.is_action_just_pressed(action_heavy)
 
 
 func _update_sprite_flip() -> void:
