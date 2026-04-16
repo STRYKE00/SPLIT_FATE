@@ -67,9 +67,10 @@ func _define_rooms() -> void:
 		{
 			"doors": ["north", "south"],
 			"enemies": [
-				{"x": 100, "y": 140, "tint": Color(0.85, 0.3, 0.15), "hp": 3},
-				{"x": 240, "y": 200, "tint": Color(0.85, 0.3, 0.15), "hp": 4},
-				{"x": 170, "y": 300, "tint": Color(0.95, 0.4, 0.2), "hp": 3, "speed": 65.0, "chase_speed": 95.0},
+				{"x": 100, "y": 140, "tint": Color(0.85, 0.3, 0.15), "hp": 3, "type":"elite_orc"},
+				{"x": 240, "y": 200, "tint": Color(0.85, 0.3, 0.15), "hp": 4, "type":"orc_rider"},
+				{"x": 120, "y": 180, "tint": Color(0.9, 0.35, 0.2), "hp": 3, "type":"soldier"},
+				{"x": 170, "y": 300, "tint": Color(0.95, 0.4, 0.2), "hp": 3, "speed": 65.0, "chase_speed": 95.0, "type":"knight"},
 			],
 			"npcs": [],
 			"floor_color": Color(0.75, 0.65, 0.45),

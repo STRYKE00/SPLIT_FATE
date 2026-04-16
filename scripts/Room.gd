@@ -29,6 +29,10 @@ var SOLEN_SCENE: PackedScene = preload("res://scenes/characters/Solan.tscn")
 const ENEMY_SCENES = {
 	"orc": preload("res://scenes/characters/Enemies/Orc.tscn"),
 	"armored_orc": preload("res://scenes/characters/Enemies/armored_orc.tscn"),
+	"elite_orc": preload("res://scenes/characters/Enemies/elite_orc.tscn"),
+	"orc_rider": preload("res://scenes/characters/Enemies/orc_rider.tscn"),
+	"soldier": preload("res://scenes/characters/Enemies/soldier.tscn"),
+	"knight": preload("res://scenes/characters/Enemies/knight.tscn"),
 	"skeleton": preload("res://scenes/characters/Enemies/skeleton.tscn"),
 	"greatsword_skeleton": preload("res://scenes/characters/Enemies/greatsword_skeleton.tscn"),
 	"default": preload("res://scenes/characters/EnemyBase.tscn")
