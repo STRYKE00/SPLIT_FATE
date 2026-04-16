@@ -215,10 +215,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not _dialogue_active:
 		return
 
-	var pressed: bool = (event is InputEventKey and event.pressed and not event.echo) \
-		or (event is InputEventMouseButton and event.pressed \
-			and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT)
-	if not pressed:
+	if not event.is_action_pressed("dialogue_advance"):
 		return
 
 	get_viewport().set_input_as_handled()

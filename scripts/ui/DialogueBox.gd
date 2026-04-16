@@ -46,13 +46,15 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not _showing:
 		return
-	if event is InputEventKey and event.pressed:
+	
+	if event.is_action_pressed("dialogue_advance"):
 		if not _text_complete:
 			_text_label.text = _full_text
 			_text_complete = true
 			_advance_arrow.visible = true
 		else:
 			DialogueManager.next_line()
+		
 		get_viewport().set_input_as_handled()
 
 
