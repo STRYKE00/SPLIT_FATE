@@ -188,6 +188,9 @@ func _load_room(timeline: String, room_idx: int) -> void:
 	room.door_positions = cfg.get("doors", [])
 	room.enemy_configs = cfg.get("enemies", [])
 	room.npc_configs = cfg.get("npcs", [])
+	room.prop_configs = cfg.get("props", [])
+	room.trigger_configs = cfg.get("triggers", [])
+	room.locked_doors = cfg.get("locked_doors", {})
 	room.floor_color = cfg.get("floor_color", Color(0.5, 0.5, 0.5))
 	room.wall_color = cfg.get("wall_color", Color(0.3, 0.3, 0.3))
 	room.name = "Room_%s_%d" % [timeline, room_idx]

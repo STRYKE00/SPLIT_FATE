@@ -16,6 +16,9 @@ var wall_color  := Color(0.45, 0.38, 0.28)
 var door_positions: Array = []
 var enemy_configs: Array = []
 var npc_configs: Array = []
+var prop_configs: Array = []
+var trigger_configs: Array = []
+var locked_doors: Dictionary = {}
 
 var _live_enemies: int = 0
 var _door_gates: Array = []
@@ -40,6 +43,8 @@ func build() -> void:
 
 	_spawn_npcs()
 	_spawn_enemies()
+	_spawn_props()
+	_spawn_triggers()
 
 	if _live_enemies == 0:
 		is_cleared = true
@@ -178,9 +183,14 @@ func _build_doors() -> void:
 		door_area.add_child(shape)
 
 		var dir_captured: String = dir
-		door_area.body_entered.connect(func(body: Node2D):
-			if body.is_in_group("players") and is_cleared:
-				TimelineManager.room_transition_requested.emit(timeline, dir_captured)
+		door_area.body_entered.connect(func(body: Node2D) -> void:
+			if not (body.is_in_group("players") and is_cleared):
+				return
+			if locked_doors.has(dir_captured):
+				var lock_flag: String = locked_doors[dir_captured]
+				if not GameState.get_flag(lock_flag, false):
+					return
+			TimelineManager.room_transition_requested.emit(timeline, dir_captured)
 		)
 		add_child(door_area)
 
@@ -225,7 +235,53 @@ func _on_enemy_killed(tl: String) -> void:
 	if _live_enemies <= 0:
 		is_cleared = true
 		_set_doors_open(true)
+		_unlock_chests()
 		TimelineManager.room_cleared.emit(timeline)
+
+
+func _unlock_chests() -> void:
+	for child in get_children():
+		if child is Area2D and child.name.begins_with("ChestInteract"):
+			child.monitoring = true
+
+
+func _spawn_props() -> void:
+	for cfg in prop_configs:
+		var prop := StaticBody2D.new()
+		prop.position = Vector2(cfg["x"], cfg["y"])
+		prop.collision_mask = 0
+		prop.name = cfg.get("name", "Prop")
+
+		var w: float = cfg.get("w", 32)
+		var h: float = cfg.get("h", 32)
+
+		var col := CollisionShape2D.new()
+		var rect := RectangleShape2D.new()
+		rect.size = Vector2(w, h)
+		col.shape = rect
+		prop.add_child(col)
+
+		if cfg.get("no_collision", false):
+			prop.collision_layer = 0
+			col.disabled = true
+		else:
+			prop.collision_layer = 1
+
+		var vis := ColorRect.new()
+		vis.size = Vector2(w, h)
+		vis.position = Vector2(-w / 2, -h / 2)
+		vis.color = cfg.get("color", Color(0.5, 0.4, 0.3))
+		prop.add_child(vis)
+
+		if cfg.get("label", "") != "":
+			var label := Label.new()
+			label.text = cfg["label"]
+			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			label.position = Vector2(-w / 2, -h / 2 - 16)
+			label.add_theme_font_size_override("font_size", 8)
+			prop.add_child(label)
+
+		_entity_layer.add_child(prop)
 
 
 func _spawn_npcs() -> void:
@@ -261,6 +317,109 @@ func _spawn_npcs() -> void:
 				DialogueManager.start_dialogue(dialogue_path)
 		)
 		add_child(trigger)
+
+
+func _spawn_triggers() -> void:
+	for cfg in trigger_configs:
+		var trigger := Area2D.new()
+		trigger.position = Vector2(cfg["x"], cfg["y"])
+		trigger.collision_layer = 0
+		trigger.collision_mask = 2
+		trigger.name = cfg.get("id", "Trigger")
+
+		var shape := CollisionShape2D.new()
+		var circle := CircleShape2D.new()
+		circle.radius = cfg.get("radius", 40.0)
+		shape.shape = circle
+		trigger.add_child(shape)
+
+		var fires_once: bool = cfg.get("fires_once", true)
+		var cfg_ref: Dictionary = cfg
+
+		trigger.body_entered.connect(func(body: Node2D) -> void:
+			if not body.is_in_group("players"):
+				return
+			if fires_once:
+				trigger.set_deferred("monitoring", false)
+			_handle_trigger(cfg_ref)
+		)
+		add_child(trigger)
+
+
+func _handle_trigger(cfg: Dictionary) -> void:
+	var trigger_type: String = cfg.get("type", "")
+	match trigger_type:
+		"cutscene":
+			var dialogue_path: String = cfg.get("dialogue_path", "")
+			if dialogue_path != "" and not DialogueManager.is_active():
+				DialogueManager.start_dialogue(dialogue_path)
+		"gear_pickup":
+			var piece_id: String = cfg.get("piece_id", "")
+			var count: int = GameState.get_flag("gear_pieces_found", 0)
+			GameState.set_flag("gear_pieces_found", count + 1)
+			TimelineManager.gear_collected.emit(piece_id)
+		"communicator":
+			var tl: String = cfg.get("timeline", "")
+			if tl == "past":
+				GameState.set_flag("mira_has_communicator", true)
+			else:
+				GameState.set_flag("ren_has_communicator", true)
+			TimelineManager.communicator_found.emit(tl)
+		"timeline_action":
+			var action_id: String = cfg.get("action_id", "")
+			TimelineManager.timeline_action.emit(action_id, timeline)
+
+
+func spawn_chest(pos: Vector2, item_trigger: Dictionary) -> Node2D:
+	var chest := StaticBody2D.new()
+	chest.position = pos
+	chest.collision_layer = 1
+	chest.collision_mask = 0
+	chest.name = "Chest"
+
+	var col := CollisionShape2D.new()
+	var rect := RectangleShape2D.new()
+	rect.size = Vector2(28, 24)
+	col.shape = rect
+	chest.add_child(col)
+
+	var vis := ColorRect.new()
+	vis.size = Vector2(28, 24)
+	vis.position = Vector2(-14, -12)
+	vis.color = Color(0.7, 0.55, 0.2)
+	chest.add_child(vis)
+
+	var label := Label.new()
+	label.text = "?"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.position = Vector2(-14, -28)
+	label.add_theme_font_size_override("font_size", 10)
+	chest.add_child(label)
+
+	var interact := Area2D.new()
+	interact.position = pos
+	interact.collision_layer = 0
+	interact.collision_mask = 2
+	interact.name = "ChestInteract"
+	var icol := CollisionShape2D.new()
+	var circle := CircleShape2D.new()
+	circle.radius = 30.0
+	icol.shape = circle
+	interact.add_child(icol)
+	interact.monitoring = false
+
+	var item_trigger_ref: Dictionary = item_trigger
+	interact.body_entered.connect(func(body: Node2D) -> void:
+		if body.is_in_group("players") and Input.is_action_just_pressed(body.action_interact):
+			interact.set_deferred("monitoring", false)
+			vis.color = Color(0.4, 0.35, 0.15)
+			label.text = "!"
+			_handle_trigger(item_trigger_ref)
+	)
+	add_child(interact)
+
+	_entity_layer.add_child(chest)
+	return chest
 
 
 func get_spawn_point(from_dir: String) -> Vector2:
