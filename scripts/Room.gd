@@ -34,7 +34,11 @@ const ENEMY_SCENES = {
 	"soldier": preload("res://scenes/characters/Enemies/soldier.tscn"),
 	"knight": preload("res://scenes/characters/Enemies/knight.tscn"),
 	"skeleton": preload("res://scenes/characters/Enemies/skeleton.tscn"),
+	"armored_skeleton": preload("res://scenes/characters/Enemies/armored_skeleton.tscn"),
+	"skeleton_archer": preload("res://scenes/characters/Enemies/skeleton_archer.tscn"),
 	"greatsword_skeleton": preload("res://scenes/characters/Enemies/greatsword_skeleton.tscn"),
+	"werewolf": preload("res://scenes/characters/Enemies/werewolf.tscn"),
+	"werebear": preload("res://scenes/characters/Enemies/werebear.tscn"),
 	"default": preload("res://scenes/characters/EnemyBase.tscn")
 }
 
