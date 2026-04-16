@@ -280,7 +280,7 @@ func _on_enemy_killed(tl: String) -> void:
 
 func _unlock_chests() -> void:
 	for chest in _chests:
-		var interact := chest.get_node_or_null("ChestInteract")
+		var interact: Node = chest.get_node_or_null("ChestInteract")
 		if interact:
 			interact.monitoring = true
 

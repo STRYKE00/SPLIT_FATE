@@ -2,6 +2,7 @@ extends EnemyBase
 
 const KITE_MIN := 80.0
 const KITE_MAX := 140.0
+const RANGED_COOLDOWN_SCALE := 2.5
 const RANGED_COLOR := Color(0.6, 0.9, 1.0)  # pale blue arrow
 
 var _ranged_cooldown: float = 0.0
@@ -33,6 +34,6 @@ func _state_chase(delta: float) -> void:
 
 	_ranged_cooldown -= delta
 	if _ranged_cooldown <= 0.0 and dist < detection_radius:
-		_ranged_cooldown = attack_cooldown
+		_ranged_cooldown = attack_cooldown * RANGED_COOLDOWN_SCALE
 		_play("attack")
 		_fire_projectile(RANGED_COLOR)
