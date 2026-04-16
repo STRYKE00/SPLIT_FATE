@@ -26,6 +26,7 @@ var patrol_timer: float = 0.0
 var is_dead: bool = false
 var timeline: String = ""
 var _has_hit: bool = false
+var type = ""
 
 # --- Node references (set up in the .tscn scene file) ---
 @onready var sprite: AnimatedSprite2D     = $Sprite
@@ -35,13 +36,7 @@ var _has_hit: bool = false
 @onready var detection: Area2D            = $Detection
 @onready var stats: StatsComponent        = $StatsComponent
 
-
-func _ready() -> void:
-	# Assign sprite frames and apply tint
-	sprite.sprite_frames = _build_frames()
-	sprite.modulate = tint
-	sprite.play("idle")
-
+func _init_configs()->void:
 	# Apply per-instance config to scene nodes
 	stats.max_hp = hp
 	stats.hp = hp
@@ -61,6 +56,14 @@ func _ready() -> void:
 
 	add_to_group("enemies")
 	idle_timer = randf_range(0.5, 2.0)
+	
+func _ready() -> void:
+	# Assign sprite frames and apply tint
+	sprite.sprite_frames = _build_frames()
+	sprite.modulate = tint
+	sprite.play("idle")
+	
+	_init_configs()
 
 
 # --- Sprite frame builder (same Ren PNGs, tinted per enemy) ---

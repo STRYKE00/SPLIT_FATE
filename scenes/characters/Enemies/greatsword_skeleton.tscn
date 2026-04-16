@@ -1,0 +1,270 @@
+[gd_scene format=3 uid="uid://343f00t4hay2"]
+
+[ext_resource type="PackedScene" uid="uid://oi8wal8p1nfi" path="res://scenes/characters/EnemyBase.tscn" id="1_kxlnk"]
+[ext_resource type="Script" uid="uid://bwdijt04lt5p8" path="res://scripts/characters/enemies/greatsword_skeleton.gd" id="2_3ty1e"]
+[ext_resource type="Texture2D" uid="uid://dkuy4qc8c6qwo" path="res://assets/Character/Enemies/Greatsword Skeleton/Greatsword Skeleton/Greatsword Skeleton-Attack01.png" id="2_6fu5b"]
+[ext_resource type="Texture2D" uid="uid://i7xfh2a3c7jl" path="res://assets/Character/Enemies/Greatsword Skeleton/Greatsword Skeleton/Greatsword Skeleton-Death.png" id="3_3ty1e"]
+[ext_resource type="Texture2D" uid="uid://cks2chsssjn2s" path="res://assets/Character/Enemies/Greatsword Skeleton/Greatsword Skeleton/Greatsword Skeleton-Hurt.png" id="4_0fr85"]
+[ext_resource type="Texture2D" uid="uid://f236740aqq3v" path="res://assets/Character/Enemies/Greatsword Skeleton/Greatsword Skeleton/Greatsword Skeleton-Idle.png" id="5_tsgc0"]
+[ext_resource type="Texture2D" uid="uid://biwb2jh8tbxm8" path="res://assets/Character/Enemies/Greatsword Skeleton/Greatsword Skeleton/Greatsword Skeleton-Walk.png" id="6_klpxv"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3safr"]
+atlas = ExtResource("2_6fu5b")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1nn1m"]
+atlas = ExtResource("2_6fu5b")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xhsq7"]
+atlas = ExtResource("2_6fu5b")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0362g"]
+atlas = ExtResource("2_6fu5b")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hs2du"]
+atlas = ExtResource("2_6fu5b")
+region = Rect2(400, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i0i1m"]
+atlas = ExtResource("2_6fu5b")
+region = Rect2(500, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_26s4l"]
+atlas = ExtResource("2_6fu5b")
+region = Rect2(600, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ntnan"]
+atlas = ExtResource("2_6fu5b")
+region = Rect2(700, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cp4d0"]
+atlas = ExtResource("2_6fu5b")
+region = Rect2(800, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pqqr3"]
+atlas = ExtResource("3_3ty1e")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b8ma0"]
+atlas = ExtResource("3_3ty1e")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2qc4o"]
+atlas = ExtResource("3_3ty1e")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o1nfu"]
+atlas = ExtResource("3_3ty1e")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_himx3"]
+atlas = ExtResource("4_0fr85")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lxut3"]
+atlas = ExtResource("4_0fr85")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nnhtk"]
+atlas = ExtResource("4_0fr85")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4oat4"]
+atlas = ExtResource("4_0fr85")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wf58j"]
+atlas = ExtResource("5_tsgc0")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dasr7"]
+atlas = ExtResource("5_tsgc0")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ie1w7"]
+atlas = ExtResource("5_tsgc0")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2wnap"]
+atlas = ExtResource("5_tsgc0")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6fbns"]
+atlas = ExtResource("5_tsgc0")
+region = Rect2(400, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_le5go"]
+atlas = ExtResource("5_tsgc0")
+region = Rect2(500, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_knrtq"]
+atlas = ExtResource("6_klpxv")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pc3g1"]
+atlas = ExtResource("6_klpxv")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a3tri"]
+atlas = ExtResource("6_klpxv")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1kvmu"]
+atlas = ExtResource("6_klpxv")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nqd87"]
+atlas = ExtResource("6_klpxv")
+region = Rect2(400, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_soge7"]
+atlas = ExtResource("6_klpxv")
+region = Rect2(500, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jtisp"]
+atlas = ExtResource("6_klpxv")
+region = Rect2(600, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3bfya"]
+atlas = ExtResource("6_klpxv")
+region = Rect2(700, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cid2f"]
+atlas = ExtResource("6_klpxv")
+region = Rect2(800, 0, 100, 100)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_3rsod"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3safr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1nn1m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xhsq7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0362g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hs2du")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i0i1m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_26s4l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ntnan")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cp4d0")
+}],
+"loop": true,
+"name": &"attack",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pqqr3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b8ma0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2qc4o")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o1nfu")
+}],
+"loop": true,
+"name": &"dead",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_himx3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lxut3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nnhtk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4oat4")
+}],
+"loop": true,
+"name": &"hurt",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wf58j")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dasr7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ie1w7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2wnap")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6fbns")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_le5go")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_knrtq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pc3g1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a3tri")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1kvmu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nqd87")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_soge7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jtisp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3bfya")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cid2f")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 5.0
+}]
+
+[node name="GreatswordSkeleton" unique_id=145840419 instance=ExtResource("1_kxlnk")]
+script = ExtResource("2_3ty1e")
+
+[node name="Sprite" parent="." index="1" unique_id=1674076617]
+texture_filter = 1
+scale = Vector2(2.5, 2.5)
+sprite_frames = SubResource("SpriteFrames_3rsod")
+animation = &"dead"

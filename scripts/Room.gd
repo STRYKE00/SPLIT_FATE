@@ -25,6 +25,23 @@ var _pixel_w: int
 var _pixel_h: int
 
 
+var SOLEN_SCENE: PackedScene = preload("res://scenes/characters/Solan.tscn")
+const ENEMY_SCENES = {
+	"orc": preload("res://scenes/characters/Enemies/Orc.tscn"),
+	"armored_orc": preload("res://scenes/characters/Enemies/armored_orc.tscn"),
+	"elite_orc": preload("res://scenes/characters/Enemies/elite_orc.tscn"),
+	"orc_rider": preload("res://scenes/characters/Enemies/orc_rider.tscn"),
+	"soldier": preload("res://scenes/characters/Enemies/soldier.tscn"),
+	"knight": preload("res://scenes/characters/Enemies/knight.tscn"),
+	"skeleton": preload("res://scenes/characters/Enemies/skeleton.tscn"),
+	"armored_skeleton": preload("res://scenes/characters/Enemies/armored_skeleton.tscn"),
+	"skeleton_archer": preload("res://scenes/characters/Enemies/skeleton_archer.tscn"),
+	"greatsword_skeleton": preload("res://scenes/characters/Enemies/greatsword_skeleton.tscn"),
+	"werewolf": preload("res://scenes/characters/Enemies/werewolf.tscn"),
+	"werebear": preload("res://scenes/characters/Enemies/werebear.tscn"),
+	"default": preload("res://scenes/characters/EnemyBase.tscn")
+}
+
 func build() -> void:
 	_pixel_w = room_w * TILE
 	_pixel_h = room_h * TILE
@@ -203,7 +220,9 @@ func _set_doors_open(open: bool) -> void:
 
 func _spawn_enemies() -> void:
 	for cfg in enemy_configs:
-		var enemy: EnemyBase = preload("res://scenes/characters/EnemyBase.tscn").instantiate()
+		var type_key = cfg.get("type", "default")
+		var scene_to_spawn = ENEMY_SCENES.get(type_key, ENEMY_SCENES["default"])
+		var enemy = scene_to_spawn.instantiate()
 		enemy.position = Vector2(cfg["x"], cfg["y"])
 		enemy.timeline = timeline
 		enemy.tint = cfg.get("tint", Color(0.9, 0.3, 0.2))
@@ -232,19 +251,18 @@ func _spawn_npcs() -> void:
 	for cfg in npc_configs:
 		var npc_pos := Vector2(cfg["x"], cfg["y"])
 		var dialogue_path: String = cfg["dialogue"]
-
-		var npc_sprite := Sprite2D.new()
-		var atlas := AtlasTexture.new()
-		atlas.atlas = load("res://assets/Character/Ren/idle/9.png")
-		atlas.region = Rect2(0, 0, 64, 64)
-		npc_sprite.texture = atlas
-		npc_sprite.modulate = Color(1.0, 0.85, 0.4)
-		npc_sprite.position = Vector2(0, -10)
-
-		var npc_node := Node2D.new()
+		var npc_type: String = cfg["type"]
+		
+		var npc_node = SOLEN_SCENE.instantiate()
 		npc_node.position = npc_pos
-		npc_node.add_child(npc_sprite)
 		_entity_layer.add_child(npc_node)
+		
+		var solen = npc_node as Solen
+		match npc_type:
+			"past":
+				solen.set_state(Solen.STATE.IDLE_PAST)
+			"future":
+				solen.set_state(Solen.STATE.IDLE_FUTURE)
 
 		var trigger := Area2D.new()
 		trigger.position = npc_pos

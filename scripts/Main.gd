@@ -50,15 +50,15 @@ func _define_rooms() -> void:
 		{
 			"doors": ["south"],
 			"enemies": [],
-			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_past.json"}],
+			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_past.json", "type":"past"}],
 			"floor_color": Color(0.82, 0.72, 0.52),
 			"wall_color": Color(0.50, 0.42, 0.30),
 		},
 		{
 			"doors": ["north", "south"],
 			"enemies": [
-				{"x": 120, "y": 180, "tint": Color(0.9, 0.35, 0.2), "hp": 3},
-				{"x": 240, "y": 260, "tint": Color(0.9, 0.35, 0.2), "hp": 3},
+				{"x": 120, "y": 180, "tint": Color(0.9, 0.35, 0.2), "hp": 3, "type":"orc"},
+				{"x": 240, "y": 260, "tint": Color(0.9, 0.35, 0.2), "hp": 3, "type":"armored_orc"},
 			],
 			"npcs": [],
 			"floor_color": Color(0.78, 0.68, 0.48),
@@ -67,9 +67,10 @@ func _define_rooms() -> void:
 		{
 			"doors": ["north", "south"],
 			"enemies": [
-				{"x": 100, "y": 140, "tint": Color(0.85, 0.3, 0.15), "hp": 3},
-				{"x": 240, "y": 200, "tint": Color(0.85, 0.3, 0.15), "hp": 4},
-				{"x": 170, "y": 300, "tint": Color(0.95, 0.4, 0.2), "hp": 3, "speed": 65.0, "chase_speed": 95.0},
+				{"x": 100, "y": 140, "tint": Color(0.85, 0.3, 0.15), "hp": 3, "type":"elite_orc"},
+				{"x": 240, "y": 200, "tint": Color(0.85, 0.3, 0.15), "hp": 4, "type":"orc_rider"},
+				{"x": 120, "y": 180, "tint": Color(0.9, 0.35, 0.2), "hp": 3, "type":"soldier"},
+				{"x": 170, "y": 300, "tint": Color(0.95, 0.4, 0.2), "hp": 3, "speed": 65.0, "chase_speed": 95.0, "type":"knight"},
 			],
 			"npcs": [],
 			"floor_color": Color(0.75, 0.65, 0.45),
@@ -90,15 +91,15 @@ func _define_rooms() -> void:
 		{
 			"doors": ["south"],
 			"enemies": [],
-			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_future.json"}],
+			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_future.json", "type":"future"}],
 			"floor_color": Color(0.28, 0.30, 0.38),
 			"wall_color": Color(0.18, 0.20, 0.28),
 		},
 		{
 			"doors": ["north", "south"],
 			"enemies": [
-				{"x": 130, "y": 190, "tint": Color(0.45, 0.2, 0.65), "hp": 3},
-				{"x": 220, "y": 250, "tint": Color(0.45, 0.2, 0.65), "hp": 3},
+				{"x": 130, "y": 190, "tint": Color(0.45, 0.2, 0.65), "hp": 3, "type": "skeleton"},
+				{"x": 220, "y": 250, "tint": Color(0.45, 0.2, 0.65), "hp": 3, "type": "greatsword_skeleton"},
 			],
 			"npcs": [],
 			"floor_color": Color(0.24, 0.26, 0.34),
@@ -107,9 +108,10 @@ func _define_rooms() -> void:
 		{
 			"doors": ["north", "south"],
 			"enemies": [
-				{"x": 110, "y": 150, "tint": Color(0.5, 0.15, 0.7), "hp": 4},
-				{"x": 230, "y": 210, "tint": Color(0.4, 0.1, 0.6), "hp": 4},
-				{"x": 170, "y": 310, "tint": Color(0.55, 0.2, 0.75), "hp": 3, "speed": 70.0, "chase_speed": 100.0},
+				{"x": 110, "y": 150, "tint": Color(0.5, 0.15, 0.7), "hp": 4, "type": "armored_skeleton"},
+				{"x": 230, "y": 210, "tint": Color(0.4, 0.1, 0.6), "hp": 4, "type": "skeleton_archer"},
+				{"x": 130, "y": 190, "tint": Color(0.45, 0.2, 0.65), "hp": 3, "type": "werewolf"},
+				{"x": 170, "y": 310, "tint": Color(0.55, 0.2, 0.75), "hp": 3, "speed": 70.0, "chase_speed": 100.0, "type": "werebear"},
 			],
 			"npcs": [],
 			"floor_color": Color(0.22, 0.24, 0.32),
