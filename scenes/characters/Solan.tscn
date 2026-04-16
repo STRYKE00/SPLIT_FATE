@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://byueia658xp4o"]
 
 [ext_resource type="Texture2D" uid="uid://b883lljfchvwj" path="res://assets/Character/Solan/solan.png" id="1_p502v"]
-[ext_resource type="Script" uid="uid://7b31c73uacjb" path="res://scenes/characters/Solen.gd" id="1_uvlgw"]
+[ext_resource type="Script" uid="uid://7b31c73uacjb" path="res://scripts/characters/Solen.gd" id="1_uvlgw"]
 
 [sub_resource type="Animation" id="Animation_uvlgw"]
 length = 0.001

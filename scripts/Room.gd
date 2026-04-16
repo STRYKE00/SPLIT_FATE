@@ -26,6 +26,10 @@ var _pixel_h: int
 
 
 var SOLEN_SCENE: PackedScene = preload("res://scenes/characters/Solan.tscn")
+const ENEMY_SCENES = {
+	"orc": preload("res://scenes/characters/Enemies/Orc.tscn"),
+	"default": preload("res://scenes/characters/EnemyBase.tscn")
+}
 
 func build() -> void:
 	_pixel_w = room_w * TILE
@@ -205,7 +209,9 @@ func _set_doors_open(open: bool) -> void:
 
 func _spawn_enemies() -> void:
 	for cfg in enemy_configs:
-		var enemy: EnemyBase = preload("res://scenes/characters/EnemyBase.tscn").instantiate()
+		var type_key = cfg.get("type", "default")
+		var scene_to_spawn = ENEMY_SCENES.get(type_key, ENEMY_SCENES["default"])
+		var enemy = scene_to_spawn.instantiate()
 		enemy.position = Vector2(cfg["x"], cfg["y"])
 		enemy.timeline = timeline
 		enemy.tint = cfg.get("tint", Color(0.9, 0.3, 0.2))
