@@ -50,7 +50,7 @@ func _define_rooms() -> void:
 		{
 			"doors": ["south"],
 			"enemies": [],
-			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_past.json"}],
+			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_past.json", "type":"past"}],
 			"floor_color": Color(0.82, 0.72, 0.52),
 			"wall_color": Color(0.50, 0.42, 0.30),
 		},
@@ -90,7 +90,7 @@ func _define_rooms() -> void:
 		{
 			"doors": ["south"],
 			"enemies": [],
-			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_future.json"}],
+			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_future.json", "type":"future"}],
 			"floor_color": Color(0.28, 0.30, 0.38),
 			"wall_color": Color(0.18, 0.20, 0.28),
 		},

@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://byueia658xp4o"]
 
 [ext_resource type="Texture2D" uid="uid://b883lljfchvwj" path="res://assets/Character/Solan/solan.png" id="1_p502v"]
+[ext_resource type="Script" uid="uid://7b31c73uacjb" path="res://scenes/characters/Solen.gd" id="1_uvlgw"]
 
 [sub_resource type="Animation" id="Animation_uvlgw"]
 length = 0.001
@@ -56,7 +57,6 @@ tracks/0/keys = {
 [sub_resource type="Animation" id="Animation_lfanc"]
 resource_name = "talk"
 length = 0.8
-loop_mode = 1
 step = 0.1
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -117,7 +117,30 @@ _data = {
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_uvlgw"]
 
-[node name="Solan" type="CharacterBody2D" unique_id=1078247852]
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_uvlgw"]
+animation = &"idle_after"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_qu2tj"]
+animation = &"idle_before"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_lfanc"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_vquyk"]
+advance_mode = 0
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_d25x4"]
+advance_mode = 0
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_smps4"]
+states/idle_after/node = SubResource("AnimationNodeAnimation_uvlgw")
+states/idle_after/position = Vector2(443, 139)
+states/idle_before/node = SubResource("AnimationNodeAnimation_qu2tj")
+states/idle_before/position = Vector2(373, 47)
+transitions = ["Start", "idle_before", SubResource("AnimationNodeStateMachineTransition_lfanc"), "idle_before", "idle_after", SubResource("AnimationNodeStateMachineTransition_vquyk"), "idle_after", "idle_before", SubResource("AnimationNodeStateMachineTransition_d25x4")]
+
+[node name="Solen" type="CharacterBody2D" unique_id=1078247852]
+script = ExtResource("1_uvlgw")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1651653953]
 root_node = NodePath("../Sprite2D")
@@ -132,3 +155,9 @@ vframes = 5
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1349926309]
 scale = Vector2(1.4399991, 1)
 shape = SubResource("CircleShape2D_uvlgw")
+
+[node name="AnimationTree" type="AnimationTree" parent="." unique_id=639190631]
+root_node = NodePath("../Sprite2D")
+tree_root = SubResource("AnimationNodeStateMachine_smps4")
+advance_expression_base_node = NodePath("")
+anim_player = NodePath("../AnimationPlayer")

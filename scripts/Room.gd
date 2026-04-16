@@ -25,6 +25,8 @@ var _pixel_w: int
 var _pixel_h: int
 
 
+var SOLEN_SCENE: PackedScene = preload("res://scenes/characters/Solan.tscn")
+
 func build() -> void:
 	_pixel_w = room_w * TILE
 	_pixel_h = room_h * TILE
@@ -232,19 +234,18 @@ func _spawn_npcs() -> void:
 	for cfg in npc_configs:
 		var npc_pos := Vector2(cfg["x"], cfg["y"])
 		var dialogue_path: String = cfg["dialogue"]
-
-		var npc_sprite := Sprite2D.new()
-		var atlas := AtlasTexture.new()
-		atlas.atlas = load("res://assets/Character/Ren/idle/9.png")
-		atlas.region = Rect2(0, 0, 64, 64)
-		npc_sprite.texture = atlas
-		npc_sprite.modulate = Color(1.0, 0.85, 0.4)
-		npc_sprite.position = Vector2(0, -10)
-
-		var npc_node := Node2D.new()
+		var npc_type: String = cfg["type"]
+		
+		var npc_node = SOLEN_SCENE.instantiate()
 		npc_node.position = npc_pos
-		npc_node.add_child(npc_sprite)
 		_entity_layer.add_child(npc_node)
+		
+		var solen = npc_node as Solen
+		match npc_type:
+			"past":
+				solen.set_state(Solen.STATE.IDLE_PAST)
+			"future":
+				solen.set_state(Solen.STATE.IDLE_FUTURE)
 
 		var trigger := Area2D.new()
 		trigger.position = npc_pos
