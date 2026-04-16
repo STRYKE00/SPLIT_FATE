@@ -1,14 +1,13 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3 uid="uid://oi8wal8p1nfi"]
 
-[ext_resource type="Script" path="res://scripts/EnemyBase.gd" id="1_script"]
-[ext_resource type="Script" path="res://scripts/components/StatsComponent.gd" id="2_stats"]
+[ext_resource type="Script" uid="uid://bwwhtub1ixim3" path="res://scripts/EnemyBase.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://n6nas08itahi" path="res://scripts/components/StatsComponent.gd" id="2_stats"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_body"]
 radius = 7.0
 height = 18.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hurtbox"]
-radius = 10.0
 height = 24.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hitbox"]
@@ -17,41 +16,40 @@ radius = 16.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_detect"]
 radius = 120.0
 
-[node name="EnemyBase" type="CharacterBody2D"]
-script = ExtResource("1_script")
+[node name="EnemyBase" type="CharacterBody2D" unique_id=145840419]
 collision_layer = 4
-collision_mask = 1
+script = ExtResource("1_script")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=660700557]
 position = Vector2(0, 6)
 shape = SubResource("CapsuleShape2D_body")
 
-[node name="Sprite" type="AnimatedSprite2D" parent="."]
+[node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=1674076617]
 position = Vector2(0, -10)
 
-[node name="Hurtbox" type="Area2D" parent="."]
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1847224070]
 collision_layer = 8
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=934212219]
 position = Vector2(0, 4)
 shape = SubResource("CapsuleShape2D_hurtbox")
 
-[node name="Hitbox" type="Area2D" parent="."]
+[node name="Hitbox" type="Area2D" parent="." unique_id=712936440]
 collision_layer = 0
 collision_mask = 16
 monitoring = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=6794331]
 shape = SubResource("CircleShape2D_hitbox")
 
-[node name="Detection" type="Area2D" parent="."]
+[node name="Detection" type="Area2D" parent="." unique_id=1020551703]
 collision_layer = 0
 collision_mask = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Detection"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Detection" unique_id=330408806]
 shape = SubResource("CircleShape2D_detect")
 
-[node name="StatsComponent" type="Node" parent="."]
+[node name="StatsComponent" type="Node" parent="." unique_id=459567625]
 script = ExtResource("2_stats")
 max_hp = 3
