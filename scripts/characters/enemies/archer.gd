@@ -3,7 +3,7 @@ extends EnemyBase
 const KITE_MIN := 80.0
 const KITE_MAX := 140.0
 const RANGED_COOLDOWN_SCALE := 2.5
-const RANGED_COLOR := Color(0.6, 0.9, 1.0)  # pale blue arrow
+const RANGED_COLOR := Color(1.0, 0.5, 0.2)  # orange arrow
 
 var _ranged_cooldown: float = 0.0
 

@@ -58,11 +58,12 @@ func _init_configs()->void:
 	idle_timer = randf_range(0.5, 2.0)
 	
 func _ready() -> void:
-	# Assign sprite frames and apply tint
-	sprite.sprite_frames = _build_frames()
+	# Preserve scene-baked SpriteFrames; fall back to Ren PNGs only if none are set
+	if sprite.sprite_frames == null:
+		sprite.sprite_frames = _build_frames()
 	sprite.modulate = tint
 	sprite.play("idle")
-	
+
 	_init_configs()
 
 
@@ -267,6 +268,55 @@ func _on_died() -> void:
 	tw.parallel().tween_property(sprite, "scale", Vector2(0.3, 0.3), 0.5)\
 		.set_ease(Tween.EASE_IN)
 	tw.tween_callback(queue_free)
+
+
+# --- Ranged attack ---
+
+func _fire_projectile(proj_color: Color, proj_speed: float = 200.0) -> void:
+	if not target or not is_instance_valid(target):
+		return
+	var dir: Vector2 = (target.global_position - global_position).normalized()
+
+	var projectile := Area2D.new()
+	projectile.collision_layer = 0
+	projectile.collision_mask = 16  # player hurtbox layer (confirmed: PlayerBase.tscn Hurtbox collision_layer = 16)
+	projectile.position = global_position + dir * 16.0
+
+	var shape := CollisionShape2D.new()
+	var circle := CircleShape2D.new()
+	circle.radius = 4.0
+	shape.shape = circle
+	projectile.add_child(shape)
+
+	var vis := ColorRect.new()
+	vis.size = Vector2(8, 8)
+	vis.position = Vector2(-4, -4)
+	vis.color = proj_color
+	projectile.add_child(vis)
+
+	var proj_dir := dir
+	var damage := attack_damage
+
+	# Parent to enemy's room (keeps projectile inside this timeline's World2D)
+	var parent_node := get_parent()
+	if not parent_node:
+		return
+	parent_node.add_child(projectile)
+
+	projectile.area_entered.connect(func(area: Area2D):
+		var hit_target := area.get_parent()
+		if hit_target and hit_target.has_method("receive_hit"):
+			hit_target.receive_hit(damage, proj_dir)
+		if is_instance_valid(projectile):
+			projectile.queue_free()
+	)
+
+	var tw := projectile.create_tween()
+	tw.tween_property(projectile, "position", projectile.position + proj_dir * 300.0, 300.0 / proj_speed)
+	tw.tween_callback(func():
+		if is_instance_valid(projectile):
+			projectile.queue_free()
+	)
 
 
 # --- Helpers ---

@@ -6,6 +6,20 @@ var current_room_future: int = 0
 var is_dialogue_active: bool = false
 var is_transitioning: bool = false
 
+var flags: Dictionary = {}
+
+func set_flag(key: String, value: Variant) -> void:
+	flags[key] = value
+
+func get_flag(key: String, default: Variant = false) -> Variant:
+	return flags.get(key, default)
+
+func reset_area1() -> void:
+	flags.erase("gear_gear_a")
+	flags.erase("gear_gear_b")
+	flags.erase("gear_gear_c")
+	flags.erase("area1_complete")
+
 enum INPUT_SCHEMES{
 	KEYBOARD_AND_MOUSE,
 	CONTROLLER,

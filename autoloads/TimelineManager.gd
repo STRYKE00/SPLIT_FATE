@@ -10,6 +10,8 @@ signal enemy_killed(timeline: String)
 signal sync_changed(value: float)
 signal boss_spawned(boss: Node)
 signal boss_defeated(timeline: String)
+signal gear_collected(piece_id: String)
+signal communicator_found(timeline: String)
 
 const SYNC_MAX := 100.0
 const SYNC_GAIN_PER_SEC := 28.0

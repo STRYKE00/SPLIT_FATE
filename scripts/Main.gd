@@ -20,11 +20,12 @@ var future_overlay: ColorRect
 var current_past_room: Room
 var current_future_room: Room
 
-var _past_rooms: Array = []
-var _future_rooms: Array = []
+var _past_rooms: Dictionary = {}
+var _future_rooms: Dictionary = {}
+var _past_connections: Dictionary = {}
+var _future_connections: Dictionary = {}
 
-var _boss_intro_played: bool = false
-const BOSS_ROOM_INDEX := 3
+var _gear_puzzle: GearPuzzleManager
 
 
 func _ready() -> void:
@@ -35,6 +36,7 @@ func _ready() -> void:
 	_define_rooms()
 	_spawn_worlds()
 	_spawn_players()
+	_spawn_gear_puzzle()
 	_load_room("past", 0)
 	_load_room("future", 0)
 	past_player.position = current_past_room.get_center()
@@ -46,87 +48,118 @@ func _ready() -> void:
 
 
 func _define_rooms() -> void:
-	_past_rooms = [
-		{
+	# Area 1: 4 rooms per timeline, identical layout + enemy positions,
+	# differing only in floor/wall colors and enemy roster.
+	_past_rooms = {
+		0: {
 			"doors": ["south"],
 			"enemies": [],
-			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_past.json", "type":"past"}],
+			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_past.json", "type": "past"}],
 			"floor_color": Color(0.82, 0.72, 0.52),
 			"wall_color": Color(0.50, 0.42, 0.30),
 		},
-		{
+		1: {
 			"doors": ["north", "south"],
 			"enemies": [
-				{"x": 120, "y": 180, "tint": Color(0.9, 0.35, 0.2), "hp": 3, "type":"orc"},
-				{"x": 240, "y": 260, "tint": Color(0.9, 0.35, 0.2), "hp": 3, "type":"armored_orc"},
+				{"x": 120, "y": 180, "hp": 3, "type": "orc"},
+				{"x": 240, "y": 260, "hp": 3, "type": "orc"},
+			],
+			"triggers": [
+				{"type": "gear_pickup", "gear_id": "gear_a", "position": Vector2(176, 220), "size": Vector2(32, 32), "after_clear": true, "id": "GearA"},
 			],
 			"npcs": [],
 			"floor_color": Color(0.78, 0.68, 0.48),
 			"wall_color": Color(0.48, 0.40, 0.28),
 		},
-		{
+		2: {
 			"doors": ["north", "south"],
 			"enemies": [
-				{"x": 100, "y": 140, "tint": Color(0.85, 0.3, 0.15), "hp": 3, "type":"elite_orc"},
-				{"x": 240, "y": 200, "tint": Color(0.85, 0.3, 0.15), "hp": 4, "type":"orc_rider"},
-				{"x": 120, "y": 180, "tint": Color(0.9, 0.35, 0.2), "hp": 3, "type":"soldier"},
-				{"x": 170, "y": 300, "tint": Color(0.95, 0.4, 0.2), "hp": 3, "speed": 65.0, "chase_speed": 95.0, "type":"knight"},
+				{"x": 120, "y": 180, "hp": 3, "type": "orc"},
+				{"x": 240, "y": 200, "hp": 2, "type": "archer"},
+			],
+			"triggers": [
+				{"type": "gear_pickup", "gear_id": "gear_b", "position": Vector2(176, 220), "size": Vector2(32, 32), "after_clear": true, "id": "GearB"},
 			],
 			"npcs": [],
 			"floor_color": Color(0.75, 0.65, 0.45),
 			"wall_color": Color(0.45, 0.38, 0.26),
 		},
-		{
+		3: {
 			"doors": ["north"],
-			"enemies": [
-				{"x": 176, "y": 200, "tint": Color(0.85, 0.15, 0.1), "hp": 18, "speed": 45.0, "chase_speed": 70.0, "is_boss": true},
+			"enemies": [],
+			"props": [
+				{"position": Vector2(176, 180), "size": Vector2(40, 40), "color": Color(0.6, 0.5, 0.3), "collides": true, "label": "Gear Console"},
+			],
+			"triggers": [
+				{"type": "gear_pickup", "gear_id": "gear_c", "position": Vector2(176, 220), "size": Vector2(32, 32), "id": "GearC"},
 			],
 			"npcs": [],
 			"floor_color": Color(0.55, 0.40, 0.32),
 			"wall_color": Color(0.32, 0.22, 0.18),
 		},
-	]
+	}
 
-	_future_rooms = [
-		{
+	_future_rooms = {
+		0: {
 			"doors": ["south"],
 			"enemies": [],
-			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_future.json", "type":"future"}],
+			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_future.json", "type": "future"}],
 			"floor_color": Color(0.28, 0.30, 0.38),
 			"wall_color": Color(0.18, 0.20, 0.28),
 		},
-		{
+		1: {
 			"doors": ["north", "south"],
 			"enemies": [
-				{"x": 130, "y": 190, "tint": Color(0.45, 0.2, 0.65), "hp": 3, "type": "skeleton"},
-				{"x": 220, "y": 250, "tint": Color(0.45, 0.2, 0.65), "hp": 3, "type": "greatsword_skeleton"},
+				{"x": 120, "y": 180, "hp": 3, "type": "skeleton"},
+				{"x": 240, "y": 260, "hp": 3, "type": "skeleton"},
+			],
+			"triggers": [
+				{"type": "gear_pickup", "gear_id": "gear_a", "position": Vector2(176, 220), "size": Vector2(32, 32), "after_clear": true, "id": "GearA"},
 			],
 			"npcs": [],
 			"floor_color": Color(0.24, 0.26, 0.34),
 			"wall_color": Color(0.15, 0.17, 0.25),
 		},
-		{
+		2: {
 			"doors": ["north", "south"],
 			"enemies": [
-				{"x": 110, "y": 150, "tint": Color(0.5, 0.15, 0.7), "hp": 4, "type": "armored_skeleton"},
-				{"x": 230, "y": 210, "tint": Color(0.4, 0.1, 0.6), "hp": 4, "type": "skeleton_archer"},
-				{"x": 130, "y": 190, "tint": Color(0.45, 0.2, 0.65), "hp": 3, "type": "werewolf"},
-				{"x": 170, "y": 310, "tint": Color(0.55, 0.2, 0.75), "hp": 3, "speed": 70.0, "chase_speed": 100.0, "type": "werebear"},
+				{"x": 120, "y": 180, "hp": 3, "type": "skeleton"},
+				{"x": 240, "y": 200, "hp": 2, "type": "skeleton_archer"},
+			],
+			"triggers": [
+				{"type": "gear_pickup", "gear_id": "gear_b", "position": Vector2(176, 220), "size": Vector2(32, 32), "after_clear": true, "id": "GearB"},
 			],
 			"npcs": [],
 			"floor_color": Color(0.22, 0.24, 0.32),
 			"wall_color": Color(0.13, 0.15, 0.22),
 		},
-		{
+		3: {
 			"doors": ["north"],
-			"enemies": [
-				{"x": 176, "y": 200, "tint": Color(0.55, 0.1, 0.85), "hp": 18, "speed": 45.0, "chase_speed": 70.0, "is_boss": true},
+			"enemies": [],
+			"props": [
+				{"position": Vector2(176, 180), "size": Vector2(40, 40), "color": Color(0.3, 0.4, 0.6), "collides": true, "label": "Gear Console"},
+			],
+			"triggers": [
+				{"type": "gear_pickup", "gear_id": "gear_c", "position": Vector2(176, 220), "size": Vector2(32, 32), "id": "GearC"},
 			],
 			"npcs": [],
 			"floor_color": Color(0.18, 0.10, 0.28),
 			"wall_color": Color(0.10, 0.05, 0.18),
 		},
-	]
+	}
+
+	_past_connections = {
+		0: {"south": 1},
+		1: {"north": 0, "south": 2},
+		2: {"north": 1, "south": 3},
+		3: {"north": 2},
+	}
+	_future_connections = {
+		0: {"south": 1},
+		1: {"north": 0, "south": 2},
+		2: {"north": 1, "south": 3},
+		3: {"north": 2},
+	}
 
 
 func _spawn_worlds() -> void:
@@ -151,8 +184,8 @@ func _spawn_players() -> void:
 
 
 func _load_room(timeline: String, room_idx: int) -> void:
-	var room_data: Array = _past_rooms if timeline == "past" else _future_rooms
-	if room_idx < 0 or room_idx >= room_data.size():
+	var room_data: Dictionary = _past_rooms if timeline == "past" else _future_rooms
+	if not room_data.has(room_idx):
 		return
 
 	var world: Node2D = past_world if timeline == "past" else future_world
@@ -168,13 +201,16 @@ func _load_room(timeline: String, room_idx: int) -> void:
 
 	var cfg: Dictionary = room_data[room_idx]
 	var room := Room.new()
-	room.room_w = 11
-	room.room_h = 12
+	room.room_w = cfg.get("room_w", 11)
+	room.room_h = cfg.get("room_h", 12)
 	room.timeline = timeline
 	room.room_id = room_idx
 	room.door_positions = cfg.get("doors", [])
 	room.enemy_configs = cfg.get("enemies", [])
 	room.npc_configs = cfg.get("npcs", [])
+	room.prop_configs = cfg.get("props", [])
+	room.trigger_configs = cfg.get("triggers", [])
+	room.locked_doors = cfg.get("locked_doors", {})
 	room.floor_color = cfg.get("floor_color", Color(0.5, 0.5, 0.5))
 	room.wall_color = cfg.get("wall_color", Color(0.3, 0.3, 0.3))
 	room.name = "Room_%s_%d" % [timeline, room_idx]
@@ -217,10 +253,16 @@ func _connect_hud() -> void:
 func _connect_signals() -> void:
 	TimelineManager.room_transition_requested.connect(_on_room_transition)
 	TimelineManager.player_died.connect(_on_player_died)
-	TimelineManager.boss_defeated.connect(_on_boss_defeated)
+	TimelineManager.timeline_action.connect(_on_timeline_action)
 	game_over_layer.restart_requested.connect(_on_restart_pressed)
 	game_over_layer.menu_requested.connect(_on_menu_pressed)
 	TimelineManager.reset_sync()
+
+
+func _spawn_gear_puzzle() -> void:
+	_gear_puzzle = GearPuzzleManager.new()
+	_gear_puzzle.name = "GearPuzzleManager"
+	add_child(_gear_puzzle)
 
 
 func _process(delta: float) -> void:
@@ -234,10 +276,10 @@ func _process(delta: float) -> void:
 	TimelineManager.update_sync(both_in_same_room, delta)
 
 
-func _on_boss_defeated(_tl: String) -> void:
-	# Wait briefly then return to main menu (or you could trigger an ending)
-	await get_tree().create_timer(2.0).timeout
-	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+func _on_timeline_action(action_id: String, _source_timeline: String) -> void:
+	if action_id == "area1_complete":
+		await get_tree().create_timer(2.0).timeout
+		get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 
 var _game_over: bool = false
@@ -263,6 +305,7 @@ func _on_restart_pressed() -> void:
 	GameState.current_room_future = 0
 	GameState.is_transitioning = false
 	GameState.is_dialogue_active = false
+	GameState.reset_area1()
 	TimelineManager.reset_sync()
 	get_tree().change_scene_to_file("res://scenes/Main.tscn")
 
@@ -272,6 +315,7 @@ func _on_menu_pressed() -> void:
 	GameState.current_room_future = 0
 	GameState.is_transitioning = false
 	GameState.is_dialogue_active = false
+	GameState.reset_area1()
 	TimelineManager.reset_sync()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
@@ -290,31 +334,27 @@ func _on_room_transition(timeline: String, direction: String) -> void:
 	GameState.is_transitioning = true
 
 	var current_idx: int
-	var rooms: Array
+	var connections: Dictionary
 	var overlay: ColorRect
 	var player: PlayerBase
 
 	if timeline == "past":
 		current_idx = GameState.current_room_past
-		rooms = _past_rooms
+		connections = _past_connections
 		overlay = past_overlay
 		player = past_player
 	else:
 		current_idx = GameState.current_room_future
-		rooms = _future_rooms
+		connections = _future_connections
 		overlay = future_overlay
 		player = future_player
 
-	var next_idx := current_idx
-	match direction:
-		"south": next_idx += 1
-		"north": next_idx -= 1
-		"east":  next_idx += 1
-		"west":  next_idx -= 1
-
-	if next_idx < 0 or next_idx >= rooms.size():
+	var room_conns: Dictionary = connections.get(current_idx, {})
+	if not room_conns.has(direction):
 		GameState.is_transitioning = false
 		return
+
+	var next_idx: int = room_conns[direction]
 
 	var tw_out := create_tween()
 	tw_out.tween_property(overlay, "color:a", 1.0, FADE_TIME)\
@@ -339,8 +379,3 @@ func _on_room_transition(timeline: String, direction: String) -> void:
 	await tw_in.finished
 
 	GameState.is_transitioning = false
-
-	if next_idx == BOSS_ROOM_INDEX and not _boss_intro_played:
-		_boss_intro_played = true
-		await get_tree().create_timer(0.4).timeout
-		DialogueManager.start_dialogue("res://data/dialogue/boss_intro.json")
