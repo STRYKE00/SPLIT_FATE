@@ -97,7 +97,7 @@ func _define_rooms() -> void:
 		{
 			"doors": ["north", "south"],
 			"enemies": [
-				{"x": 130, "y": 190, "tint": Color(0.45, 0.2, 0.65), "hp": 3},
+				{"x": 130, "y": 190, "tint": Color(0.45, 0.2, 0.65), "hp": 3, "type": "skeleton"},
 				{"x": 220, "y": 250, "tint": Color(0.45, 0.2, 0.65), "hp": 3},
 			],
 			"npcs": [],
