@@ -15,9 +15,12 @@ func get_flag(key: String, default: Variant = false) -> Variant:
 	return flags.get(key, default)
 
 func reset_area1() -> void:
-	flags.erase("gear_gear_a")
-	flags.erase("gear_gear_b")
-	flags.erase("gear_gear_c")
+	flags.erase("gear_past_gear_a")
+	flags.erase("gear_past_gear_b")
+	flags.erase("gear_past_gear_c")
+	flags.erase("gear_future_gear_a")
+	flags.erase("gear_future_gear_b")
+	flags.erase("gear_future_gear_c")
 	flags.erase("area1_complete")
 
 enum INPUT_SCHEMES{

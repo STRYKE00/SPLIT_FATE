@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://c3x4nrira7ssg"]
 
-[ext_resource type="Script" uid="uid://ddaron4w1di8n" path="res://scripts/PlayerBase.gd" id="1_kapy6"]
-[ext_resource type="Texture2D" uid="uid://db5nfsf382sx5" path="res://assets/Character/Ren/ren.png" id="2_6hc3a"]
+[ext_resource type="Script" uid="uid://dylyigjktkq0a" path="res://orc.gd" id="1_3xw0u"]
 [ext_resource type="Texture2D" uid="uid://dsloelybw68sv" path="res://assets/Character/Enemies/Orc.png" id="3_vumo0"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_31h1d"]
@@ -32,9 +31,6 @@ region = Rect2(500, 300, 100, 100)
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("2_6hc3a")
-}, {
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_31h1d")
 }, {
 "duration": 1.0,
@@ -58,11 +54,22 @@ animations = [{
 }]
 
 [node name="Orc" type="CharacterBody2D" unique_id=1504960661]
-script = ExtResource("1_kapy6")
+script = ExtResource("1_3xw0u")
+speed = null
+chase_speed = null
+detection_radius = null
+attack_radius = null
+attack_damage = null
+attack_cooldown = null
+hp = null
+tint = null
+is_boss = null
 metadata/_custom_type_script = "uid://ddaron4w1di8n"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=646391950]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1070539929]
+position = Vector2(2753, 769)
 sprite_frames = SubResource("SpriteFrames_yo07l")
 animation = &"Attack"
+frame_progress = 0.9985532
