@@ -25,6 +25,7 @@ var _live_enemies: int = 0
 var _door_gates: Array = []
 var _door_blockers: Array = []
 var _chests: Array = []
+var _deferred_triggers: Array = []
 var _entity_layer: Node2D
 var _pixel_w: int
 var _pixel_h: int
@@ -272,6 +273,7 @@ func _on_enemy_killed(tl: String) -> void:
 	if _live_enemies <= 0:
 		is_cleared = true
 		_set_doors_open(true)
+		_unlock_deferred_triggers()
 		_unlock_chests()
 		TimelineManager.room_cleared.emit(timeline)
 
@@ -281,6 +283,12 @@ func _unlock_chests() -> void:
 		var interact := chest.get_node_or_null("ChestInteract")
 		if interact:
 			interact.monitoring = true
+
+
+func _unlock_deferred_triggers() -> void:
+	for trigger in _deferred_triggers:
+		if is_instance_valid(trigger):
+			trigger.monitoring = true
 
 
 func _spawn_props() -> void:
@@ -393,6 +401,10 @@ func _spawn_triggers() -> void:
 			_handle_trigger(body, cfg_ref)
 		)
 		add_child(trigger)
+
+		if cfg.get("after_clear", false) and _live_enemies > 0:
+			trigger.monitoring = false
+			_deferred_triggers.append(trigger)
 
 
 func _handle_trigger(body: Node2D, cfg: Dictionary) -> void:
