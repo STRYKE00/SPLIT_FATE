@@ -1,0 +1,119 @@
+[gd_scene format=3 uid="uid://cfvunakr45n5"]
+
+[ext_resource type="Texture2D" uid="uid://5pmme1j0sdrn" path="res://assets/Character/Mira/mira.png" id="1_gg4ac"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_x2kxn"]
+
+[sub_resource type="Animation" id="Animation_gg4ac"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_jj87p"]
+resource_name = "heal"
+step = 0.2
+
+[sub_resource type="Animation" id="Animation_8qnea"]
+resource_name = "hurt"
+length = 0.6
+step = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0009999999, 0.2, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [24, 25, 26]
+}
+
+[sub_resource type="Animation" id="Animation_x2kxn"]
+resource_name = "idle"
+length = 0.8
+loop_mode = 1
+step = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
+[sub_resource type="Animation" id="Animation_w2c6v"]
+resource_name = "roll"
+length = 0.001
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.001, 0.1, 0.2, 0.3, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [16, 17, 18, 19, 20]
+}
+
+[sub_resource type="Animation" id="Animation_eg7e1"]
+resource_name = "walk"
+length = 1.2
+loop_mode = 1
+step = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [8, 9, 10, 11, 12, 13]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_eg7e1"]
+_data = {
+&"RESET": SubResource("Animation_gg4ac"),
+&"heal": SubResource("Animation_jj87p"),
+&"hurt": SubResource("Animation_8qnea"),
+&"idle": SubResource("Animation_x2kxn"),
+&"roll": SubResource("Animation_w2c6v"),
+&"walk": SubResource("Animation_eg7e1")
+}
+
+[node name="Mira" type="CharacterBody2D" unique_id=154441492]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1832604843]
+scale = Vector2(1.2000005, 1)
+shape = SubResource("CircleShape2D_x2kxn")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2012725916]
+position = Vector2(-4, -30)
+texture = ExtResource("1_gg4ac")
+hframes = 8
+vframes = 7
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=414853559]
+libraries/ = SubResource("AnimationLibrary_eg7e1")
