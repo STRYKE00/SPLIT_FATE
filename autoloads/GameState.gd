@@ -17,7 +17,11 @@ func _ready() -> void:
 	_set_input_scheme()
 
 func _set_input_scheme()->void:
-	current_input_scheme = INPUT_SCHEMES.KEYBOARD_AND_MOUSE
+	var joypads = Input.get_connected_joypads()
+	if joypads.size() ==2:
+		current_input_scheme = INPUT_SCHEMES.CONTROLLER
+	else:
+		current_input_scheme = INPUT_SCHEMES.KEYBOARD_AND_MOUSE
 
 func mark_puzzle(puzzle_id: String) -> void:
 	completed_puzzles[puzzle_id] = true
