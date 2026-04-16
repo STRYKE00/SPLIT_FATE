@@ -69,18 +69,18 @@ var _hit_targets: Array = []
 @onready var stats: StatsComponent        = $StatsComponent
 @onready var camera: Camera2D             = $Camera2D
 
-
-func _ready() -> void:
-	# Assign sprite frames (built from individual PNGs)
-	sprite.sprite_frames = _build_frames()
-	sprite.play("idle")
-
-	# Connect signals
+func _connect_signals()-> void:
 	hitbox.area_entered.connect(_on_hitbox_area_entered)
 	stats.died.connect(_on_died)
 
 	add_to_group("players")
 
+func _ready() -> void:
+	# Assign sprite frames (built from individual PNGs)
+	sprite.sprite_frames = _build_frames()
+	sprite.play("idle")
+	
+	_connect_signals()	
 
 # --- Sprite frame builder (loads Ren's PNGs as AtlasTextures) ---
 
