@@ -20,11 +20,13 @@ var future_overlay: ColorRect
 var current_past_room: Room
 var current_future_room: Room
 
-var _past_rooms: Array = []
-var _future_rooms: Array = []
+var _past_rooms: Dictionary = {}
+var _future_rooms: Dictionary = {}
+var _past_connections: Dictionary = {}
+var _future_connections: Dictionary = {}
 
 var _boss_intro_played: bool = false
-const BOSS_ROOM_INDEX := 3
+const BOSS_ROOM_INDEX := 9
 
 
 func _ready() -> void:
@@ -46,15 +48,15 @@ func _ready() -> void:
 
 
 func _define_rooms() -> void:
-	_past_rooms = [
-		{
+	_past_rooms = {
+		0: {
 			"doors": ["south"],
 			"enemies": [],
 			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_past.json"}],
 			"floor_color": Color(0.82, 0.72, 0.52),
 			"wall_color": Color(0.50, 0.42, 0.30),
 		},
-		{
+		1: {
 			"doors": ["north", "south"],
 			"enemies": [
 				{"x": 120, "y": 180, "tint": Color(0.9, 0.35, 0.2), "hp": 3},
@@ -64,7 +66,7 @@ func _define_rooms() -> void:
 			"floor_color": Color(0.78, 0.68, 0.48),
 			"wall_color": Color(0.48, 0.40, 0.28),
 		},
-		{
+		2: {
 			"doors": ["north", "south"],
 			"enemies": [
 				{"x": 100, "y": 140, "tint": Color(0.85, 0.3, 0.15), "hp": 3},
@@ -75,7 +77,7 @@ func _define_rooms() -> void:
 			"floor_color": Color(0.75, 0.65, 0.45),
 			"wall_color": Color(0.45, 0.38, 0.26),
 		},
-		{
+		3: {
 			"doors": ["north"],
 			"enemies": [
 				{"x": 176, "y": 200, "tint": Color(0.85, 0.15, 0.1), "hp": 18, "speed": 45.0, "chase_speed": 70.0, "is_boss": true},
@@ -84,17 +86,17 @@ func _define_rooms() -> void:
 			"floor_color": Color(0.55, 0.40, 0.32),
 			"wall_color": Color(0.32, 0.22, 0.18),
 		},
-	]
+	}
 
-	_future_rooms = [
-		{
+	_future_rooms = {
+		0: {
 			"doors": ["south"],
 			"enemies": [],
 			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_future.json"}],
 			"floor_color": Color(0.28, 0.30, 0.38),
 			"wall_color": Color(0.18, 0.20, 0.28),
 		},
-		{
+		1: {
 			"doors": ["north", "south"],
 			"enemies": [
 				{"x": 130, "y": 190, "tint": Color(0.45, 0.2, 0.65), "hp": 3},
@@ -104,7 +106,7 @@ func _define_rooms() -> void:
 			"floor_color": Color(0.24, 0.26, 0.34),
 			"wall_color": Color(0.15, 0.17, 0.25),
 		},
-		{
+		2: {
 			"doors": ["north", "south"],
 			"enemies": [
 				{"x": 110, "y": 150, "tint": Color(0.5, 0.15, 0.7), "hp": 4},
@@ -115,7 +117,7 @@ func _define_rooms() -> void:
 			"floor_color": Color(0.22, 0.24, 0.32),
 			"wall_color": Color(0.13, 0.15, 0.22),
 		},
-		{
+		3: {
 			"doors": ["north"],
 			"enemies": [
 				{"x": 176, "y": 200, "tint": Color(0.55, 0.1, 0.85), "hp": 18, "speed": 45.0, "chase_speed": 70.0, "is_boss": true},
@@ -124,7 +126,20 @@ func _define_rooms() -> void:
 			"floor_color": Color(0.18, 0.10, 0.28),
 			"wall_color": Color(0.10, 0.05, 0.18),
 		},
-	]
+	}
+
+	_past_connections = {
+		0: {"south": 1},
+		1: {"north": 0, "south": 2},
+		2: {"north": 1, "south": 3},
+		3: {"north": 2},
+	}
+	_future_connections = {
+		0: {"south": 1},
+		1: {"north": 0, "south": 2},
+		2: {"north": 1, "south": 3},
+		3: {"north": 2},
+	}
 
 
 func _spawn_worlds() -> void:
@@ -149,8 +164,8 @@ func _spawn_players() -> void:
 
 
 func _load_room(timeline: String, room_idx: int) -> void:
-	var room_data: Array = _past_rooms if timeline == "past" else _future_rooms
-	if room_idx < 0 or room_idx >= room_data.size():
+	var room_data: Dictionary = _past_rooms if timeline == "past" else _future_rooms
+	if not room_data.has(room_idx):
 		return
 
 	var world: Node2D = past_world if timeline == "past" else future_world
@@ -166,8 +181,8 @@ func _load_room(timeline: String, room_idx: int) -> void:
 
 	var cfg: Dictionary = room_data[room_idx]
 	var room := Room.new()
-	room.room_w = 11
-	room.room_h = 12
+	room.room_w = cfg.get("room_w", 11)
+	room.room_h = cfg.get("room_h", 12)
 	room.timeline = timeline
 	room.room_id = room_idx
 	room.door_positions = cfg.get("doors", [])
@@ -232,10 +247,15 @@ func _process(delta: float) -> void:
 	TimelineManager.update_sync(both_in_same_room, delta)
 
 
-func _on_boss_defeated(_tl: String) -> void:
-	# Wait briefly then return to main menu (or you could trigger an ending)
-	await get_tree().create_timer(2.0).timeout
-	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+func _on_boss_defeated(tl: String) -> void:
+	if tl == "past":
+		GameState.set_flag("warden_past_dead", true)
+	elif tl == "future":
+		GameState.set_flag("warden_future_dead", true)
+	if GameState.get_flag("warden_past_dead") and GameState.get_flag("warden_future_dead"):
+		GameState.set_flag("area1_complete", true)
+		await get_tree().create_timer(2.0).timeout
+		get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 
 var _game_over: bool = false
@@ -288,31 +308,27 @@ func _on_room_transition(timeline: String, direction: String) -> void:
 	GameState.is_transitioning = true
 
 	var current_idx: int
-	var rooms: Array
+	var connections: Dictionary
 	var overlay: ColorRect
 	var player: PlayerBase
 
 	if timeline == "past":
 		current_idx = GameState.current_room_past
-		rooms = _past_rooms
+		connections = _past_connections
 		overlay = past_overlay
 		player = past_player
 	else:
 		current_idx = GameState.current_room_future
-		rooms = _future_rooms
+		connections = _future_connections
 		overlay = future_overlay
 		player = future_player
 
-	var next_idx := current_idx
-	match direction:
-		"south": next_idx += 1
-		"north": next_idx -= 1
-		"east":  next_idx += 1
-		"west":  next_idx -= 1
-
-	if next_idx < 0 or next_idx >= rooms.size():
+	var room_conns: Dictionary = connections.get(current_idx, {})
+	if not room_conns.has(direction):
 		GameState.is_transitioning = false
 		return
+
+	var next_idx: int = room_conns[direction]
 
 	var tw_out := create_tween()
 	tw_out.tween_property(overlay, "color:a", 1.0, FADE_TIME)\
@@ -341,4 +357,4 @@ func _on_room_transition(timeline: String, direction: String) -> void:
 	if next_idx == BOSS_ROOM_INDEX and not _boss_intro_played:
 		_boss_intro_played = true
 		await get_tree().create_timer(0.4).timeout
-		DialogueManager.start_dialogue("res://data/dialogue/boss_intro.json")
+		DialogueManager.start_dialogue("res://data/dialogue/area1_scene05_warden.json")
