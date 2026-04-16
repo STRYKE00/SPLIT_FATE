@@ -30,6 +30,7 @@ const ENEMY_SCENES = {
 	"orc": preload("res://scenes/characters/Enemies/Orc.tscn"),
 	"armored_orc": preload("res://scenes/characters/Enemies/armored_orc.tscn"),
 	"skeleton": preload("res://scenes/characters/Enemies/skeleton.tscn"),
+	"greatsword_skeleton": preload("res://scenes/characters/Enemies/greatsword_skeleton.tscn"),
 	"default": preload("res://scenes/characters/EnemyBase.tscn")
 }
 
