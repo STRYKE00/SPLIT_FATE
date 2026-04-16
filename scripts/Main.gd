@@ -26,6 +26,8 @@ var _past_connections: Dictionary = {}
 var _future_connections: Dictionary = {}
 
 var _gear_puzzle: GearPuzzleManager
+var _boss_intro_played: bool = false
+const BOSS_ROOM_INDEX := 4
 
 
 func _ready() -> void:
@@ -66,6 +68,7 @@ func _define_rooms() -> void:
 			],
 			"triggers": [
 				{"type": "gear_pickup", "gear_id": "gear_a", "position": Vector2(176, 220), "size": Vector2(32, 32), "after_clear": true, "id": "GearA"},
+
 			],
 			"npcs": [],
 			"floor_color": Color(0.78, 0.68, 0.48),
@@ -92,6 +95,7 @@ func _define_rooms() -> void:
 			],
 			"triggers": [
 				{"type": "gear_pickup", "gear_id": "gear_c", "position": Vector2(176, 220), "size": Vector2(32, 32), "id": "GearC"},
+
 			],
 			"npcs": [],
 			"floor_color": Color(0.55, 0.40, 0.32),

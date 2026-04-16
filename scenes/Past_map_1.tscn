@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 [gd_scene format=4 uid="uid://c4vdk86jkogl2"]
 
 [ext_resource type="Texture2D" path="res://assets/tiles/Dungeon_Forest/cliff_high.png" id="1_40fnp"]
@@ -14,6 +15,24 @@
 [ext_resource type="Texture2D" path="res://assets/tiles/Dungeon_Forest/summer waterfall & watertiles.png" id="12_exsq7"]
 [ext_resource type="Texture2D" path="res://assets/tiles/Dungeon_Forest/summer_tileset.png" id="13_apmxg"]
 [ext_resource type="Texture2D" path="res://assets/tiles/Dungeon_Forest/tiled_trees.png" id="14_v1twk"]
+=======
+[gd_scene format=4 uid="uid://dkcy8kb5mk7w6"]
+
+[ext_resource type="Texture2D" uid="uid://dep7m51yh07uj" path="res://assets/tiles/Dungeon_Forest/cliff_high.png" id="1_40fnp"]
+[ext_resource type="Texture2D" uid="uid://ek4kp6a8ahwp" path="res://assets/tiles/Dungeon_Forest/Color_trees.png" id="2_lvpkv"]
+[ext_resource type="Texture2D" uid="uid://dr7di8q383iib" path="res://assets/tiles/Dungeon_Forest/tileset.png" id="3_pxym5"]
+[ext_resource type="Texture2D" uid="uid://ss8ll3usvfr4" path="res://assets/tiles/Dungeon_Forest/trees & stuff.png" id="4_ka55e"]
+[ext_resource type="Texture2D" uid="uid://djel5e4fkd77y" path="res://assets/tiles/Dungeon_Forest/waterfall & watertiles.png" id="5_x1gam"]
+[ext_resource type="Texture2D" uid="uid://ddlf6l8wtnopr" path="res://assets/tiles/Dungeon_Forest/[tiled]snow_tileset.png" id="6_xmcao"]
+[ext_resource type="Texture2D" uid="uid://bqff1ohiqbkj8" path="res://assets/tiles/Dungeon_Forest/fall waterfall & watertiles.png" id="7_sjs2u"]
+[ext_resource type="Texture2D" uid="uid://w628dv1gp0t1" path="res://assets/tiles/Dungeon_Forest/fall_tileset.png" id="8_eb30o"]
+[ext_resource type="Texture2D" uid="uid://be2bfn2o36cae" path="res://assets/tiles/Dungeon_Forest/fall_trees & stuff.png" id="9_fr31g"]
+[ext_resource type="Texture2D" uid="uid://das73f7qoblrk" path="res://assets/tiles/Dungeon_Forest/newTree_tiles.png" id="10_tog13"]
+[ext_resource type="Texture2D" uid="uid://ci2jofc8o50gh" path="res://assets/tiles/Dungeon_Forest/summer trees & stuff.png" id="11_gptm0"]
+[ext_resource type="Texture2D" uid="uid://c1xt4iuv00663" path="res://assets/tiles/Dungeon_Forest/summer waterfall & watertiles.png" id="12_exsq7"]
+[ext_resource type="Texture2D" uid="uid://bw53yc01ifea4" path="res://assets/tiles/Dungeon_Forest/summer_tileset.png" id="13_apmxg"]
+[ext_resource type="Texture2D" uid="uid://bgtwiwsiay6rl" path="res://assets/tiles/Dungeon_Forest/tiled_trees.png" id="14_v1twk"]
+>>>>>>> Stashed changes
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_40fnp"]
 tile_data = PackedInt32Array(0, 262152, 3, 65536, 262152, 3, 131072, 196616, 4, 196608, 131080, 3, 262144, 262152, 3, 327680, 196616, 4, 393216, 196616, 3, 458752, 196616, 2, 524288, 196616, 4, 589824, 196616, 4, 655360, 131080, 3, 720896, 196616, 2, 786432, 196616, 3, 851968, 262152, 3, 917504, 196616, 3, 983040, 196616, 4, 1048576, 131080, 3, 1114112, 196616, 4, 1179648, 131080, 3, 1245184, 196616, 3, 1310720, 196616, 4, 1376256, 196616, 2, 1441792, 196616, 2, 1507328, 196616, 4, 1572864, 262152, 3, 1, 131080, 3, 65537, 196616, 3, 131073, 196616, 2, 196609, 131080, 3, 262145, 196616, 3, 327681, 196616, 3, 393217, 196616, 4, 458753, 196616, 2, 524289, 196616, 4, 589825, 196616, 3, 655361, 196616, 4, 720897, 196616, 4, 786433, 196616, 3, 851969, 262152, 3, 917505, 196616, 2, 983041, 196616, 3, 1048577, 196616, 2, 1114113, 262152, 3, 1179649, 196616, 2, 1245185, 196616, 3, 1310721, 196616, 3, 1376257, 196616, 2, 1441793, 262152, 3, 1507329, 196616, 3, 1572865, 262152, 3, 2, 196616, 4, 65538, 196616, 2, 131074, 131080, 3, 196610, 196616, 3, 262146, 262152, 3, 327682, 196616, 4, 393218, 131080, 3, 458754, 131080, 3, 524290, 262152, 3, 589826, 196616, 3, 655362, 196616, 2, 720898, 262152, 3, 786434, 262152, 3, 851970, 196616, 2, 917506, 196616, 4, 983042, 262152, 3, 1048578, 196616, 4, 1114114, 262152, 3, 1179650, 262152, 3, 1245186, 196616, 4, 1310722, 196616, 3, 1376258, 196616, 3, 1441794, 131080, 3, 1507330, 196616, 2, 1572866, 196616, 3)

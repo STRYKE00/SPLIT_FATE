@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 [gd_scene format=4 uid="uid://ymnayb2ufc7h"]
 
 [ext_resource type="Texture2D" path="res://assets/tiles/Future_map_1/mainlevbuild.png" id="1_oclrv"]
@@ -8,6 +9,18 @@
 [ext_resource type="Texture2D" uid="uid://cnbfjbufowca7" path="res://assets/tiles/Water_coasts_animation.png" id="6_7efc4"]
 [ext_resource type="Texture2D" uid="uid://dqjchkgi75ncq" path="res://assets/tiles/water_detilazation_v2.png" id="7_rasno"]
 [ext_resource type="Texture2D" path="res://assets/tiles/Dungeon_Forest/summer_tileset.png" id="8_oypun"]
+=======
+[gd_scene format=4 uid="uid://dl321dk6clb66"]
+
+[ext_resource type="Texture2D" uid="uid://cwo1gc6v6vm81" path="res://assets/tiles/Future_map_1/mainlevbuild.png" id="1_oclrv"]
+[ext_resource type="Texture2D" uid="uid://ceymtsv75vs1v" path="res://assets/tiles/Objects.png" id="1_p60lo"]
+[ext_resource type="Texture2D" uid="uid://7ixwm0mch47r" path="res://assets/tiles/decorative_cracks_walls.png" id="2_llasc"]
+[ext_resource type="Texture2D" uid="uid://cqv7aqdbib2y5" path="res://assets/tiles/Future_map_1/decorative.png" id="2_vhjmx"]
+[ext_resource type="Texture2D" uid="uid://pphn5sjj5fdx" path="res://assets/tiles/walls_floor.png" id="3_ibydg"]
+[ext_resource type="Texture2D" uid="uid://cnbfjbufowca7" path="res://assets/tiles/Water_coasts_animation.png" id="6_7efc4"]
+[ext_resource type="Texture2D" uid="uid://dqjchkgi75ncq" path="res://assets/tiles/water_detilazation_v2.png" id="7_rasno"]
+[ext_resource type="Texture2D" uid="uid://bw53yc01ifea4" path="res://assets/tiles/Dungeon_Forest/summer_tileset.png" id="8_oypun"]
+>>>>>>> Stashed changes
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_qya2r"]
 texture = ExtResource("1_p60lo")
