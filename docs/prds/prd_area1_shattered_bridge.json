@@ -1,0 +1,835 @@
+{
+  "prd": {
+    "id": "area1-shattered-bridge",
+    "title": "Area 1 — The Shattered Bridge",
+    "version": "1.0",
+    "status": "ready-for-implementation",
+    "description": "Full implementation spec for Stage 1. Covers all 20 rooms (10 per timeline), the gear-piece TimeLink puzzle, Echo Communicator mid-stage trigger, Scene 04 dialogue cutscene, and the Warden mini-boss. Assumes autoloads (TimelineManager, GameState, DialogueManager), PlayerBase/PlayerPast/PlayerFuture, StatsComponent, TimeLink component, and split-screen SubViewports are all working from previous PRDs.",
+
+    "scene_files": {
+      "rooms_past": [
+        "scenes/world/area1/past/Room01_EntryClearning.tscn",
+        "scenes/world/area1/past/Room02_VillagePath.tscn",
+        "scenes/world/area1/past/Room03_BridgeMechanism.tscn",
+        "scenes/world/area1/past/Room04_GearRoom1.tscn",
+        "scenes/world/area1/past/Room05_GearRoom2.tscn",
+        "scenes/world/area1/past/Room06_GearRoom3.tscn",
+        "scenes/world/area1/past/Room07_MuralGallery.tscn",
+        "scenes/world/area1/past/Room08_BridgeCrossing.tscn",
+        "scenes/world/area1/past/Room09_WardenAntechamber.tscn",
+        "scenes/world/area1/past/Room10_WardenChamber.tscn"
+      ],
+      "rooms_future": [
+        "scenes/world/area1/future/Room01_EntryRubble.tscn",
+        "scenes/world/area1/future/Room02_RuinedPath.tscn",
+        "scenes/world/area1/future/Room03_GearConsoleRuins.tscn",
+        "scenes/world/area1/future/Room04_CollapsedVault.tscn",
+        "scenes/world/area1/future/Room05_ChasmRoom.tscn",
+        "scenes/world/area1/future/Room06_EchoChamber.tscn",
+        "scenes/world/area1/future/Room07_MirrorRoom.tscn",
+        "scenes/world/area1/future/Room08_BridgeRuinCrossing.tscn",
+        "scenes/world/area1/future/Room09_HollowAntechamber.tscn",
+        "scenes/world/area1/future/Room10_WardenChamber.tscn"
+      ],
+      "scripts": [
+        "scripts/world/area1/GearPuzzleManager.gd",
+        "scripts/world/area1/EchoCommunicatorTrigger.gd",
+        "scripts/world/area1/WardenBoss.gd",
+        "scripts/world/area1/BridgeMaterialise.gd"
+      ],
+      "data": [
+        "data/dialogue/area1_scene02_solen.json",
+        "data/dialogue/area1_scene04_echo_exchange.json",
+        "data/dialogue/area1_scene05_warden.json"
+      ]
+    },
+
+    "constants": {
+      "tile_size": 32,
+      "standard_room_min": "11x9",
+      "standard_room_max": "15x16",
+      "wall_thickness_tiles": 2,
+      "door_width_tiles": 2,
+      "boss_room_size": "15x16",
+      "note": "All room sizes are in tile units. Playable inner area = room size minus 2-tile wall on each side."
+    },
+
+    "room_base_template": {
+      "description": "Every room in Area 1 must inherit this structure",
+      "nodes": [
+        "TileMapLayer (floor)",
+        "TileMapLayer (walls)",
+        "TileMapLayer (props)",
+        "EnemySpawnGroup (Node2D container)",
+        "DoorGroup (Node2D container — N/S/E/W door nodes)",
+        "TriggerGroup (Node2D container — Area2D triggers)",
+        "SpawnPoint (Marker2D — player entry position)"
+      ],
+      "door_logic": "Doors lock (CollisionShape2D enabled, sprite → closed) when enemies are alive in EnemySpawnGroup. Unlock when all enemies dead. Door nodes emit door_unlocked signal. Rooms with no enemies start unlocked.",
+      "transition_logic": "Player crossing a door threshold calls SceneTransition.gd to load the adjacent room and position player at the opposite SpawnPoint."
+    },
+
+    "rooms_past": [
+      {
+        "id": "past_room_01",
+        "name": "Entry Clearing",
+        "file": "Room01_EntryClearning.tscn",
+        "type": "entry",
+        "size": "13x9",
+        "enemies": [],
+        "doors": ["north"],
+        "props": [
+          "broken_well (decorative, no collision)",
+          "crates x2 (impassable)",
+          "torch x2 on south wall (animated flame)",
+          "barrel x3 (impassable)"
+        ],
+        "triggers": [
+          {
+            "id": "solen_intro_past",
+            "type": "cutscene",
+            "fires_once": true,
+            "on": "player_enters_room",
+            "dialogue_id": "area1_scene02_solen",
+            "speaker": "SOLEN"
+          }
+        ],
+        "notes": "Tutorial entry. No enemies. Solen appears at north doorway edge — do not place him in playable area. After dialogue, north door opens."
+      },
+      {
+        "id": "past_room_02",
+        "name": "Village Path A",
+        "file": "Room02_VillagePath.tscn",
+        "type": "patrol",
+        "size": "13x11",
+        "enemies": [
+          {
+            "type": "ArcherScout",
+            "count": 2,
+            "pattern": "patrol_NS",
+            "spawn_positions": ["north_half", "south_half"]
+          }
+        ],
+        "doors": ["south", "north"],
+        "props": [
+          "market_stall x3 (impassable)",
+          "hanging_lantern x3 (decorative)",
+          "pushable_crate x1 (RigidBody2D, can be moved by player)"
+        ],
+        "triggers": [],
+        "notes": "First combat room. Archers patrol N/S. Doors lock on room entry, unlock when both archers dead."
+      },
+      {
+        "id": "past_room_03",
+        "name": "Bridge Mechanism Chamber",
+        "file": "Room03_BridgeMechanism.tscn",
+        "type": "puzzle",
+        "size": "13x11",
+        "enemies": [],
+        "doors": ["south", "east", "west"],
+        "props": [
+          "gear_console (interactable — 3 gear slots, starts empty)",
+          "stone_lever (decorative)",
+          "cracked_mural on east wall (interactable — shows echo vision)"
+        ],
+        "triggers": [
+          {
+            "id": "gear_console_interact",
+            "type": "gear_puzzle_hub",
+            "component": "GearPuzzleManager",
+            "description": "Player interacts with gear_console. GearPuzzleManager checks how many gear pieces are in GameState.gear_pieces_found. Slots filled visually match count. When count == 3, emits TimelineManager.timeline_action('bridge_built', 'past'). East door opens permanently."
+          }
+        ],
+        "notes": "Hub room for the gear puzzle. Player must return here after collecting all 3 gear pieces. East door to gear rooms, west door loops back, south door is how player arrived."
+      },
+      {
+        "id": "past_room_04",
+        "name": "Gear Piece Room 1",
+        "file": "Room04_GearRoom1.tscn",
+        "type": "loot",
+        "size": "11x9",
+        "enemies": [
+          {
+            "type": "OldKingdomSoldier",
+            "count": 1,
+            "pattern": "room_guard",
+            "spawn_positions": ["centre"]
+          }
+        ],
+        "doors": ["west"],
+        "props": [
+          "wooden_chest (locked until soldier dead — contains GEAR_PIECE_1)",
+          "crate x2 (impassable)",
+          "cracked_floor_tiles (visual only)"
+        ],
+        "triggers": [
+          {
+            "id": "gear_piece_1_pickup",
+            "type": "item_pickup",
+            "item": "GEAR_PIECE_1",
+            "on": "chest_opened",
+            "effect": "GameState.gear_pieces_found += 1. Display pickup prompt."
+          }
+        ],
+        "notes": "Chest is locked (CollisionShape2D disabled, sprite locked) until soldier HP == 0. Soldier drops key that auto-opens chest on death."
+      },
+      {
+        "id": "past_room_05",
+        "name": "Gear Piece Room 2",
+        "file": "Room05_GearRoom2.tscn",
+        "type": "combat_loot",
+        "size": "13x9",
+        "enemies": [
+          {
+            "type": "OldKingdomSoldier",
+            "count": 2,
+            "pattern": "room_guard",
+            "spawn_positions": ["north_west", "north_east"]
+          }
+        ],
+        "doors": ["south", "north"],
+        "props": [
+          "overturned_cart (impassable obstacle, blocks centre path)",
+          "market_stall (impassable)"
+        ],
+        "triggers": [
+          {
+            "id": "gear_piece_2_drop",
+            "type": "enemy_drop",
+            "item": "GEAR_PIECE_2",
+            "on": "all_enemies_dead",
+            "effect": "Gear piece drops at centre of room. Player walks over to collect. GameState.gear_pieces_found += 1.",
+            "timeline_side_effect": "TimelineManager.timeline_action('gear2_placed', 'past') — Ren's Chasm Room bridge begins materialising."
+          }
+        ],
+        "notes": "Overturned cart forces player to go around. Gear piece drops on floor after both soldiers die."
+      },
+      {
+        "id": "past_room_06",
+        "name": "Gear Piece Room 3",
+        "file": "Room06_GearRoom3.tscn",
+        "type": "puzzle_combat",
+        "size": "11x11",
+        "enemies": [
+          {
+            "type": "OldKingdomSoldier",
+            "count": 3,
+            "pattern": "wave_clear",
+            "spawn_positions": ["north_west", "north_east", "centre_north"]
+          }
+        ],
+        "doors": ["south"],
+        "props": [
+          "well_with_gear (interactable after room clear — gear piece submerged inside)"
+        ],
+        "triggers": [
+          {
+            "id": "gear_piece_3_retrieve",
+            "type": "interact_after_clear",
+            "item": "GEAR_PIECE_3",
+            "condition": "all_enemies_dead",
+            "on": "player_interacts_with_well",
+            "effect": "GameState.gear_pieces_found += 1."
+          }
+        ],
+        "notes": "Well is not interactable while enemies are alive. After all 3 soldiers dead, interact prompt appears on well."
+      },
+      {
+        "id": "past_room_07",
+        "name": "Mural Gallery",
+        "file": "Room07_MuralGallery.tscn",
+        "type": "narrative",
+        "size": "13x9",
+        "enemies": [],
+        "doors": ["south", "north"],
+        "props": [
+          "wall_mural x3 (interactable — each shows echo vision of bridge history)",
+          "wall_mural_blocked x1 (east wall — Solen trigger blocks before player sees full vision)",
+          "stone_bench (decorative)"
+        ],
+        "triggers": [
+          {
+            "id": "mural_4_solen_interrupt",
+            "type": "cutscene",
+            "fires_once": true,
+            "on": "player_approaches_blocked_mural",
+            "description": "Solen appears and redirects player. Mural vision is cut off before King's face is visible."
+          }
+        ],
+        "notes": "No combat. First 3 murals give lore freely. 4th mural (east wall) has Solen interrupt zone — Area2D 2 tiles in front of it. Trigger only fires once. North door is always open."
+      },
+      {
+        "id": "past_room_08",
+        "name": "Bridge Crossing Room",
+        "file": "Room08_BridgeCrossing.tscn",
+        "type": "transition",
+        "size": "13x9",
+        "enemies": [],
+        "doors": ["south", "north"],
+        "props": [
+          "repaired_bridge (spans room centre, 3 tiles wide — visual only, always passable from past side)"
+        ],
+        "triggers": [],
+        "notes": "Scenic transition room. Bridge is always visible and passable from past side. No combat. Equivalent future room only becomes passable after TimelineManager confirms bridge_built."
+      },
+      {
+        "id": "past_room_09",
+        "name": "Warden Antechamber",
+        "file": "Room09_WardenAntechamber.tscn",
+        "type": "pre_boss",
+        "size": "13x9",
+        "enemies": [],
+        "doors": ["south", "north"],
+        "props": [
+          "sealed_stone_gate on north wall (blocks north door until Solen cutscene completes)",
+          "brazier x2 flanking north gate (animated flame)"
+        ],
+        "triggers": [
+          {
+            "id": "solen_pre_boss_past",
+            "type": "cutscene",
+            "fires_once": true,
+            "on": "player_enters_room",
+            "description": "Solen appears briefly at north wall near gate. Short dialogue — warns player. Gate opens after dialogue ends.",
+            "dialogue_id": "area1_scene05_warden",
+            "speaker": "SOLEN"
+          }
+        ],
+        "notes": "North gate CollisionShape2D is enabled until Solen cutscene fires and completes. Disable after."
+      },
+      {
+        "id": "past_room_10",
+        "name": "Warden Chamber (Past)",
+        "file": "Room10_WardenChamber.tscn",
+        "type": "boss",
+        "size": "15x16",
+        "enemies": [
+          {
+            "type": "Warden",
+            "form": "past",
+            "count": 1,
+            "spawn_position": "centre_north",
+            "hp_pool": "shared_with_future — see WardenBoss.gd"
+          }
+        ],
+        "doors": ["south"],
+        "props": [
+          "crumbling_column x4 (impassable, destructible — collapse after Warden Phase 2 stagger)",
+          "warden_seal on floor centre (glowing teal glyph — decorative)"
+        ],
+        "triggers": [
+          {
+            "id": "warden_recognition_cutscene",
+            "type": "mid_fight_cutscene",
+            "fires_once": true,
+            "on": "warden_hp_reaches_50_percent",
+            "description": "Warden plays Recognition Reach animation (frame 3 is interrupt frame). Brief dialogue fires. Warden resumes attack after dialogue ends.",
+            "dialogue_id": "area1_scene05_warden",
+            "speaker": "WARDEN"
+          },
+          {
+            "id": "warden_death_past",
+            "type": "boss_phase_complete",
+            "on": "warden_past_form_defeated",
+            "effect": "Play Death_Past animation. Emit TimelineManager.timeline_action('warden_past_dead', 'past'). Wait for future form to also die before convergence gate opens."
+          }
+        ],
+        "notes": "Boss room. See WardenBoss.gd for full HP sharing logic."
+      }
+    ],
+
+    "rooms_future": [
+      {
+        "id": "future_room_01",
+        "name": "Entry Rubble",
+        "file": "Room01_EntryRubble.tscn",
+        "type": "entry",
+        "size": "13x9",
+        "enemies": [],
+        "doors": ["north"],
+        "props": [
+          "collapsed_well (impassable rubble pile)",
+          "broken_crate x2 (decorative)",
+          "dead_torch x3 (no flame animation)",
+          "rubble_pile on east path (impassable — blocks east until irrelevant)"
+        ],
+        "triggers": [
+          {
+            "id": "solen_intro_future",
+            "type": "cutscene",
+            "fires_once": true,
+            "on": "player_enters_room",
+            "dialogue_id": "area1_scene02_solen",
+            "speaker": "SOLEN",
+            "notes": "Solen appears younger and more urgent here. Same dialogue ID, different speaker portrait flag: solen_future."
+          }
+        ],
+        "notes": "Mirror of Past Room 01. Palette is dark grey/ash. Rubble on east is purely decorative — no east door exists in future layout."
+      },
+      {
+        "id": "future_room_02",
+        "name": "Ruined Path A",
+        "file": "Room02_RuinedPath.tscn",
+        "type": "combat",
+        "size": "13x11",
+        "enemies": [
+          {
+            "type": "HollowWraith",
+            "count": 2,
+            "variant": "teleport",
+            "pattern": "erratic_chase",
+            "spawn_positions": ["north_half", "south_half"]
+          }
+        ],
+        "doors": ["south", "north"],
+        "props": [
+          "collapsed_stall x3 (impassable rubble)",
+          "debris_pile x2 (impassable)",
+          "cracked_floor_section x2 (visual only)"
+        ],
+        "triggers": [],
+        "notes": "Mirror of Past Room 02. Wraiths use Teleport Dash instead of patrol. Doors lock on entry."
+      },
+      {
+        "id": "future_room_03",
+        "name": "Gear Console Ruins",
+        "file": "Room03_GearConsoleRuins.tscn",
+        "type": "echo_puzzle",
+        "size": "13x11",
+        "enemies": [],
+        "doors": ["south", "east", "west"],
+        "props": [
+          "corroded_gear_console (decorative — shows ghost outlines of missing gear slots)",
+          "echo_stone on west wall (interactable)"
+        ],
+        "triggers": [
+          {
+            "id": "echo_stone_vision",
+            "type": "echo_vision",
+            "fires_once": false,
+            "on": "player_interacts_with_echo_stone",
+            "description": "Plays ghost overlay of past version of the room — shows functional gear console and Mira's position if she is in Past Room 03. Lasts 3 seconds. Gives Ren context for what Mira is doing.",
+            "effect": "Visual only — no gameplay state change."
+          }
+        ],
+        "notes": "Ren cannot interact with the gear console — it is purely decorative ruins. Echo stone is the only interactive element."
+      },
+      {
+        "id": "future_room_04",
+        "name": "Collapsed Vault",
+        "file": "Room04_CollapsedVault.tscn",
+        "type": "combat",
+        "size": "11x9",
+        "enemies": [
+          {
+            "type": "PhantomSniper",
+            "count": 2,
+            "spawn_positions": ["elevated_rubble_north_west", "elevated_rubble_north_east"],
+            "note": "Spawn on elevated rubble tiles (z-order above player). Use y-sort to render above Ren."
+          }
+        ],
+        "doors": ["west"],
+        "props": [
+          "partial_roof_collapse (impassable diagonal rubble — blocks direct north path)",
+          "crumbled_chest x2 (no loot — decorative)"
+        ],
+        "triggers": [],
+        "notes": "Snipers on elevated rubble do not have aim-line VFX — instead a shimmer appears on target tile 0.5s before firing. Doors lock on entry."
+      },
+      {
+        "id": "future_room_05",
+        "name": "Chasm Room",
+        "file": "Room05_ChasmRoom.tscn",
+        "type": "navigation",
+        "size": "13x9",
+        "enemies": [
+          {
+            "type": "HollowWraith",
+            "count": 1,
+            "spawn_condition": "after_bridge_materialises",
+            "spawn_position": "north_side_of_bridge"
+          }
+        ],
+        "doors": ["south", "north"],
+        "props": [
+          "floor_chasm (3-tile wide gap, centre of room — impassable until bridge materialises)",
+          "bridge_materialised (disabled Node2D by default — BridgeMaterialise.gd enables it)"
+        ],
+        "triggers": [
+          {
+            "id": "bridge_materialise_listener",
+            "type": "timeline_listener",
+            "listens_for": "gear2_placed",
+            "source_timeline": "past",
+            "effect": "Call BridgeMaterialise.gd.materialise() — plays 3-section stone float-up animation (staggered 0.2s each). CollisionShape2D on chasm enabled, bridge sprite visible. After animation completes, spawn wraith at north side."
+          }
+        ],
+        "notes": "Chasm gap is CollisionShape2D enabled (impassable) by default. BridgeMaterialise disables the chasm collision and enables the bridge collision. Wraith only spawns after bridge appears — do not pre-spawn."
+      },
+      {
+        "id": "future_room_06",
+        "name": "Echo Chamber",
+        "file": "Room06_EchoChamber.tscn",
+        "type": "narrative",
+        "size": "13x9",
+        "enemies": [],
+        "doors": ["south", "north"],
+        "props": [
+          "echo_stone_north (interactable — shows past event ghost)",
+          "echo_stone_east (interactable — shows past event ghost)",
+          "echo_stone_west (interactable — shows past event ghost)",
+          "echo_stone_south (interactable — shows Demon King silhouette briefly, then cuts to static)"
+        ],
+        "triggers": [
+          {
+            "id": "echo_communicator_trigger",
+            "type": "item_find",
+            "fires_once": true,
+            "on": "player_interacts_with_any_echo_stone",
+            "item": "ECHO_COMMUNICATOR_FRAGMENT_REN",
+            "effect": "GameState.ren_has_communicator = true. Check if GameState.mira_has_communicator == true. If both true, fire Scene 04 cutscene.",
+            "note": "Mira finds her fragment in Past Room 07. Whichever player gets theirs last triggers the cutscene."
+          }
+        ],
+        "notes": "South echo stone shows a 2-second Demon King silhouette then cuts to noise/static — intentionally cryptic. No combat."
+      },
+      {
+        "id": "future_room_07",
+        "name": "Mirror Room",
+        "file": "Room07_MirrorRoom.tscn",
+        "type": "narrative",
+        "size": "13x9",
+        "enemies": [],
+        "doors": ["south", "north"],
+        "props": [
+          "cracked_mirror on north wall (trigger zone in front of it)"
+        ],
+        "triggers": [
+          {
+            "id": "mirror_reflection_trigger",
+            "type": "visual_event",
+            "fires_once": true,
+            "on": "player_enters_mirror_trigger_zone",
+            "description": "Ren's reflection in the mirror briefly shows Demon King silhouette over his own. 1.5 second hold, then fades. Solen appears behind Ren and turns him away.",
+            "dialogue_id": "area1_scene05_warden",
+            "speaker": "SOLEN",
+            "note": "This is a visual-only trigger — no state change. Solen dialogue here is the 'practiced answer too smooth' exchange."
+          }
+        ],
+        "notes": "Mirror is purely a Node2D with sprite + Area2D trigger. Reflection effect: duplicate Ren sprite, modulate to low opacity, overlay Demon King silhouette sprite for 1.5s."
+      },
+      {
+        "id": "future_room_08",
+        "name": "Bridge Ruin Crossing",
+        "file": "Room08_BridgeRuinCrossing.tscn",
+        "type": "transition",
+        "size": "13x9",
+        "enemies": [],
+        "doors": ["south", "north"],
+        "props": [
+          "bridge_rubble_blocked (impassable CollisionShape2D — active until bridge_built received)",
+          "bridge_passable (hidden Node2D, enabled after bridge_built)"
+        ],
+        "triggers": [
+          {
+            "id": "bridge_built_listener",
+            "type": "timeline_listener",
+            "listens_for": "bridge_built",
+            "source_timeline": "past",
+            "effect": "Disable bridge_rubble_blocked collision. Enable bridge_passable. Play stone settling animation (visual)."
+          }
+        ],
+        "notes": "North door is locked behind bridge rubble until TimelineManager confirms bridge_built from Mira completing the gear puzzle. Unlike Chasm Room, no enemy spawns here."
+      },
+      {
+        "id": "future_room_09",
+        "name": "Hollow Antechamber",
+        "file": "Room09_HollowAntechamber.tscn",
+        "type": "pre_boss",
+        "size": "13x9",
+        "enemies": [],
+        "doors": ["south", "north"],
+        "props": [
+          "broken_gate on north wall (already destroyed — north door always open)",
+          "dark_energy_cracks on walls (animated VFX — purple seeping from wall joints)"
+        ],
+        "triggers": [],
+        "notes": "Mirror of Past antechamber but gate is pre-broken. No Solen appearance. North is immediately passable. Dark energy crack VFX plays on room entry loop."
+      },
+      {
+        "id": "future_room_10",
+        "name": "Warden Chamber (Future)",
+        "file": "Room10_WardenChamber.tscn",
+        "type": "boss",
+        "size": "15x16",
+        "enemies": [
+          {
+            "type": "Warden",
+            "form": "future",
+            "count": 1,
+            "spawn_position": "centre_north",
+            "hp_pool": "shared_with_past — see WardenBoss.gd"
+          }
+        ],
+        "doors": ["south"],
+        "props": [
+          "collapsed_column_rubble x4 (impassable, same positions as past columns but destroyed)",
+          "warden_seal_shattered (dark glowing glyph — replaces past teal seal)"
+        ],
+        "triggers": [
+          {
+            "id": "warden_recognition_cutscene_future",
+            "type": "mid_fight_cutscene",
+            "fires_once": true,
+            "on": "warden_hp_reaches_50_percent",
+            "description": "Mirrors past room trigger — fires simultaneously. Same dialogue. Warden in future form also plays Recognition Reach animation.",
+            "note": "TimelineManager coordinates both triggers so dialogue fires at the same moment in both viewports."
+          },
+          {
+            "id": "warden_death_future",
+            "type": "boss_phase_complete",
+            "on": "warden_future_form_defeated",
+            "effect": "Play Death_Future animation. Emit TimelineManager.timeline_action('warden_future_dead', 'future'). Wait for past form confirmation before opening exit."
+          }
+        ],
+        "notes": "Future Warden uses Teleport Dash instead of normal movement. Same HP pool as past form via WardenBoss.gd shared reference."
+      }
+    ],
+
+    "systems": {
+
+      "gear_puzzle": {
+        "script": "scripts/world/area1/GearPuzzleManager.gd",
+        "description": "Autoloaded via GameState or attached to BridgeMechanismChamber. Tracks gear piece collection and fires bridge build signal.",
+        "state": {
+          "gear_pieces_found": "int, starts 0, max 3 — persisted in GameState.flags['gear_pieces']"
+        },
+        "methods": {
+          "on_gear_collected(piece_id)": "Increments gear_pieces_found. Updates gear console visual (slot fills). If gear_pieces_found == 3 and player is in Room03_BridgeMechanism and interacts with console: call _complete_puzzle().",
+          "_complete_puzzle()": "Emit TimelineManager.timeline_action('bridge_built', 'past'). Set GameState.flags['area1_bridge_built'] = true. Play gear console animation. Open east door of Room03."
+        },
+        "gotchas": [
+          "Gear pieces 1, 2, 3 can be collected in any order. GearPuzzleManager must not assume order.",
+          "Gear piece 2 collection fires an additional signal (gear2_placed) to trigger Chasm Room bridge — this is separate from the full bridge_built signal.",
+          "Player must return to Room03 and interact with the console after all 3 are collected. Puzzle does not auto-complete on third pickup."
+        ]
+      },
+
+      "echo_communicator": {
+        "script": "scripts/world/area1/EchoCommunicatorTrigger.gd",
+        "description": "Monitors both players finding their communicator fragments. When both found, pauses gameplay and fires Scene 04 cutscene.",
+        "state": {
+          "mira_has_communicator": "bool — set when Mira picks up fragment in Past Room 07",
+          "ren_has_communicator": "bool — set when Ren interacts with echo stone in Future Room 06"
+        },
+        "trigger_location_past": "Past Room 07 — Mural Gallery. Add a hidden pickup Area2D near the stone bench. On player overlap: set GameState.flags['mira_has_communicator'] = true. Check both flags.",
+        "trigger_location_future": "Future Room 06 — Echo Chamber. On first echo stone interaction: set GameState.flags['ren_has_communicator'] = true. Check both flags.",
+        "on_both_found": "Pause game (get_tree().paused = true). Play Scene 04 dialogue via DialogueManager. On dialogue complete, unpause. Set GameState.flags['echo_communicator_active'] = true — used later by HUD to show communicator icon.",
+        "gotchas": [
+          "Either player could get their fragment first. The check must be symmetric.",
+          "If both players find fragments in the same frame, only fire the cutscene once.",
+          "Dialogue should pause both viewports — handle in DialogueManager, not in individual room scripts."
+        ]
+      },
+
+      "warden_boss": {
+        "script": "scripts/world/area1/WardenBoss.gd",
+        "description": "Manages both Warden forms as one logical boss with a shared HP pool. Both rooms run this script on their respective Warden nodes with a shared reference via TimelineManager.",
+        "shared_hp": {
+          "max_hp": 300,
+          "note": "Mira's hits on past form deal damage to the shared pool. Ren's hits on future form deal damage to the shared pool. Past form hits stagger (attack window), future form hits deal +25% bonus damage."
+        },
+        "phases": {
+          "phase_1": {
+            "hp_range": "300 to 150",
+            "behaviour_past": "Slam Attack, Sweep Attack, Stomp. Standard patrol between column positions.",
+            "behaviour_future": "Same attack set but adds Teleport Dash between attacks. More erratic."
+          },
+          "phase_2": {
+            "hp_range": "150 to 0",
+            "trigger": "HP drops below 150 — play Stagger animation in both rooms simultaneously. Runes flare VFX. Brief immobile window (2 seconds).",
+            "behaviour_past": "Faster attack cadence. Slam AOE radius increases to 4x4.",
+            "behaviour_future": "Teleport Dash frequency increases. Corrupt Strike replaces standard hit.",
+            "mid_fight_cutscene": "Fires at exactly 50% HP (150). Recognition Reach animation on past Warden. Dialogue: Warden speaks, reaches toward Ren. Frame 3 of Recognition Reach is the interrupt frame — pause movement at frame 3, fire dialogue, resume on dialogue close."
+          }
+        },
+        "death_condition": "Both forms must reach 0 HP. If past form dies first, future form becomes invulnerable until past death animation completes (sync). Then future form dies. Area 1 complete — GameState.flags['area1_complete'] = true.",
+        "animation_sync": "Both Warden nodes must play Stagger and phase transition animations at the same time. Use TimelineManager signal to coordinate — past Warden emits, future Warden listens.",
+        "sprite_spec": {
+          "canvas": "96x96 px per frame",
+          "hitbox": "56x56 px centred",
+          "directions": ["Down", "Left", "Right"],
+          "note": "Warden never faces Up. Rotate Left sprite horizontally for Right if needed."
+        },
+        "gotchas": [
+          "Both Warden nodes must share the same HP integer via a singleton reference or GameState flag — do not give each their own HP.",
+          "Recognition Reach cutscene must pause enemy AI on both forms simultaneously.",
+          "Death animations have identical frame counts and timing — they must finish at approximately the same time. Sync via TimelineManager."
+        ]
+      },
+
+      "bridge_materialise": {
+        "script": "scripts/world/area1/BridgeMaterialise.gd",
+        "description": "Handles the visual animation and collision change for the bridge in Future Room 05 (Chasm Room) and Future Room 08 (Bridge Ruin Crossing).",
+        "methods": {
+          "materialise()": "Step 1: play 3-part stone float-up animation (Section1, Section2, Section3 — staggered 0.2s apart). Step 2: on each section landing, spawn dust puff particle. Step 3: after all 3 sections land, enable bridge CollisionShape2D and disable chasm CollisionShape2D."
+        },
+        "gotchas": [
+          "Bridge collision must only enable after all 3 animation sections complete — not during.",
+          "Dust puff particles should use the VFX spec: stone grey + teal glow."
+        ]
+      }
+    },
+
+    "dialogue_data": {
+      "area1_scene02_solen": {
+        "file": "data/dialogue/area1_scene02_solen.json",
+        "scenes": [
+          {
+            "speaker": "SOLEN",
+            "portrait": "solen_past",
+            "lines": [
+              "Don't be afraid. You were brought here because you are needed. Both of you.",
+              "He lives. He is where he must be — as you are where you must be.",
+              "Time separated you. Time will reunite you. But first... the King must fall.",
+              "A guide. That is all you need to know for now."
+            ]
+          }
+        ],
+        "note": "Mira version uses portrait: solen_past (silver-haired elder). Ren version uses portrait: solen_future (younger, urgent)."
+      },
+      "area1_scene04_echo_exchange": {
+        "file": "data/dialogue/area1_scene04_echo_exchange.json",
+        "scenes": [
+          { "speaker": "REN", "portrait": "ren_normal", "text": "Mira. Mira, is that actually you? Your voice is—" },
+          { "speaker": "MIRA", "portrait": "mira_relieved", "text": "It's me. It's me, I'm okay. Are you okay? You sound like you swallowed gravel." },
+          { "speaker": "REN", "portrait": "ren_normal", "text": "I'm in some kind of destroyed future. Everything's ash and ruins. You?" },
+          { "speaker": "MIRA", "portrait": "mira_thoughtful", "text": "The opposite. It's beautiful here, actually. Like a painting. But Ren — I keep seeing echoes of destruction. Like a warning of what's coming." },
+          { "speaker": "REN", "portrait": "ren_normal", "text": "It came. Whatever it is — it already happened here. The world's gone, Mira. I don't want that to be your world." },
+          { "speaker": "MIRA", "portrait": "mira_determined", "text": "Then we stop it. Together. Even if we can't be in the same place right now, we're still — we're still together, right?" },
+          { "speaker": "REN", "portrait": "ren_normal", "text": "Yeah. Yeah, we are. ...Hey. About what I said on the rooftop—" },
+          { "speaker": "MIRA", "portrait": "mira_normal", "text": "Don't you dare make this moment awkward, Ren." },
+          { "speaker": "REN", "portrait": "ren_normal", "text": "Right. Later. When I see you in person." },
+          { "speaker": "MIRA", "portrait": "mira_normal", "text": "Promise." }
+        ]
+      },
+      "area1_scene05_warden": {
+        "file": "data/dialogue/area1_scene05_warden.json",
+        "scenes": [
+          {
+            "context": "solen_pre_boss_past — antechamber",
+            "speaker": "SOLEN",
+            "portrait": "solen_past",
+            "text": "The Warden has stood guard here since before any kingdom remembered why. Don't mistake its purpose for malice."
+          },
+          {
+            "context": "warden_mid_fight",
+            "speaker": "WARDEN",
+            "portrait": "warden",
+            "lines": [
+              "...You carry his face. Why do you carry his face."
+            ],
+            "note": "Warden speaks to Ren's viewport only. Not directed at Mira."
+          },
+          {
+            "context": "mirror_room_solen — future",
+            "speaker": "SOLEN",
+            "portrait": "solen_future",
+            "lines": [
+              "A conqueror. One who let despair corrupt him beyond recovery. Nothing more.",
+              "I leave out only what would break your focus when focus is all that can save you. Come. She's waiting."
+            ],
+            "note": "Fires after mirror reflection visual. Solen turns Ren away from mirror."
+          }
+        ]
+      }
+    },
+
+    "room_connections": {
+      "past_flow": "Room01 → Room02 → Room03 (hub) → Room04/05/06 (gear rooms, any order, all exit west back to Room03) → Room03 (complete puzzle) → Room07 → Room08 → Room09 → Room10",
+      "future_flow": "Room01 → Room02 → Room03 → Room04 → Room05 (blocked until bridge materialises) → Room06 → Room07 → Room08 (blocked until bridge_built) → Room09 → Room10",
+      "cross_timeline_dependencies": [
+        "Future Room05 bridge: requires GameState.flags['gear2_placed'] (Mira clears Past Room05)",
+        "Future Room08 passage: requires GameState.flags['area1_bridge_built'] (Mira completes gear puzzle in Past Room03)",
+        "Scene 04 cutscene: requires both GameState.flags['mira_has_communicator'] and GameState.flags['ren_has_communicator']",
+        "Warden defeat: requires both 'warden_past_dead' and 'warden_future_dead' flags"
+      ]
+    },
+
+    "gamestate_flags": {
+      "area1_started": "bool",
+      "gear_pieces_found": "int (0–3)",
+      "gear2_placed": "bool",
+      "area1_bridge_built": "bool",
+      "mira_has_communicator": "bool",
+      "ren_has_communicator": "bool",
+      "echo_communicator_active": "bool",
+      "warden_past_dead": "bool",
+      "warden_future_dead": "bool",
+      "area1_complete": "bool"
+    },
+
+    "acceptance_tests": [
+      {
+        "id": "AT-01",
+        "description": "Mira can collect all 3 gear pieces in any order from Past Rooms 04, 05, 06",
+        "pass_condition": "GameState.gear_pieces_found == 3 after all three collected, regardless of order"
+      },
+      {
+        "id": "AT-02",
+        "description": "Returning to Past Room03 and interacting with gear console after all 3 pieces fires bridge_built signal",
+        "pass_condition": "TimelineManager emits timeline_action('bridge_built', 'past'). Future Room08 passage opens."
+      },
+      {
+        "id": "AT-03",
+        "description": "Collecting Gear Piece 2 fires gear2_placed signal which materialises bridge in Future Room05",
+        "pass_condition": "BridgeMaterialise.materialise() called. 3-section animation plays. Chasm becomes passable. Wraith spawns after animation."
+      },
+      {
+        "id": "AT-04",
+        "description": "Scene 04 dialogue fires when both players have their communicator fragments",
+        "pass_condition": "Dialogue box appears, both viewports pause, full 10-line script plays, game unpauses after final line"
+      },
+      {
+        "id": "AT-05",
+        "description": "Warden HP pool is shared — hits on either form reduce the same total",
+        "pass_condition": "Dealing 100 damage via Mira and 100 via Ren totals 200 off the shared 300 HP pool"
+      },
+      {
+        "id": "AT-06",
+        "description": "Warden recognition cutscene fires at 50% HP in both viewports simultaneously",
+        "pass_condition": "Recognition Reach animation plays on both forms. Dialogue fires. Both Wardens pause at frame 3. Resume after dialogue."
+      },
+      {
+        "id": "AT-07",
+        "description": "Area 1 only completes when both Warden forms are dead",
+        "pass_condition": "GameState.flags['area1_complete'] = true only after both warden_past_dead and warden_future_dead are set"
+      },
+      {
+        "id": "AT-08",
+        "description": "Future Room05 chasm is impassable before bridge materialises",
+        "pass_condition": "Ren cannot cross gap. CollisionShape2D blocks movement. No workaround via wall edges."
+      },
+      {
+        "id": "AT-09",
+        "description": "Echo stone in Future Room06 shows Demon King silhouette briefly then cuts to static",
+        "pass_condition": "South echo stone shows King silhouette for 2 seconds then replaces with noise texture. No permanent state change."
+      },
+      {
+        "id": "AT-10",
+        "description": "Mural 4 in Past Room07 is interrupted by Solen before full King face is visible",
+        "pass_condition": "Solen appear trigger fires when player enters 2-tile radius of the east mural. Dialogue cuts vision. Does not fire again on repeat visits."
+      }
+    ],
+
+    "known_gotchas": [
+      "TimelineManager cross-viewport signals must be tested early (Day 2). If signals don't cross SubViewports, Area 1 puzzles cannot function.",
+      "GearPuzzleManager must be accessible from both the room scene and GameState — attach it to GameState or make it its own autoload.",
+      "Warden HP sync: use a single integer in GameState.flags['warden_hp'] rather than two separate HP values. Both WardenBoss nodes read and write to the same flag.",
+      "Bridge Materialise animation in Room05 — do NOT enable bridge collision mid-animation. Only enable on animation_finished signal from the third section.",
+      "Dialogue pausing (get_tree().paused) will also pause AnimationPlayers. Any cutscene animations (Solen appear, Warden reach) must use process_mode = ALWAYS to keep playing while paused.",
+      "Echo stone south in Room06 (Demon King silhouette) must not permanently change any flag — it is a narrative hint only.",
+      "Phantom Snipers in Room04 are on elevated rubble — use y-sort or manual z-index to render them above Ren's sprite layer."
+    ]
+  }
+}

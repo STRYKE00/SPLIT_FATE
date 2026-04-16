@@ -278,7 +278,7 @@ func _process(delta: float) -> void:
 
 func _on_timeline_action(action_id: String, _source_timeline: String) -> void:
 	if action_id == "area1_complete":
-		await get_tree().create_timer(2.0).timeout
+		await get_tree().create_timer(3.5).timeout
 		get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 
