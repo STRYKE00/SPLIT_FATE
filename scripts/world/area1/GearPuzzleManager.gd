@@ -22,6 +22,8 @@ func _on_gear_collected(gear_id: String) -> void:
 	_collected[gear_id] = true
 	GameState.set_flag("gear_" + gear_id, true)
 	puzzle_state_changed.emit(_collected.size(), REQUIRED_GEARS.size())
+	if has_all_gears():
+		try_complete()
 
 
 func collected_count() -> int:
