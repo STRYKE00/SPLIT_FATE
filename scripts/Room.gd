@@ -265,11 +265,6 @@ func _exit_tree() -> void:
 		TimelineManager.enemy_killed.disconnect(_on_enemy_killed)
 
 
-func _exit_tree() -> void:
-	if TimelineManager.enemy_killed.is_connected(_on_enemy_killed):
-		TimelineManager.enemy_killed.disconnect(_on_enemy_killed)
-
-
 func _on_enemy_killed(tl: String) -> void:
 	if tl != timeline:
 		return
