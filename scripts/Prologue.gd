@@ -75,17 +75,17 @@ func _load_textures() -> void:
 
 
 func _setup_audio() -> void:
-	var warm := load("res://assets/sounds/Warm music.mp3") as AudioStreamMP3
+	var warm := load("res://assets/Sounds/Warm music.mp3") as AudioStreamMP3
 	warm.loop = true
 	_music_player.stream = warm
 
-	var shocked := load("res://assets/sounds/Shocked sound Effect.mp3") as AudioStreamMP3
+	var shocked := load("res://assets/Sounds/Shocked sound Effect.mp3") as AudioStreamMP3
 	_shocked_player.stream = shocked
 
-	_thriller_stream = load("res://assets/sounds/Thriller music.mp3") as AudioStreamMP3
+	_thriller_stream = load("res://assets/Sounds/Thriller music.mp3") as AudioStreamMP3
 	_thriller_stream.loop = true
 
-	var typing := load("res://assets/sounds/Typing sound effect.mp3") as AudioStreamMP3
+	var typing := load("res://assets/Sounds/Typing sound effect.mp3") as AudioStreamMP3
 	typing.loop = true
 	_typing_player.stream = typing
 
