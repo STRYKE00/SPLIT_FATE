@@ -2,6 +2,7 @@ extends Node2D
 class_name Room
 
 const TILE := 32
+const PLAYER_LAYER := 2
 const WALL_THICKNESS := 32
 const DOOR_WIDTH := 64
 
@@ -137,7 +138,7 @@ func _build_doors() -> void:
 	for dir in door_positions:
 		var door_area := Area2D.new()
 		door_area.collision_layer = 0
-		door_area.collision_mask = 2
+		door_area.collision_mask = PLAYER_LAYER
 		var shape := CollisionShape2D.new()
 		var rect := RectangleShape2D.new()
 
@@ -227,6 +228,11 @@ func _spawn_enemies() -> void:
 		TimelineManager.enemy_killed.connect(_on_enemy_killed)
 
 
+func _exit_tree() -> void:
+	if TimelineManager.enemy_killed.is_connected(_on_enemy_killed):
+		TimelineManager.enemy_killed.disconnect(_on_enemy_killed)
+
+
 func _on_enemy_killed(tl: String) -> void:
 	if tl != timeline:
 		return
@@ -304,16 +310,23 @@ func _spawn_npcs() -> void:
 		var trigger := Area2D.new()
 		trigger.position = npc_pos
 		trigger.collision_layer = 0
-		trigger.collision_mask = 2
+		trigger.collision_mask = PLAYER_LAYER
 		var shape := CollisionShape2D.new()
 		var circle := CircleShape2D.new()
 		circle.radius = 40.0
 		shape.shape = circle
 		trigger.add_child(shape)
+		var fired := [false]
 		trigger.body_entered.connect(func(body: Node2D):
-			if body.is_in_group("players") and not DialogueManager.is_active():
-				trigger.set_deferred("monitoring", false)
-				DialogueManager.start_dialogue(dialogue_path)
+			if fired[0]:
+				return
+			if not body.is_in_group("players"):
+				return
+			if DialogueManager.is_active():
+				return
+			fired[0] = true
+			trigger.monitoring = false
+			DialogueManager.start_dialogue(dialogue_path)
 		)
 		add_child(trigger)
 
@@ -323,7 +336,7 @@ func _spawn_triggers() -> void:
 		var trigger := Area2D.new()
 		trigger.position = cfg.get("position", Vector2.ZERO)
 		trigger.collision_layer = 0
-		trigger.collision_mask = 2
+		trigger.collision_mask = PLAYER_LAYER
 		trigger.name = cfg.get("id", "Trigger")
 
 		var shape := CollisionShape2D.new()
@@ -334,12 +347,18 @@ func _spawn_triggers() -> void:
 
 		var fires_once: bool = cfg.get("fires_once", true)
 		var cfg_ref: Dictionary = cfg
+		var is_timeline_action: bool = cfg.get("type", "") == "timeline_action"
+		var fired := [false]
 
 		trigger.body_entered.connect(func(body: Node2D):
 			if not body.is_in_group("players"):
 				return
-			if fires_once:
-				trigger.set_deferred("monitoring", false)
+			if not is_timeline_action:
+				if fired[0]:
+					return
+				fired[0] = true
+				if fires_once:
+					trigger.monitoring = false
 			_handle_trigger(body, cfg_ref)
 		)
 		add_child(trigger)
@@ -396,7 +415,7 @@ func spawn_chest(pos: Vector2, contents: String) -> Node2D:
 
 	var interact := Area2D.new()
 	interact.collision_layer = 0
-	interact.collision_mask = 2
+	interact.collision_mask = PLAYER_LAYER
 	interact.name = "ChestInteract"
 	var icol := CollisionShape2D.new()
 	var circle := CircleShape2D.new()
@@ -406,12 +425,19 @@ func spawn_chest(pos: Vector2, contents: String) -> Node2D:
 	interact.monitoring = false
 
 	var contents_ref: String = contents
+	var opened := [false]
 	interact.body_entered.connect(func(body: Node2D) -> void:
-		if body.is_in_group("players") and Input.is_action_just_pressed(body.action_interact):
-			interact.set_deferred("monitoring", false)
-			vis.color = Color(0.4, 0.35, 0.15)
-			label.text = "!"
-			DialogueManager.start_dialogue(contents_ref)
+		if opened[0]:
+			return
+		if not body.is_in_group("players"):
+			return
+		if not Input.is_action_just_pressed(body.action_interact):
+			return
+		opened[0] = true
+		interact.monitoring = false
+		vis.color = Color(0.4, 0.35, 0.15)
+		label.text = "!"
+		DialogueManager.start_dialogue(contents_ref)
 	)
 	chest.add_child(interact)
 
