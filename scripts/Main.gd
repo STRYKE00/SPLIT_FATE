@@ -305,6 +305,7 @@ func _on_restart_pressed() -> void:
 	GameState.current_room_future = 0
 	GameState.is_transitioning = false
 	GameState.is_dialogue_active = false
+	GameState.reset_area1()
 	TimelineManager.reset_sync()
 	get_tree().change_scene_to_file("res://scenes/Main.tscn")
 
@@ -314,6 +315,7 @@ func _on_menu_pressed() -> void:
 	GameState.current_room_future = 0
 	GameState.is_transitioning = false
 	GameState.is_dialogue_active = false
+	GameState.reset_area1()
 	TimelineManager.reset_sync()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
