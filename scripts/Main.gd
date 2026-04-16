@@ -58,7 +58,7 @@ func _define_rooms() -> void:
 			"doors": ["north", "south"],
 			"enemies": [
 				{"x": 120, "y": 180, "tint": Color(0.9, 0.35, 0.2), "hp": 3, "type":"orc"},
-				{"x": 240, "y": 260, "tint": Color(0.9, 0.35, 0.2), "hp": 3},
+				{"x": 240, "y": 260, "tint": Color(0.9, 0.35, 0.2), "hp": 3, "type":"armored_orc"},
 			],
 			"npcs": [],
 			"floor_color": Color(0.78, 0.68, 0.48),
