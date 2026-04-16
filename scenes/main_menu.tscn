@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://ufj58r4mgfe0" path="res://assets/ui/bg1.png" id="1_l6cm7"]
 [ext_resource type="Script" uid="uid://bpdhkrnqf5iwy" path="res://scripts/main_menu.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://cjfnlu3ea1gru" path="res://assets/ui/title3.png" id="4_title"]
-[ext_resource type="Texture2D" uid="uid://b3nkxdiob2msw" path="res://assets/ui/play_button_1.png" id="5_frame1"]
+[ext_resource type="Texture2D" path="res://assets/ui/play_button.png" id="5_frame1"]
 [ext_resource type="Texture2D" uid="uid://14ib584j5w8x" path="res://assets/ui/play_button_pressed.png" id="6_pressed"]
 [ext_resource type="Texture2D" uid="uid://mbf8sa83n6ab" path="res://assets/ui/play_button_hover.png" id="7_hover"]
 
@@ -47,4 +47,3 @@ texture_hover = ExtResource("7_hover")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="CanvasLayer/PlayButton" unique_id=619615829]

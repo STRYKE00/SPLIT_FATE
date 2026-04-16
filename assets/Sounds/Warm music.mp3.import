@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://b6u1mrcgdm7oo"
+path="res://.godot/imported/Warm music.mp3-3750d4822cb015bea0382e4c92661828.mp3str"
+
+[deps]
+
+source_file="res://assets/Sounds/Warm music.mp3"
+dest_files=["res://.godot/imported/Warm music.mp3-3750d4822cb015bea0382e4c92661828.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
