@@ -23,6 +23,7 @@ var locked_doors: Dictionary = {}
 var _live_enemies: int = 0
 var _door_gates: Array = []
 var _door_blockers: Array = []
+var _chests: Array = []
 var _entity_layer: Node2D
 var _pixel_w: int
 var _pixel_h: int
@@ -186,10 +187,8 @@ func _build_doors() -> void:
 		door_area.body_entered.connect(func(body: Node2D) -> void:
 			if not (body.is_in_group("players") and is_cleared):
 				return
-			if locked_doors.has(dir_captured):
-				var lock_flag: String = locked_doors[dir_captured]
-				if not GameState.get_flag(lock_flag, false):
-					return
+			if locked_doors.has(dir_captured) and locked_doors[dir_captured]:
+				return
 			TimelineManager.room_transition_requested.emit(timeline, dir_captured)
 		)
 		add_child(door_area)
@@ -240,44 +239,44 @@ func _on_enemy_killed(tl: String) -> void:
 
 
 func _unlock_chests() -> void:
-	for child in get_children():
-		if child is Area2D and child.name.begins_with("ChestInteract"):
-			child.monitoring = true
+	for chest in _chests:
+		var interact := chest.get_node_or_null("ChestInteract")
+		if interact:
+			interact.monitoring = true
 
 
 func _spawn_props() -> void:
 	for cfg in prop_configs:
 		var prop := StaticBody2D.new()
-		prop.position = Vector2(cfg["x"], cfg["y"])
+		var position: Vector2 = cfg.get("position", Vector2.ZERO)
+		var size: Vector2 = cfg.get("size", Vector2(16, 16))
+		prop.position = position
 		prop.collision_mask = 0
 		prop.name = cfg.get("name", "Prop")
 
-		var w: float = cfg.get("w", 32)
-		var h: float = cfg.get("h", 32)
-
 		var col := CollisionShape2D.new()
 		var rect := RectangleShape2D.new()
-		rect.size = Vector2(w, h)
+		rect.size = size
 		col.shape = rect
 		prop.add_child(col)
 
-		if cfg.get("no_collision", false):
+		if not cfg.get("collides", true):
 			prop.collision_layer = 0
 			col.disabled = true
 		else:
 			prop.collision_layer = 1
 
 		var vis := ColorRect.new()
-		vis.size = Vector2(w, h)
-		vis.position = Vector2(-w / 2, -h / 2)
-		vis.color = cfg.get("color", Color(0.5, 0.4, 0.3))
+		vis.size = size
+		vis.position = -size * 0.5
+		vis.color = cfg.get("color", Color(0.5, 0.5, 0.5))
 		prop.add_child(vis)
 
 		if cfg.get("label", "") != "":
 			var label := Label.new()
 			label.text = cfg["label"]
 			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			label.position = Vector2(-w / 2, -h / 2 - 16)
+			label.position = Vector2(-size.x / 2, -size.y / 2 - 16)
 			label.add_theme_font_size_override("font_size", 8)
 			prop.add_child(label)
 
@@ -322,55 +321,54 @@ func _spawn_npcs() -> void:
 func _spawn_triggers() -> void:
 	for cfg in trigger_configs:
 		var trigger := Area2D.new()
-		trigger.position = Vector2(cfg["x"], cfg["y"])
+		trigger.position = cfg.get("position", Vector2.ZERO)
 		trigger.collision_layer = 0
 		trigger.collision_mask = 2
 		trigger.name = cfg.get("id", "Trigger")
 
 		var shape := CollisionShape2D.new()
-		var circle := CircleShape2D.new()
-		circle.radius = cfg.get("radius", 40.0)
-		shape.shape = circle
+		var rect_shape := RectangleShape2D.new()
+		rect_shape.size = cfg.get("size", Vector2(32, 32))
+		shape.shape = rect_shape
 		trigger.add_child(shape)
 
 		var fires_once: bool = cfg.get("fires_once", true)
 		var cfg_ref: Dictionary = cfg
 
-		trigger.body_entered.connect(func(body: Node2D) -> void:
+		trigger.body_entered.connect(func(body: Node2D):
 			if not body.is_in_group("players"):
 				return
 			if fires_once:
 				trigger.set_deferred("monitoring", false)
-			_handle_trigger(cfg_ref)
+			_handle_trigger(body, cfg_ref)
 		)
 		add_child(trigger)
 
 
-func _handle_trigger(cfg: Dictionary) -> void:
+func _handle_trigger(body: Node2D, cfg: Dictionary) -> void:
 	var trigger_type: String = cfg.get("type", "")
 	match trigger_type:
 		"cutscene":
-			var dialogue_path: String = cfg.get("dialogue_path", "")
-			if dialogue_path != "" and not DialogueManager.is_active():
-				DialogueManager.start_dialogue(dialogue_path)
+			var flag_key: String = cfg.get("flag_key", "")
+			if flag_key != "" and GameState.get_flag(flag_key, false):
+				return
+			var dialogue: String = cfg.get("dialogue", "")
+			if dialogue != "" and not DialogueManager.is_active():
+				DialogueManager.start_dialogue(dialogue)
+				if flag_key != "":
+					GameState.set_flag(flag_key, true)
 		"gear_pickup":
-			var piece_id: String = cfg.get("piece_id", "")
-			var count: int = GameState.get_flag("gear_pieces_found", 0)
-			GameState.set_flag("gear_pieces_found", count + 1)
-			TimelineManager.gear_collected.emit(piece_id)
+			var gear_id: String = cfg.get("gear_id", "")
+			TimelineManager.gear_collected.emit(gear_id)
 		"communicator":
-			var tl: String = cfg.get("timeline", "")
-			if tl == "past":
-				GameState.set_flag("mira_has_communicator", true)
-			else:
-				GameState.set_flag("ren_has_communicator", true)
-			TimelineManager.communicator_found.emit(tl)
+			var side: String = cfg.get("side", "")
+			TimelineManager.communicator_found.emit(side)
 		"timeline_action":
 			var action_id: String = cfg.get("action_id", "")
 			TimelineManager.timeline_action.emit(action_id, timeline)
 
 
-func spawn_chest(pos: Vector2, item_trigger: Dictionary) -> Node2D:
+func spawn_chest(pos: Vector2, contents: String) -> Node2D:
 	var chest := StaticBody2D.new()
 	chest.position = pos
 	chest.collision_layer = 1
@@ -397,7 +395,6 @@ func spawn_chest(pos: Vector2, item_trigger: Dictionary) -> Node2D:
 	chest.add_child(label)
 
 	var interact := Area2D.new()
-	interact.position = pos
 	interact.collision_layer = 0
 	interact.collision_mask = 2
 	interact.name = "ChestInteract"
@@ -408,17 +405,18 @@ func spawn_chest(pos: Vector2, item_trigger: Dictionary) -> Node2D:
 	interact.add_child(icol)
 	interact.monitoring = false
 
-	var item_trigger_ref: Dictionary = item_trigger
+	var contents_ref: String = contents
 	interact.body_entered.connect(func(body: Node2D) -> void:
 		if body.is_in_group("players") and Input.is_action_just_pressed(body.action_interact):
 			interact.set_deferred("monitoring", false)
 			vis.color = Color(0.4, 0.35, 0.15)
 			label.text = "!"
-			_handle_trigger(item_trigger_ref)
+			DialogueManager.start_dialogue(contents_ref)
 	)
-	add_child(interact)
+	chest.add_child(interact)
 
 	_entity_layer.add_child(chest)
+	_chests.append(chest)
 	return chest
 
 
