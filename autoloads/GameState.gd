@@ -6,6 +6,27 @@ var current_room_future: int = 0
 var is_dialogue_active: bool = false
 var is_transitioning: bool = false
 
+var flags: Dictionary = {}
+
+func set_flag(key: String, value: Variant) -> void:
+	flags[key] = value
+
+func get_flag(key: String, default: Variant = false) -> Variant:
+	return flags.get(key, default)
+
+func reset_area1() -> void:
+	flags.erase("area1_started")
+	flags.erase("gear_pieces_found")
+	flags.erase("gear2_placed")
+	flags.erase("area1_bridge_built")
+	flags.erase("mira_has_communicator")
+	flags.erase("ren_has_communicator")
+	flags.erase("echo_communicator_active")
+	flags.erase("warden_past_dead")
+	flags.erase("warden_future_dead")
+	flags.erase("area1_complete")
+	flags.erase("warden_hp")
+
 
 func _ready() -> void:
 	_setup_input_map()
