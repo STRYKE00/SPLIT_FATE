@@ -20,41 +20,22 @@ func reset_area1() -> void:
 	flags.erase("gear_gear_c")
 	flags.erase("area1_complete")
 
+enum INPUT_SCHEMES{
+	KEYBOARD_AND_MOUSE,
+	CONTROLLER,
+}
+
+static var current_input_scheme: INPUT_SCHEMES = INPUT_SCHEMES.KEYBOARD_AND_MOUSE
 
 func _ready() -> void:
-	_setup_input_map()
+	_set_input_scheme()
 
-
-func _setup_input_map() -> void:
-	_add_key("past_left", KEY_A)
-	_add_key("past_right", KEY_D)
-	_add_key("past_up", KEY_W)
-	_add_key("past_down", KEY_S)
-	_add_key("past_attack", KEY_SPACE)
-	_add_key("past_heavy", KEY_Q)
-	_add_key("past_interact", KEY_E)
-	_add_key("past_dash", KEY_SHIFT)
-
-	_add_key("future_left", KEY_LEFT)
-	_add_key("future_right", KEY_RIGHT)
-	_add_key("future_up", KEY_UP)
-	_add_key("future_down", KEY_DOWN)
-	_add_key("future_attack", KEY_ENTER)
-	_add_key("future_heavy", KEY_COMMA)
-	_add_key("future_interact", KEY_PERIOD)
-	_add_key("future_dash", KEY_SLASH)
-
-	_add_key("dialogue_advance", KEY_SPACE)
-	_add_key("dialogue_advance", KEY_ENTER)
-
-
-func _add_key(action: String, keycode: Key) -> void:
-	if not InputMap.has_action(action):
-		InputMap.add_action(action)
-	var ev := InputEventKey.new()
-	ev.keycode = keycode
-	InputMap.action_add_event(action, ev)
-
+func _set_input_scheme()->void:
+	var joypads = Input.get_connected_joypads()
+	if joypads.size() ==2:
+		current_input_scheme = INPUT_SCHEMES.CONTROLLER
+	else:
+		current_input_scheme = INPUT_SCHEMES.KEYBOARD_AND_MOUSE
 
 func mark_puzzle(puzzle_id: String) -> void:
 	completed_puzzles[puzzle_id] = true
