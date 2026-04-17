@@ -70,7 +70,7 @@ func _ready() -> void:
 	_define_enemies()
 	_spawn_worlds()
 	_spawn_players()
-	_spawn_enemies()
+	_spawn_enemies() 
 	_spawn_npcs()
 	_load_past_map()
 	_load_future_map()
@@ -215,26 +215,6 @@ func get_live_past_enemies() -> int:
 	if _puzzle and _puzzle.has_method("get_live_past_enemies"):
 		return _puzzle.get_live_past_enemies()
 	return 0
-func _spawn_gear_puzzle() -> void:
-	_gear_puzzle = GearPuzzleManager.new()
-	_gear_puzzle.name = "GearPuzzleManager"
-	add_child(_gear_puzzle)
-
-func _spawn_gears() -> void:
-	_spawn_gears_from_dict(_past_gears, past_world)
-	_spawn_gears_from_dict(_future_gears, future_world)
-				
-
-func _spawn_gears_from_dict(gear_dict: Dictionary, world: Node2D) -> void:
-	for gear_idx in gear_dict:
-		for cfg in gear_dict[gear_idx]:
-			var gear_scene: PackedScene = preload("res://scenes/gear_base.tscn")
-			var gear: GearBase = gear_scene.instantiate()
-			gear.position = Vector2(cfg["x"], cfg["y"])
-			gear.gear_type = cfg["type"]
-			world.add_child(gear)
-			gear.setup()
-	
 
 func _spawn_enemies() -> void:
 	_spawn_enemies_from_dict(_past_enemies, "past", past_world)

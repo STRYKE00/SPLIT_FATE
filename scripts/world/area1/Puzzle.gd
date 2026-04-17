@@ -2,23 +2,6 @@ extends Node
 
 const PLAYER_LAYER := 2
 
-const ENEMY_SCENES = {
-	"archer": preload("res://scenes/characters/Enemies/archer.tscn"),
-	"orc": preload("res://scenes/characters/Enemies/Orc.tscn"),
-	"armored_orc": preload("res://scenes/characters/Enemies/armored_orc.tscn"),
-	"elite_orc": preload("res://scenes/characters/Enemies/elite_orc.tscn"),
-	"orc_rider": preload("res://scenes/characters/Enemies/orc_rider.tscn"),
-	"soldier": preload("res://scenes/characters/Enemies/soldier.tscn"),
-	"knight": preload("res://scenes/characters/Enemies/knight.tscn"),
-	"skeleton": preload("res://scenes/characters/Enemies/skeleton.tscn"),
-	"armored_skeleton": preload("res://scenes/characters/Enemies/armored_skeleton.tscn"),
-	"skeleton_archer": preload("res://scenes/characters/Enemies/skeleton_archer.tscn"),
-	"greatsword_skeleton": preload("res://scenes/characters/Enemies/greatsword_skeleton.tscn"),
-	"werewolf": preload("res://scenes/characters/Enemies/werewolf.tscn"),
-	"werebear": preload("res://scenes/characters/Enemies/werebear.tscn"),
-	"default": preload("res://scenes/characters/EnemyBase.tscn")
-}
-
 var past_world: Node2D
 var future_world: Node2D
 var past_overlay: ColorRect
@@ -42,7 +25,7 @@ func setup(p_past_world: Node2D, p_future_world: Node2D, p_past_overlay: ColorRe
 	future_overlay = p_future_overlay
 
 	_define_gears()
-	_spawn_gear_puzzle()
+	_spawn_gear_puzzle() 
 	_spawn_gears()
 	_spawn_broken_bridge()
 
@@ -83,20 +66,6 @@ func _spawn_gears_from_dict(gear_dict: Dictionary, world: Node2D) -> void:
 			gear.z_index = 10
 			world.add_child(gear)
 			gear.setup()
-
-func _on_enemy_killed(timeline: String) -> void:
-	_live_enemies -= 1
-	if timeline == "past":
-		_live_past_enemies -= 1
-
-
-func get_live_enemies() -> int:
-	return _live_enemies
-
-
-func get_live_past_enemies() -> int:
-	return _live_past_enemies
-
 
 # ── Broken bridge ──
 
@@ -233,73 +202,3 @@ func _repair_bridge(past_wall: StaticBody2D, future_wall: StaticBody2D, trigger:
 	await tw2.finished
 
 	GameState.is_transitioning = false
-
-
-# ── NPCs ──
-
-func _spawn_npcs() -> void:
-	const SOLAN_SCENE := preload("res://scenes/characters/Solan.tscn")
-
-	# Past Solan
-	var past_solan := SOLAN_SCENE.instantiate()
-	past_solan.position = Vector2(540, 200)
-	past_solan.z_index = 10
-	past_world.add_child(past_solan)
-	(past_solan as Solen).set_state(Solen.STATE.IDLE_PAST)
-
-	var past_trigger := Area2D.new()
-	past_trigger.position = Vector2(540, 200)
-	past_trigger.collision_layer = 0
-	past_trigger.collision_mask = PLAYER_LAYER
-	var ps := CollisionShape2D.new()
-	var pc := CircleShape2D.new()
-	pc.radius = 40.0
-	ps.shape = pc
-	past_trigger.add_child(ps)
-	var past_fired := [false]
-	past_trigger.body_entered.connect(func(body: Node2D):
-		if past_fired[0] or not body.is_in_group("players"):
-			return
-		if DialogueManager.is_active():
-			return
-		past_fired[0] = true
-		past_trigger.monitoring = false
-		(past_solan as Solen).set_state(Solen.STATE.TALK)
-		DialogueManager.start_dialogue("res://data/dialogue/guide_past.json")
-		DialogueManager.dialogue_ended.connect(func():
-			(past_solan as Solen).set_state(Solen.STATE.IDLE_PAST)
-		, CONNECT_ONE_SHOT)
-	)
-	past_world.add_child(past_trigger)
-
-	# Future Solan
-	var future_solan := SOLAN_SCENE.instantiate()
-	future_solan.position = Vector2(688, 200)
-	future_solan.z_index = 10
-	future_world.add_child(future_solan)
-	(future_solan as Solen).set_state(Solen.STATE.IDLE_FUTURE)
-
-	var future_trigger := Area2D.new()
-	future_trigger.position = Vector2(688, 200)
-	future_trigger.collision_layer = 0
-	future_trigger.collision_mask = PLAYER_LAYER
-	var fs := CollisionShape2D.new()
-	var fc := CircleShape2D.new()
-	fc.radius = 40.0
-	fs.shape = fc
-	future_trigger.add_child(fs)
-	var future_fired := [false]
-	future_trigger.body_entered.connect(func(body: Node2D):
-		if future_fired[0] or not body.is_in_group("players"):
-			return
-		if DialogueManager.is_active():
-			return
-		future_fired[0] = true
-		future_trigger.monitoring = false
-		(future_solan as Solen).set_state(Solen.STATE.TALK)
-		DialogueManager.start_dialogue("res://data/dialogue/guide_future.json")
-		DialogueManager.dialogue_ended.connect(func():
-			(future_solan as Solen).set_state(Solen.STATE.IDLE_FUTURE)
-		, CONNECT_ONE_SHOT)
-	)
-	future_world.add_child(future_trigger)
