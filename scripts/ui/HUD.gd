@@ -48,9 +48,9 @@ func _build_banner() -> void:
 
 
 func _on_gear_collected(gear_id: String, timeline: String) -> void:
-	var letter: String = gear_id.substr(gear_id.rfind("_") + 1).to_upper()
+	var item_name: String = gear_id.capitalize()
 	var side: String = "PAST" if timeline == "past" else "FUTURE"
-	_show_banner("%s: Gear %s Collected" % [side, letter], 1.2, 24)
+	_show_banner("%s: %s Collected" % [side, item_name], 1.2, 24)
 
 
 func _on_timeline_action(action_id: String, _src: String) -> void:

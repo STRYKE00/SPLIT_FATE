@@ -24,32 +24,7 @@ var future_overlay: ColorRect
 var current_past_room: Room
 var current_future_room: Room
 
-var _live_enemies: int = 0
-var _past_enemies: Dictionary = {}
-var _future_enemies: Dictionary = {}
-
-var _past_gears: Dictionary = {}
-var _future_gears: Dictionary = {}
-
-var _gear_puzzle: GearPuzzleManager
-const BOSS_ROOM_INDEX := 4
-
-const ENEMY_SCENES = {
-	"archer": preload("res://scenes/characters/Enemies/archer.tscn"),
-	"orc": preload("res://scenes/characters/Enemies/Orc.tscn"),
-	"armored_orc": preload("res://scenes/characters/Enemies/armored_orc.tscn"),
-	"elite_orc": preload("res://scenes/characters/Enemies/elite_orc.tscn"),
-	"orc_rider": preload("res://scenes/characters/Enemies/orc_rider.tscn"),
-	"soldier": preload("res://scenes/characters/Enemies/soldier.tscn"),
-	"knight": preload("res://scenes/characters/Enemies/knight.tscn"),
-	"skeleton": preload("res://scenes/characters/Enemies/skeleton.tscn"),
-	"armored_skeleton": preload("res://scenes/characters/Enemies/armored_skeleton.tscn"),
-	"skeleton_archer": preload("res://scenes/characters/Enemies/skeleton_archer.tscn"),
-	"greatsword_skeleton": preload("res://scenes/characters/Enemies/greatsword_skeleton.tscn"),
-	"werewolf": preload("res://scenes/characters/Enemies/werewolf.tscn"),
-	"werebear": preload("res://scenes/characters/Enemies/werebear.tscn"),
-	"default": preload("res://scenes/characters/EnemyBase.tscn")
-}
+var _puzzle: Node
 
 
 func _ready() -> void:
@@ -61,74 +36,25 @@ func _ready() -> void:
 	left_viewport.world_2d = World2D.new()
 	right_viewport.world_2d = World2D.new()
 
-	_define_enemies()
-	_define_gears()
 	_spawn_worlds()
 	_spawn_players()
-	_spawn_gear_puzzle()
 	_load_past_map()
 	_load_future_map()
-	_spawn_npcs()
-	_spawn_enemies()
-	_spawn_gears()
 	_build_overlays()
+	_setup_puzzle()
 	_connect_hud()
 	_connect_signals()
 	_fade_in_both()
 
-func _define_gears() -> void:
-	_past_gears = {
-		0: [{"type": "puzzle","x": 450, "y": 210}],
-	}
-	
-	_future_gears = {
-	}
-	
-func _define_enemies() -> void:
-	_past_enemies = {
-		0: [
-			{"type": "orc", "x": 632, "y": 904, "hp": 3},
-			{"type": "orc", "x": 616, "y": 1088, "hp": 3},
-			{"type": "orc", "x": 950, "y": 800, "hp": 3},
-			{"type": "orc", "x": 856, "y": 928, "hp": 3},
-		],
-		1: [
-			{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
-			{"type": "archer", "x": 768, "y": 2088, "hp": 3},
-			{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
-			{"type": "archer", "x": 688, "y": 1816, "hp": 3},
-		],
-		2: [
-			{"type": "orc", "x": -736, "y": 1778, "hp": 3},
-			{"type": "orc", "x": -760, "y": 1950, "hp": 3},
-			{"type": "orc", "x": -368, "y": 2000, "hp": 3},
-			{"type": "archer", "x": -360, "y": 1728, "hp": 3},
-			{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
-			{"type": "archer", "x": -96, "y": 1720, "hp": 3},
-		]
-	}
-	_future_enemies = {
-		0: [
-			{"type": "skeleton", "x": 358, "y": 1029, "hp": 3},
-			{"type": "skeleton", "x": 1017, "y": 1019, "hp": 3},
-			{"type": "skeleton", "x": 309, "y": 1292, "hp": 3},
-			{"type": "skeleton", "x": 1062, "y": 1316, "hp": 3},
-		],
-		1: [
-			{"type": "skeleton", "x": 356, "y": 1811, "hp": 3},
-			{"type": "skeleton_archer", "x": 1038, "y": 1776, "hp": 3},
-			{"type": "armored_skeleton", "x": 356, "y": 2014, "hp": 3},
-			{"type": "skeleton_archer", "x": 1062, "y": 2070, "hp": 3},
-		],
-		2: [
-			{"type": "skeleton", "x": -331, "y": 1735, "hp": 3},
-			{"type": "skeleton", "x": -426, "y": 1924, "hp": 3},
-			{"type": "skeleton", "x": -368, "y": 2135, "hp": 3},
-			{"type": "skeleton_archer", "x": -900, "y": 2100, "hp": 3},
-			{"type": "armored_skeleton", "x": -665, "y": 1902, "hp": 3},
-			{"type": "skeleton_archer", "x": -900, "y": 1735, "hp": 3},
-		]
-	}
+
+func _setup_puzzle() -> void:
+	var puzzle_script := preload("res://scripts/world/area1/Puzzle.gd")
+	_puzzle = Node.new()
+	_puzzle.set_script(puzzle_script)
+	_puzzle.name = "Puzzle"
+	add_child(_puzzle)
+	_puzzle.setup(past_world, future_world, past_overlay, future_overlay)
+
 
 func _load_past_map() -> void:
 	var map := preload("res://scenes/Past_map_1.tscn").instantiate()
@@ -200,128 +126,16 @@ func _connect_signals() -> void:
 	TimelineManager.reset_sync()
 
 
-func _spawn_gear_puzzle() -> void:
-	_gear_puzzle = GearPuzzleManager.new()
-	_gear_puzzle.name = "GearPuzzleManager"
-	add_child(_gear_puzzle)
-
-func _spawn_gears() -> void:
-	_spawn_gears_from_dict(_past_gears, past_world)
-	_spawn_gears_from_dict(_future_gears, future_world)
-				
-
-func _spawn_gears_from_dict(gear_dict: Dictionary, world: Node2D) -> void:
-	for gear_idx in gear_dict:
-		for cfg in gear_dict[gear_idx]:
-			var gear_scene: PackedScene = preload("res://scenes/gear_base.tscn")
-			var gear: GearBase = gear_scene.instantiate()
-			gear.position = Vector2(cfg["x"], cfg["y"])
-			gear.gear_type = cfg["type"]
-			world.add_child(gear)
-			gear.setup()
-	
-
-func _spawn_enemies() -> void:
-	_spawn_enemies_from_dict(_past_enemies, "past", past_world)
-	_spawn_enemies_from_dict(_future_enemies, "future", future_world)
-	if _live_enemies > 0:
-		TimelineManager.enemy_killed.connect(_on_enemy_killed)
-
-
-func _spawn_enemies_from_dict(enemy_dict: Dictionary, timeline: String, world: Node2D) -> void:
-	for room_idx in enemy_dict:
-		for cfg in enemy_dict[room_idx]:
-			var type_key: String = cfg.get("type", "default")
-			var enemy_scene: PackedScene = ENEMY_SCENES.get(type_key, ENEMY_SCENES["default"])
-			var enemy: EnemyBase = enemy_scene.instantiate()
-			enemy.position = Vector2(cfg["x"], cfg["y"])
-			enemy.timeline = timeline
-			enemy.tint = cfg.get("tint", Color.WHITE)
-			enemy.hp = cfg.get("hp", 3)
-			enemy.speed = cfg.get("speed", 55.0)
-			enemy.chase_speed = cfg.get("chase_speed", 85.0)
-			enemy.is_boss = cfg.get("is_boss", false)
-			enemy.attack_damage = cfg.get("attack_damage", 1)
-			enemy.attack_cooldown = cfg.get("attack_cooldown", 1.2)
-			enemy.detection_radius = cfg.get("detection_radius", 120.0)
-			enemy.z_index = 10
-			_live_enemies+=1
-			world.add_child(enemy)
-
-func _on_enemy_killed(_timeline: String) -> void:
-	_live_enemies -= 1
-	
 func get_live_enemies() -> int:
-	return _live_enemies
+	if _puzzle and _puzzle.has_method("get_live_enemies"):
+		return _puzzle.get_live_enemies()
+	return 0
 
 
-func _spawn_npcs() -> void:
-	const SOLAN_SCENE := preload("res://scenes/characters/Solan.tscn")
-	const PLAYER_LAYER := 2
-	
-	# Past Solan
-	var past_solan := SOLAN_SCENE.instantiate()
-	past_solan.position = Vector2(540, 200)
-	past_solan.z_index = 10
-	past_world.add_child(past_solan)
-	(past_solan as Solen).set_state(Solen.STATE.IDLE_PAST)
-
-	var past_trigger := Area2D.new()
-	past_trigger.position = Vector2(540, 200)
-	past_trigger.collision_layer = 0
-	past_trigger.collision_mask = PLAYER_LAYER
-	var ps := CollisionShape2D.new()
-	var pc := CircleShape2D.new()
-	pc.radius = 40.0
-	ps.shape = pc
-	past_trigger.add_child(ps)
-	var past_fired := [false]
-	past_trigger.body_entered.connect(func(body: Node2D):
-		if past_fired[0] or not body.is_in_group("players"):
-			return
-		if DialogueManager.is_active():
-			return
-		past_fired[0] = true
-		past_trigger.monitoring = false
-		(past_solan as Solen).set_state(Solen.STATE.TALK)
-		DialogueManager.start_dialogue("res://data/dialogue/guide_past.json")
-		DialogueManager.dialogue_ended.connect(func():
-			(past_solan as Solen).set_state(Solen.STATE.IDLE_PAST)
-		, CONNECT_ONE_SHOT)
-	)
-	past_world.add_child(past_trigger)
-
-	# Future Solan
-	var future_solan := SOLAN_SCENE.instantiate()
-	future_solan.position = Vector2(688, 200)
-	future_solan.z_index = 10
-	future_world.add_child(future_solan)
-	(future_solan as Solen).set_state(Solen.STATE.IDLE_FUTURE)
-
-	var future_trigger := Area2D.new()
-	future_trigger.position = Vector2(688, 200)
-	future_trigger.collision_layer = 0
-	future_trigger.collision_mask = PLAYER_LAYER
-	var fs := CollisionShape2D.new()
-	var fc := CircleShape2D.new()
-	fc.radius = 40.0
-	fs.shape = fc
-	future_trigger.add_child(fs)
-	var future_fired := [false]
-	future_trigger.body_entered.connect(func(body: Node2D):
-		if future_fired[0] or not body.is_in_group("players"):
-			return
-		if DialogueManager.is_active():
-			return
-		future_fired[0] = true
-		future_trigger.monitoring = false
-		(future_solan as Solen).set_state(Solen.STATE.TALK)
-		DialogueManager.start_dialogue("res://data/dialogue/guide_future.json")
-		DialogueManager.dialogue_ended.connect(func():
-			(future_solan as Solen).set_state(Solen.STATE.IDLE_FUTURE)
-		, CONNECT_ONE_SHOT)
-	)
-	future_world.add_child(future_trigger)
+func get_live_past_enemies() -> int:
+	if _puzzle and _puzzle.has_method("get_live_past_enemies"):
+		return _puzzle.get_live_past_enemies()
+	return 0
 
 
 func _process(delta: float) -> void:
