@@ -78,3 +78,14 @@ horizontal_alignment = 2
 theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(1, 1, 1, 0.6)
 text = "▼"
+
+[node name="SkipButton" type="Button" parent="UILayer"]
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -110.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 48.0
+text = "Skip ▶▶"

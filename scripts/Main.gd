@@ -3,6 +3,10 @@ extends Control
 const FADE_TIME := 0.45
 const VP_W := 688
 const VP_H := 768
+const ROOM_W := 1376
+const ROOM_H := 768
+const ROOM_COUNT := 4
+const ROOM_TRANSITION_TIME := 0.6
 
 # --- Node references (set up in Main.tscn) ---
 @onready var left_viewport: SubViewport  = $SplitContainer/LeftContainer/LeftViewport
@@ -20,150 +24,126 @@ var future_overlay: ColorRect
 var current_past_room: Room
 var current_future_room: Room
 
-var _past_rooms: Dictionary = {}
-var _future_rooms: Dictionary = {}
-var _past_connections: Dictionary = {}
-var _future_connections: Dictionary = {}
+var _live_enemies: int = 0
+var _past_enemies: Dictionary = {}
+var _future_enemies: Dictionary = {}
+
+var _past_gears: Dictionary = {}
+var _future_gears: Dictionary = {}
 
 var _gear_puzzle: GearPuzzleManager
-var _boss_intro_played: bool = false
 const BOSS_ROOM_INDEX := 4
+
+const ENEMY_SCENES = {
+	"archer": preload("res://scenes/characters/Enemies/archer.tscn"),
+	"orc": preload("res://scenes/characters/Enemies/Orc.tscn"),
+	"armored_orc": preload("res://scenes/characters/Enemies/armored_orc.tscn"),
+	"elite_orc": preload("res://scenes/characters/Enemies/elite_orc.tscn"),
+	"orc_rider": preload("res://scenes/characters/Enemies/orc_rider.tscn"),
+	"soldier": preload("res://scenes/characters/Enemies/soldier.tscn"),
+	"knight": preload("res://scenes/characters/Enemies/knight.tscn"),
+	"skeleton": preload("res://scenes/characters/Enemies/skeleton.tscn"),
+	"armored_skeleton": preload("res://scenes/characters/Enemies/armored_skeleton.tscn"),
+	"skeleton_archer": preload("res://scenes/characters/Enemies/skeleton_archer.tscn"),
+	"greatsword_skeleton": preload("res://scenes/characters/Enemies/greatsword_skeleton.tscn"),
+	"werewolf": preload("res://scenes/characters/Enemies/werewolf.tscn"),
+	"werebear": preload("res://scenes/characters/Enemies/werebear.tscn"),
+	"default": preload("res://scenes/characters/EnemyBase.tscn")
+}
 
 
 func _ready() -> void:
+	# Clear any stale state left over from previous scenes (dialogue, transitions)
+	GameState.is_dialogue_active = false
+	GameState.is_transitioning   = false
+
 	# Each viewport needs its own World2D for independent physics
 	left_viewport.world_2d = World2D.new()
 	right_viewport.world_2d = World2D.new()
 
-	_define_rooms()
+	_define_enemies()
+	_define_gears()
 	_spawn_worlds()
 	_spawn_players()
 	_spawn_gear_puzzle()
-	_load_room("past", 0)
-	_load_room("future", 0)
-	past_player.position = current_past_room.get_center()
-	future_player.position = current_future_room.get_center()
+	_load_past_map()
+	_load_future_map()
+	_spawn_npcs()
+	_spawn_enemies()
+	_spawn_gears()
 	_build_overlays()
 	_connect_hud()
 	_connect_signals()
 	_fade_in_both()
 
-
-func _define_rooms() -> void:
-	# Area 1: 4 rooms per timeline, identical layout + enemy positions,
-	# differing only in floor/wall colors and enemy roster.
-	_past_rooms = {
-		0: {
-			"doors": ["south"],
-			"enemies": [],
-			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_past.json", "type": "past"}],
-			"floor_color": Color(0.82, 0.72, 0.52),
-			"wall_color": Color(0.50, 0.42, 0.30),
-		},
-		1: {
-			"doors": ["north", "south"],
-			"enemies": [
-				{"x": 120, "y": 180, "hp": 3, "type": "orc"},
-				{"x": 240, "y": 260, "hp": 3, "type": "orc"},
-			],
-			"triggers": [
-				{"type": "gear_pickup", "gear_id": "gear_a", "position": Vector2(176, 220), "size": Vector2(32, 32), "after_clear": true, "id": "GearA"},
-
-			],
-			"npcs": [],
-			"floor_color": Color(0.78, 0.68, 0.48),
-			"wall_color": Color(0.48, 0.40, 0.28),
-		},
-		2: {
-			"doors": ["north", "south"],
-			"enemies": [
-				{"x": 120, "y": 180, "hp": 3, "type": "orc"},
-				{"x": 240, "y": 200, "hp": 2, "type": "archer"},
-			],
-			"triggers": [
-				{"type": "gear_pickup", "gear_id": "gear_b", "position": Vector2(176, 220), "size": Vector2(32, 32), "after_clear": true, "id": "GearB"},
-			],
-			"npcs": [],
-			"floor_color": Color(0.75, 0.65, 0.45),
-			"wall_color": Color(0.45, 0.38, 0.26),
-		},
-		3: {
-			"doors": ["north"],
-			"enemies": [],
-			"props": [
-				{"position": Vector2(176, 180), "size": Vector2(40, 40), "color": Color(0.6, 0.5, 0.3), "collides": true, "label": "Gear Console"},
-			],
-			"triggers": [
-				{"type": "gear_pickup", "gear_id": "gear_c", "position": Vector2(176, 220), "size": Vector2(32, 32), "id": "GearC"},
-
-			],
-			"npcs": [],
-			"floor_color": Color(0.55, 0.40, 0.32),
-			"wall_color": Color(0.32, 0.22, 0.18),
-		},
+func _define_gears() -> void:
+	_past_gears = {
+		0: [{"type": "puzzle","x": 450, "y": 210}],
+	}
+	
+	_future_gears = {
+	}
+	
+func _define_enemies() -> void:
+	_past_enemies = {
+		0: [
+			{"type": "orc", "x": 632, "y": 904, "hp": 3},
+			{"type": "orc", "x": 616, "y": 1088, "hp": 3},
+			{"type": "orc", "x": 950, "y": 800, "hp": 3},
+			{"type": "orc", "x": 856, "y": 928, "hp": 3},
+		],
+		1: [
+			{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
+			{"type": "archer", "x": 768, "y": 2088, "hp": 3},
+			{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
+			{"type": "archer", "x": 688, "y": 1816, "hp": 3},
+		],
+		2: [
+			{"type": "orc", "x": -736, "y": 1778, "hp": 3},
+			{"type": "orc", "x": -760, "y": 1950, "hp": 3},
+			{"type": "orc", "x": -368, "y": 2000, "hp": 3},
+			{"type": "archer", "x": -360, "y": 1728, "hp": 3},
+			{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
+			{"type": "archer", "x": -96, "y": 1720, "hp": 3},
+		]
+	}
+	_future_enemies = {
+		0: [
+			{"type": "skeleton", "x": 358, "y": 1029, "hp": 3},
+			{"type": "skeleton", "x": 1017, "y": 1019, "hp": 3},
+			{"type": "skeleton", "x": 309, "y": 1292, "hp": 3},
+			{"type": "skeleton", "x": 1062, "y": 1316, "hp": 3},
+		],
+		1: [
+			{"type": "skeleton", "x": 356, "y": 1811, "hp": 3},
+			{"type": "skeleton_archer", "x": 1038, "y": 1776, "hp": 3},
+			{"type": "armored_skeleton", "x": 356, "y": 2014, "hp": 3},
+			{"type": "skeleton_archer", "x": 1062, "y": 2070, "hp": 3},
+		],
+		2: [
+			{"type": "skeleton", "x": -331, "y": 1735, "hp": 3},
+			{"type": "skeleton", "x": -426, "y": 1924, "hp": 3},
+			{"type": "skeleton", "x": -368, "y": 2135, "hp": 3},
+			{"type": "skeleton_archer", "x": -900, "y": 2100, "hp": 3},
+			{"type": "armored_skeleton", "x": -665, "y": 1902, "hp": 3},
+			{"type": "skeleton_archer", "x": -900, "y": 1735, "hp": 3},
+		]
 	}
 
-	_future_rooms = {
-		0: {
-			"doors": ["south"],
-			"enemies": [],
-			"npcs": [{"x": 176, "y": 100, "dialogue": "res://data/dialogue/guide_future.json", "type": "future"}],
-			"floor_color": Color(0.28, 0.30, 0.38),
-			"wall_color": Color(0.18, 0.20, 0.28),
-		},
-		1: {
-			"doors": ["north", "south"],
-			"enemies": [
-				{"x": 120, "y": 180, "hp": 3, "type": "skeleton"},
-				{"x": 240, "y": 260, "hp": 3, "type": "skeleton"},
-			],
-			"triggers": [
-				{"type": "gear_pickup", "gear_id": "gear_a", "position": Vector2(176, 220), "size": Vector2(32, 32), "after_clear": true, "id": "GearA"},
-			],
-			"npcs": [],
-			"floor_color": Color(0.24, 0.26, 0.34),
-			"wall_color": Color(0.15, 0.17, 0.25),
-		},
-		2: {
-			"doors": ["north", "south"],
-			"enemies": [
-				{"x": 120, "y": 180, "hp": 3, "type": "skeleton"},
-				{"x": 240, "y": 200, "hp": 2, "type": "skeleton_archer"},
-			],
-			"triggers": [
-				{"type": "gear_pickup", "gear_id": "gear_b", "position": Vector2(176, 220), "size": Vector2(32, 32), "after_clear": true, "id": "GearB"},
-			],
-			"npcs": [],
-			"floor_color": Color(0.22, 0.24, 0.32),
-			"wall_color": Color(0.13, 0.15, 0.22),
-		},
-		3: {
-			"doors": ["north"],
-			"enemies": [],
-			"props": [
-				{"position": Vector2(176, 180), "size": Vector2(40, 40), "color": Color(0.3, 0.4, 0.6), "collides": true, "label": "Gear Console"},
-			],
-			"triggers": [
-				{"type": "gear_pickup", "gear_id": "gear_c", "position": Vector2(176, 220), "size": Vector2(32, 32), "id": "GearC"},
-			],
-			"npcs": [],
-			"floor_color": Color(0.18, 0.10, 0.28),
-			"wall_color": Color(0.10, 0.05, 0.18),
-		},
-	}
+func _load_past_map() -> void:
+	var map := preload("res://scenes/Past_map_1.tscn").instantiate()
+	map.name = "PastMap"
+	past_world.add_child(map)
+	past_player.position = Vector2(540.0, 384.0)
+	GameState.current_room_past = 0
 
-	_past_connections = {
-		0: {"south": 1},
-		1: {"north": 0, "south": 2},
-		2: {"north": 1, "south": 3},
-		3: {"north": 2},
-	}
-	_future_connections = {
-		0: {"south": 1},
-		1: {"north": 0, "south": 2},
-		2: {"north": 1, "south": 3},
-		3: {"north": 2},
-	}
+
+func _load_future_map() -> void:
+	var map := preload("res://scenes/Future_map_1.tscn").instantiate()
+	map.name = "FutureMap"
+	future_world.add_child(map)
+	future_player.position = Vector2(688.0, 384.0)
+	GameState.current_room_future = 0
 
 
 func _spawn_worlds() -> void:
@@ -185,49 +165,6 @@ func _spawn_players() -> void:
 
 	past_world.add_child(past_player)
 	future_world.add_child(future_player)
-
-
-func _load_room(timeline: String, room_idx: int) -> void:
-	var room_data: Dictionary = _past_rooms if timeline == "past" else _future_rooms
-	if not room_data.has(room_idx):
-		return
-
-	var world: Node2D = past_world if timeline == "past" else future_world
-
-	var old_room: Room
-	if timeline == "past":
-		old_room = current_past_room
-	else:
-		old_room = current_future_room
-
-	if old_room:
-		old_room.queue_free()
-
-	var cfg: Dictionary = room_data[room_idx]
-	var room := Room.new()
-	room.room_w = cfg.get("room_w", 11)
-	room.room_h = cfg.get("room_h", 12)
-	room.timeline = timeline
-	room.room_id = room_idx
-	room.door_positions = cfg.get("doors", [])
-	room.enemy_configs = cfg.get("enemies", [])
-	room.npc_configs = cfg.get("npcs", [])
-	room.prop_configs = cfg.get("props", [])
-	room.trigger_configs = cfg.get("triggers", [])
-	room.locked_doors = cfg.get("locked_doors", {})
-	room.floor_color = cfg.get("floor_color", Color(0.5, 0.5, 0.5))
-	room.wall_color = cfg.get("wall_color", Color(0.3, 0.3, 0.3))
-	room.name = "Room_%s_%d" % [timeline, room_idx]
-
-	world.add_child(room)
-	room.build()
-
-	if timeline == "past":
-		current_past_room = room
-		GameState.current_room_past = room_idx
-	else:
-		current_future_room = room
-		GameState.current_room_future = room_idx
 
 
 func _build_overlays() -> void:
@@ -267,6 +204,124 @@ func _spawn_gear_puzzle() -> void:
 	_gear_puzzle = GearPuzzleManager.new()
 	_gear_puzzle.name = "GearPuzzleManager"
 	add_child(_gear_puzzle)
+
+func _spawn_gears() -> void:
+	_spawn_gears_from_dict(_past_gears, past_world)
+	_spawn_gears_from_dict(_future_gears, future_world)
+				
+
+func _spawn_gears_from_dict(gear_dict: Dictionary, world: Node2D) -> void:
+	for gear_idx in gear_dict:
+		for cfg in gear_dict[gear_idx]:
+			var gear_scene: PackedScene = preload("res://scenes/gear_base.tscn")
+			var gear: GearBase = gear_scene.instantiate()
+			gear.position = Vector2(cfg["x"], cfg["y"])
+			gear.gear_type = cfg["type"]
+			world.add_child(gear)
+			gear.setup()
+	
+
+func _spawn_enemies() -> void:
+	_spawn_enemies_from_dict(_past_enemies, "past", past_world)
+	_spawn_enemies_from_dict(_future_enemies, "future", future_world)
+	if _live_enemies > 0:
+		TimelineManager.enemy_killed.connect(_on_enemy_killed)
+
+
+func _spawn_enemies_from_dict(enemy_dict: Dictionary, timeline: String, world: Node2D) -> void:
+	for room_idx in enemy_dict:
+		for cfg in enemy_dict[room_idx]:
+			var type_key: String = cfg.get("type", "default")
+			var enemy_scene: PackedScene = ENEMY_SCENES.get(type_key, ENEMY_SCENES["default"])
+			var enemy: EnemyBase = enemy_scene.instantiate()
+			enemy.position = Vector2(cfg["x"], cfg["y"])
+			enemy.timeline = timeline
+			enemy.tint = cfg.get("tint", Color.WHITE)
+			enemy.hp = cfg.get("hp", 3)
+			enemy.speed = cfg.get("speed", 55.0)
+			enemy.chase_speed = cfg.get("chase_speed", 85.0)
+			enemy.is_boss = cfg.get("is_boss", false)
+			enemy.attack_damage = cfg.get("attack_damage", 1)
+			enemy.attack_cooldown = cfg.get("attack_cooldown", 1.2)
+			enemy.detection_radius = cfg.get("detection_radius", 120.0)
+			enemy.z_index = 10
+			_live_enemies+=1
+			world.add_child(enemy)
+
+func _on_enemy_killed(_timeline: String) -> void:
+	_live_enemies -= 1
+	
+func get_live_enemies() -> int:
+	return _live_enemies
+
+
+func _spawn_npcs() -> void:
+	const SOLAN_SCENE := preload("res://scenes/characters/Solan.tscn")
+	const PLAYER_LAYER := 2
+	
+	# Past Solan
+	var past_solan := SOLAN_SCENE.instantiate()
+	past_solan.position = Vector2(540, 200)
+	past_solan.z_index = 10
+	past_world.add_child(past_solan)
+	(past_solan as Solen).set_state(Solen.STATE.IDLE_PAST)
+
+	var past_trigger := Area2D.new()
+	past_trigger.position = Vector2(540, 200)
+	past_trigger.collision_layer = 0
+	past_trigger.collision_mask = PLAYER_LAYER
+	var ps := CollisionShape2D.new()
+	var pc := CircleShape2D.new()
+	pc.radius = 40.0
+	ps.shape = pc
+	past_trigger.add_child(ps)
+	var past_fired := [false]
+	past_trigger.body_entered.connect(func(body: Node2D):
+		if past_fired[0] or not body.is_in_group("players"):
+			return
+		if DialogueManager.is_active():
+			return
+		past_fired[0] = true
+		past_trigger.monitoring = false
+		(past_solan as Solen).set_state(Solen.STATE.TALK)
+		DialogueManager.start_dialogue("res://data/dialogue/guide_past.json")
+		DialogueManager.dialogue_ended.connect(func():
+			(past_solan as Solen).set_state(Solen.STATE.IDLE_PAST)
+		, CONNECT_ONE_SHOT)
+	)
+	past_world.add_child(past_trigger)
+
+	# Future Solan
+	var future_solan := SOLAN_SCENE.instantiate()
+	future_solan.position = Vector2(688, 200)
+	future_solan.z_index = 10
+	future_world.add_child(future_solan)
+	(future_solan as Solen).set_state(Solen.STATE.IDLE_FUTURE)
+
+	var future_trigger := Area2D.new()
+	future_trigger.position = Vector2(688, 200)
+	future_trigger.collision_layer = 0
+	future_trigger.collision_mask = PLAYER_LAYER
+	var fs := CollisionShape2D.new()
+	var fc := CircleShape2D.new()
+	fc.radius = 40.0
+	fs.shape = fc
+	future_trigger.add_child(fs)
+	var future_fired := [false]
+	future_trigger.body_entered.connect(func(body: Node2D):
+		if future_fired[0] or not body.is_in_group("players"):
+			return
+		if DialogueManager.is_active():
+			return
+		future_fired[0] = true
+		future_trigger.monitoring = false
+		(future_solan as Solen).set_state(Solen.STATE.TALK)
+		DialogueManager.start_dialogue("res://data/dialogue/guide_future.json")
+		DialogueManager.dialogue_ended.connect(func():
+			(future_solan as Solen).set_state(Solen.STATE.IDLE_FUTURE)
+		, CONNECT_ONE_SHOT)
+	)
+	future_world.add_child(future_trigger)
 
 
 func _process(delta: float) -> void:
@@ -332,54 +387,5 @@ func _fade_in_both() -> void:
 		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
 
 
-func _on_room_transition(timeline: String, direction: String) -> void:
-	if GameState.is_transitioning:
-		return
-	GameState.is_transitioning = true
-
-	var current_idx: int
-	var connections: Dictionary
-	var overlay: ColorRect
-	var player: PlayerBase
-
-	if timeline == "past":
-		current_idx = GameState.current_room_past
-		connections = _past_connections
-		overlay = past_overlay
-		player = past_player
-	else:
-		current_idx = GameState.current_room_future
-		connections = _future_connections
-		overlay = future_overlay
-		player = future_player
-
-	var room_conns: Dictionary = connections.get(current_idx, {})
-	if not room_conns.has(direction):
-		GameState.is_transitioning = false
-		return
-
-	var next_idx: int = room_conns[direction]
-
-	var tw_out := create_tween()
-	tw_out.tween_property(overlay, "color:a", 1.0, FADE_TIME)\
-		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_SINE)
-	await tw_out.finished
-
-	_load_room(timeline, next_idx)
-
-	var entry_dir := "south" if direction == "north" else "north"
-	if direction == "east":
-		entry_dir = "west"
-	elif direction == "west":
-		entry_dir = "east"
-
-	var room: Room = current_past_room if timeline == "past" else current_future_room
-	player.position = room.get_spawn_point(entry_dir)
-	player.velocity = Vector2.ZERO
-
-	var tw_in := create_tween()
-	tw_in.tween_property(overlay, "color:a", 0.0, FADE_TIME)\
-		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
-	await tw_in.finished
-
-	GameState.is_transitioning = false
+func _on_room_transition(_timeline: String, _direction: String) -> void:
+	pass  # Maps are open TileMap scenes — no room transitions
