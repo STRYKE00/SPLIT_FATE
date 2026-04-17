@@ -1,6 +1,37 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(git pull *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(xargs grep *)",
+      "Bash(grep -r \"collision_layer\\\\|collision_mask\" /d/godot/splitfate/rpg_slop/scripts/*.gd)",
+      "Bash(\"C:/Users/hp/AppData/Local/Programs/Godot/Godot_v4.6-dev6_win64.exe\" --path . --headless --quit)",
+      "Bash(godot --path . --headless --quit)",
+      "Skill(update-config)",
+      "Bash(git checkout *)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 *)",
+      "Bash(git -C /d/godot/splitfate/rpg_slop checkout firdaus)",
+      "Bash(git -C /d/godot/splitfate/rpg_slop checkout -b firdaus)",
+      "Bash(python -m json.tool data/dialogue/area1_scene02_solen.json)",
+      "Bash(python -m json.tool data/dialogue/area1_scene04_echo_exchange.json)",
+      "Bash(python -m json.tool data/dialogue/area1_scene05_warden.json)",
+      "Bash(python -m json.tool data/dialogue/area1_warden_midfight.json)",
+      "Bash(python -m json.tool data/dialogue/area1_mirror_solen.json)",
+      "Bash(grep -n \"signal\\\\|enemy_killed\\\\|room_cleared\\\\|gear_collected\\\\|communicator_found\\\\|timeline_action\\\\|get_flag\\\\|set_flag\\\\|is_active\" autoloads/*.gd)",
+      "Bash(git cherry-pick *)",
+      "Bash(git merge *)",
+      "Bash(sort -k2)",
+      "Bash(uniq -f1 -d)",
+      "Bash(godot --path . --headless --quit --check-only)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "godot"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

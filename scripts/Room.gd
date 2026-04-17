@@ -289,6 +289,7 @@ func _unlock_deferred_triggers() -> void:
 	for trigger in _deferred_triggers:
 		if is_instance_valid(trigger):
 			trigger.monitoring = true
+			trigger.visible = true
 
 
 func _spawn_props() -> void:
@@ -380,13 +381,33 @@ func _spawn_triggers() -> void:
 
 		var shape := CollisionShape2D.new()
 		var rect_shape := RectangleShape2D.new()
-		rect_shape.size = cfg.get("size", Vector2(32, 32))
+		var trigger_size: Vector2 = cfg.get("size", Vector2(32, 32))
+		rect_shape.size = trigger_size
 		shape.shape = rect_shape
 		trigger.add_child(shape)
 
+		var trigger_type: String = cfg.get("type", "")
+		if trigger_type == "gear_pickup":
+			var gear_vis := ColorRect.new()
+			gear_vis.size = trigger_size
+			gear_vis.position = -trigger_size * 0.5
+			gear_vis.color = Color(0.85, 0.65, 0.2)
+			gear_vis.z_index = 2
+			trigger.add_child(gear_vis)
+
+			var gear_label := Label.new()
+			gear_label.text = "G"
+			gear_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			gear_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			gear_label.size = trigger_size
+			gear_label.position = -trigger_size * 0.5
+			gear_label.add_theme_font_size_override("font_size", 16)
+			gear_label.z_index = 3
+			trigger.add_child(gear_label)
+
 		var fires_once: bool = cfg.get("fires_once", true)
 		var cfg_ref: Dictionary = cfg
-		var is_timeline_action: bool = cfg.get("type", "") == "timeline_action"
+		var is_timeline_action: bool = trigger_type == "timeline_action"
 		var fired := [false]
 
 		trigger.body_entered.connect(func(body: Node2D):
@@ -398,12 +419,14 @@ func _spawn_triggers() -> void:
 				fired[0] = true
 				if fires_once:
 					trigger.monitoring = false
+					trigger.visible = false
 			_handle_trigger(body, cfg_ref)
 		)
 		add_child(trigger)
 
 		if cfg.get("after_clear", false) and _live_enemies > 0:
 			trigger.monitoring = false
+			trigger.visible = false
 			_deferred_triggers.append(trigger)
 
 
@@ -421,7 +444,7 @@ func _handle_trigger(body: Node2D, cfg: Dictionary) -> void:
 					GameState.set_flag(flag_key, true)
 		"gear_pickup":
 			var gear_id: String = cfg.get("gear_id", "")
-			TimelineManager.gear_collected.emit(gear_id)
+			TimelineManager.gear_collected.emit(gear_id, timeline)
 		"communicator":
 			var side: String = cfg.get("side", "")
 			TimelineManager.communicator_found.emit(side)

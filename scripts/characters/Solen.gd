@@ -20,7 +20,7 @@ func _ready()->void:
 
 func _physics_process(delta: float) -> void:
 	move_and_slide()
-	
+
 func update_animation()->void:
 	match state:
 		STATE.IDLE_PAST:
@@ -33,11 +33,10 @@ func update_animation()->void:
 			animation_playback.travel("turn_away")
 		STATE.URGENT_BOSS:
 			animation_playback.travel("urgent_boss")
-			
+
 func set_state(new_state: STATE)-> void:
 	if state==new_state:
 		return
-		
+
 	state = new_state
 	update_animation()
-	

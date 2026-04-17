@@ -12,6 +12,8 @@ const MAX_HP := 5
 @onready var _future_boss_bar: ProgressBar = $Root/BossPanel/FutureBossBar
 
 var _hp_bar_texture: Texture2D
+var _banner: Label
+var _banner_tween: Tween
 
 
 func _ready() -> void:
@@ -21,7 +23,53 @@ func _ready() -> void:
 	TimelineManager.sync_changed.connect(_on_sync_changed)
 	TimelineManager.boss_spawned.connect(_on_boss_spawned)
 	TimelineManager.boss_defeated.connect(_on_boss_defeated)
+	TimelineManager.gear_collected.connect(_on_gear_collected)
+	TimelineManager.timeline_action.connect(_on_timeline_action)
 	_boss_panel.visible = false
+	_build_banner()
+
+
+func _build_banner() -> void:
+	_banner = Label.new()
+	_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_banner.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_banner.anchor_left = 0.0
+	_banner.anchor_right = 1.0
+	_banner.anchor_top = 0.22
+	_banner.anchor_bottom = 0.22
+	_banner.offset_top = -48
+	_banner.offset_bottom = 48
+	_banner.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+	_banner.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	_banner.add_theme_constant_override("outline_size", 8)
+	_banner.modulate = Color(1, 1, 1, 0)
+	_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$Root.add_child(_banner)
+
+
+func _on_gear_collected(gear_id: String, timeline: String) -> void:
+	var letter: String = gear_id.substr(gear_id.rfind("_") + 1).to_upper()
+	var side: String = "PAST" if timeline == "past" else "FUTURE"
+	_show_banner("%s: Gear %s Collected" % [side, letter], 1.2, 24)
+
+
+func _on_timeline_action(action_id: String, _src: String) -> void:
+	if action_id == "area1_complete":
+		_show_banner("AREA 1 COMPLETE", 2.4, 56)
+
+
+func _show_banner(text: String, hold: float, font_size: int) -> void:
+	if _banner_tween and _banner_tween.is_valid():
+		_banner_tween.kill()
+	_banner.text = text
+	_banner.add_theme_font_size_override("font_size", font_size)
+	_banner.modulate = Color(1, 1, 1, 0)
+	_banner_tween = create_tween()
+	_banner_tween.tween_property(_banner, "modulate:a", 1.0, 0.3)\
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
+	_banner_tween.tween_interval(hold)
+	_banner_tween.tween_property(_banner, "modulate:a", 0.0, 0.4)\
+		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_SINE)
 
 
 func _on_boss_spawned(boss: Node) -> void:
