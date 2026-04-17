@@ -31,6 +31,7 @@ func total_collected() -> int:
 
 
 func has_all_gears() -> bool:
+	print("puzzles collected: ", _past_collected)
 	for gid in REQUIRED_GEARS:
 		if not _past_collected.has(gid):
 			return false

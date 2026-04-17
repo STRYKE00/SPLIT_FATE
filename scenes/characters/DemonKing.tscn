@@ -260,7 +260,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_2mhsy")
 }],
-"loop": true,
+"loop": false,
 "name": &"heavy_attack",
 "speed": 5.0
 }, {
@@ -323,7 +323,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_s777c")
 }],
-"loop": true,
+"loop": false,
 "name": &"light_attack",
 "speed": 5.0
 }, {
@@ -405,7 +405,7 @@ visible = false
 
 [node name="Sprite" parent="." index="1" unique_id=1674076617]
 sprite_frames = SubResource("SpriteFrames_mnp1p")
-animation = &"idle"
+animation = &"heavy_attack"
 
 [node name="Hurtbox" parent="." index="2" unique_id=1847224070]
 visible = false

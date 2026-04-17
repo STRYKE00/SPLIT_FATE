@@ -40,6 +40,7 @@ const DIALOGUE := [
 @onready var _shocked_player: AudioStreamPlayer = $ShockedPlayer
 @onready var _typing_player:  AudioStreamPlayer = $TypingPlayer
 @onready var _skip_btn:       Button            = $UILayer/SkipButton
+@onready var _skip_boss_btn:  Button            = $UILayer/BossButton
 
 # ── Runtime state ─────────────────────────────────────────────────────────────
 var _ren_textures:     Array             = []
@@ -64,6 +65,7 @@ func _ready() -> void:
 	_arrow.visible    = false
 	_setup_characters()
 	_skip_btn.pressed.connect(_on_skip_pressed)
+	_skip_boss_btn.pressed.connect(_on_skip_boss_pressed)
 	_run_prologue()
 
 
@@ -279,6 +281,20 @@ func _on_skip_pressed() -> void:
 	await fade.finished
 	get_tree().change_scene_to_file("res://scenes/Main.tscn")
 
+func _on_skip_boss_pressed() -> void:
+	if _ending or _transitioning:
+		return
+	_ending          = true
+	_dialogue_active = false
+	_music_player.stop()
+	_shocked_player.stop()
+	_typing_player.stop()
+	_skip_boss_btn.visible = false
+	_skip_btn.visible = false
+	var fade := create_tween()
+	fade.tween_property(_overlay, "color:a", 1.0, 0.4).set_ease(Tween.EASE_IN)
+	await fade.finished
+	get_tree().change_scene_to_file("res://scenes/Boss_Room.tscn")
 
 func _start_ending() -> void:
 	_ending          = true

@@ -44,7 +44,7 @@ func setup() -> void:
 
 func _on_enemy_killed(_timeline: String) -> void:
 	var main = get_tree().current_scene
-	if main.has_method("get_live_past_enemies") and main.get_live_past_enemies() <= 0:
+	if main.has_method("get_live_past_enemies") and main.get_live_past_enemies() <= 0 && gear_type=="puzzle":
 		locked = false
 		TimelineManager.enemy_killed.disconnect(_on_enemy_killed)
 

@@ -14,3 +14,12 @@ func _ready() -> void:
 	slash_color = Color(0.2, 0.85, 0.7)
 	sprite.play("idle")
 	_connect_signals()
+
+func _play_dash_animation() -> void:
+	_play("roll")
+
+func _get_dash_duration() -> float:
+	var frames: SpriteFrames = sprite.sprite_frames
+	var frame_count: int = frames.get_frame_count("roll")
+	var fps: float = frames.get_animation_speed("roll")
+	return frame_count / fps

@@ -216,9 +216,7 @@ func get_live_enemies() -> int:
 
 
 func get_live_past_enemies() -> int:
-	if _puzzle and _puzzle.has_method("get_live_past_enemies"):
-		return _puzzle.get_live_past_enemies()
-	return 0
+	return _live_enemies_past
 
 func _spawn_enemies() -> void:
 	_spawn_enemies_from_dict(_past_enemies, "past", past_world)

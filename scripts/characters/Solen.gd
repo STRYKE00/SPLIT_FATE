@@ -42,7 +42,12 @@ func _physics_process(delta: float) -> void:
 		if talked:
 			return
 		
-		DialogueManager.start_dialogue("res://data/dialogue/guide_past.json")
+		if type == TYPE.FUTURE:
+			DialogueManager.start_dialogue("res://data/dialogue/guide_future.json")
+		else:
+			DialogueManager.start_dialogue("res://data/dialogue/guide_past.json")
+			
+			
 		DialogueManager.dialogue_ended.connect(func():
 			talked = true
 			state=STATE.FOLLOW

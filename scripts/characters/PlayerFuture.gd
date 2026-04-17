@@ -24,7 +24,8 @@ func _ready() -> void:
 	action_interact = "future_interact"
 	action_dash     = "future_dash"
 	slash_color     = Color(0.7, 0.5, 1.0)
-	super._ready()
+	sprite.play("idle")
+	_connect_signals()	
 	_reset_cooldown()
 
 func _process(delta: float) -> void:
@@ -44,6 +45,15 @@ func _process(delta: float) -> void:
 
 func _reset_cooldown() -> void:
 	_suppress_cooldown = randf_range(SUPPRESS_INTERVAL_MIN, SUPPRESS_INTERVAL_MAX)
+
+func _play_dash_animation() -> void:
+	_play("roll")
+
+func _get_dash_duration() -> float:
+	var frames: SpriteFrames = sprite.sprite_frames
+	var frame_count: int = frames.get_frame_count("roll")
+	var fps: float = frames.get_animation_speed("roll")
+	return frame_count / fps
 
 # --- overridden input helpers ---
 
