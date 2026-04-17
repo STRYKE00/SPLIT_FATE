@@ -66,9 +66,12 @@ func _ready() -> void:
 	# Each viewport needs its own World2D for independent physics
 	left_viewport.world_2d = World2D.new()
 	right_viewport.world_2d = World2D.new()
-
+	
+	_define_enemies()
 	_spawn_worlds()
 	_spawn_players()
+	_spawn_enemies() 
+	_spawn_npcs()
 	_load_past_map()
 	_load_future_map()
 	_build_overlays()
@@ -77,6 +80,51 @@ func _ready() -> void:
 	_connect_signals()
 	_fade_in_both()
 
+func _define_enemies() -> void:
+	_past_enemies = {
+		0: [
+			{"type": "orc", "x": 632, "y": 904, "hp": 3},
+			#{"type": "orc", "x": 616, "y": 1088, "hp": 3},
+			#{"type": "orc", "x": 950, "y": 800, "hp": 3},
+			#{"type": "orc", "x": 856, "y": 928, "hp": 3},
+		],
+		#1: [
+			#{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
+			#{"type": "archer", "x": 768, "y": 2088, "hp": 3},
+			#{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
+			#{"type": "archer", "x": 688, "y": 1816, "hp": 3},
+		#],
+		#2: [
+			#{"type": "orc", "x": -736, "y": 1778, "hp": 3},
+			#{"type": "orc", "x": -760, "y": 1950, "hp": 3},
+			#{"type": "orc", "x": -368, "y": 2000, "hp": 3},
+			#{"type": "archer", "x": -360, "y": 1728, "hp": 3},
+			#{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
+			#{"type": "archer", "x": -96, "y": 1720, "hp": 3},
+		#]
+	}
+	_future_enemies = {
+		0: [
+			{"type": "skeleton", "x": 358, "y": 1029, "hp": 3},
+			{"type": "skeleton", "x": 1017, "y": 1019, "hp": 3},
+			{"type": "skeleton", "x": 309, "y": 1292, "hp": 3},
+			{"type": "skeleton", "x": 1062, "y": 1316, "hp": 3},
+		],
+		1: [
+			{"type": "skeleton", "x": 356, "y": 1811, "hp": 3},
+			{"type": "skeleton_archer", "x": 1038, "y": 1776, "hp": 3},
+			{"type": "armored_skeleton", "x": 356, "y": 2014, "hp": 3},
+			{"type": "skeleton_archer", "x": 1062, "y": 2070, "hp": 3},
+		],
+		2: [
+			{"type": "skeleton", "x": -331, "y": 1735, "hp": 3},
+			{"type": "skeleton", "x": -426, "y": 1924, "hp": 3},
+			{"type": "skeleton", "x": -368, "y": 2135, "hp": 3},
+			{"type": "skeleton_archer", "x": -900, "y": 2100, "hp": 3},
+			{"type": "armored_skeleton", "x": -665, "y": 1902, "hp": 3},
+			{"type": "skeleton_archer", "x": -900, "y": 1735, "hp": 3},
+		]
+	}
 
 func _setup_puzzle() -> void:
 	var puzzle_script := preload("res://scripts/world/area1/Puzzle.gd")
@@ -124,7 +172,6 @@ func _spawn_players() -> void:
 	past_world.add_child(past_player)
 	future_world.add_child(future_player)
 
-
 func _build_overlays() -> void:
 	var past_canvas := CanvasLayer.new()
 	past_canvas.layer = 50
@@ -168,26 +215,6 @@ func get_live_past_enemies() -> int:
 	if _puzzle and _puzzle.has_method("get_live_past_enemies"):
 		return _puzzle.get_live_past_enemies()
 	return 0
-func _spawn_gear_puzzle() -> void:
-	_gear_puzzle = GearPuzzleManager.new()
-	_gear_puzzle.name = "GearPuzzleManager"
-	add_child(_gear_puzzle)
-
-func _spawn_gears() -> void:
-	_spawn_gears_from_dict(_past_gears, past_world)
-	_spawn_gears_from_dict(_future_gears, future_world)
-				
-
-func _spawn_gears_from_dict(gear_dict: Dictionary, world: Node2D) -> void:
-	for gear_idx in gear_dict:
-		for cfg in gear_dict[gear_idx]:
-			var gear_scene: PackedScene = preload("res://scenes/gear_base.tscn")
-			var gear: GearBase = gear_scene.instantiate()
-			gear.position = Vector2(cfg["x"], cfg["y"])
-			gear.gear_type = cfg["type"]
-			world.add_child(gear)
-			gear.setup()
-	
 
 func _spawn_enemies() -> void:
 	_spawn_enemies_from_dict(_past_enemies, "past", past_world)

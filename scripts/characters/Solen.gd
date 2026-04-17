@@ -21,29 +21,27 @@ var target: Node2D = null
 var _player_inside: Node2D = null
 var talked: bool = false
 var facing: Vector2 = Vector2.DOWN
-@export var follow_speed: float = 60.0
+@export var follow_speed: float = 95.0
 @onready var detection: Area2D            = $Detection
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 
 func _ready()->void:
 	detection.body_entered.connect(_on_player_detected)
-	detection.body_exited.connect(_on_player_lost)
 	update_animation()
 
 func _on_player_detected(body: Node2D) -> void:
 	if body.is_in_group("players"):
 		target = body
-		
-func _on_player_lost(body: Node2D) -> void:
-	if body == target:
-		target = null
 
 func _physics_process(delta: float) -> void:
 	if target==null:
 		return
 	var interact_action: String = "past_interact" if target.timeline == "past" else "future_interact"
 	if Input.is_action_just_pressed(interact_action):
+		if talked:
+			return
+		
 		DialogueManager.start_dialogue("res://data/dialogue/guide_past.json")
 		DialogueManager.dialogue_ended.connect(func():
 			talked = true
@@ -100,7 +98,7 @@ func _state_follow(delta: float) -> void:
 		return
 
 	var dist: float = global_position.distance_to(target.global_position)
-	if dist < 32.0:
+	if dist < 64.0:
 		velocity = Vector2.ZERO
 		sprite.play("idle_before" if type == TYPE.PAST else "idle_after")
 		return
