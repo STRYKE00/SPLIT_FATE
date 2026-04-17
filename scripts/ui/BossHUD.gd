@@ -15,6 +15,12 @@ func _ready() -> void:
 	TimelineManager.boss_hp_changed.connect(_on_hp_changed)
 	TimelineManager.boss_defeated.connect(_on_boss_defeated)
 
+	# If the boss was added to the scene before this HUD, boss_spawned already fired.
+	# Catch that case by checking the "bosses" group.
+	var existing := get_tree().get_nodes_in_group("bosses")
+	if existing.size() > 0:
+		_on_boss_spawned(existing[0])
+
 
 func _on_boss_spawned(_boss: Node) -> void:
 	_root.visible = true

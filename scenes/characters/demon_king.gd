@@ -7,6 +7,7 @@ const CHASE_SPEED := 110.0
 
 const LIGHT_RANGE := 36.0
 const LIGHT_DAMAGE := 1
+const LIGHT_ATTACK_DURATION := 0.6
 const HEAVY_TELEGRAPH := 1.0
 const HEAVY_RADIUS := 112.0
 const HEAVY_DAMAGE := 3
@@ -96,6 +97,7 @@ func _tick_walk(delta: float) -> void:
 func _begin_light() -> void:
 	_s = SolenState.LIGHT_ATTACK
 	_cooldown = ATTACK_COOLDOWN
+	_state_timer = LIGHT_ATTACK_DURATION
 	_has_hit = false
 	attack_damage = LIGHT_DAMAGE
 	hitbox_collision.position = facing * 22.0
@@ -106,7 +108,7 @@ func _begin_light() -> void:
 
 func _tick_light(delta: float) -> void:
 	velocity = velocity.lerp(Vector2.ZERO, 12.0 * delta)
-	if not sprite.is_playing() or sprite.animation != "light_attack":
+	if _state_timer <= 0.0:
 		hitbox.monitoring = false
 		_s = SolenState.WALK
 
@@ -169,13 +171,15 @@ func _spawn_telegraph() -> void:
 
 func _make_ring_visual() -> Node2D:
 	var holder := Node2D.new()
-	var size: float = HEAVY_RADIUS * 2.0
-	var rect := ColorRect.new()
-	rect.color = Color(1.0, 0.2, 0.2, 0.35)
-	rect.size = Vector2(size, size)
-	rect.position = Vector2(-size * 0.5, -size * 0.5)
-	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	holder.add_child(rect)
+	var poly := Polygon2D.new()
+	poly.color = Color(1.0, 0.2, 0.2, 0.35)
+	var verts := PackedVector2Array()
+	var segments := 48
+	for i in range(segments):
+		var angle: float = (float(i) / float(segments)) * TAU
+		verts.append(Vector2(cos(angle), sin(angle)) * HEAVY_RADIUS)
+	poly.polygon = verts
+	holder.add_child(poly)
 	return holder
 
 
@@ -209,7 +213,7 @@ func _pick_nearest_player() -> Node2D:
 	for p in get_tree().get_nodes_in_group("players"):
 		if not is_instance_valid(p):
 			continue
-		if p.has_method("is_dead_player") and p.is_dead_player():
+		if p is PlayerBase and p.stats and p.stats.is_dead:
 			continue
 		var d_sq: float = global_position.distance_squared_to(p.global_position)
 		if d_sq < best_dist_sq:
