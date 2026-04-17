@@ -26,7 +26,11 @@ var current_future_room: Room
 
 var _puzzle: Node
 var _live_enemies: int = 0
+var _live_enemies_past: int = 0
+var _live_enemies_future: int = 0
 var _total_enemies: int = 0
+var _total_enemies_past: int = 0
+var _total_enemies_future: int = 0
 var _past_enemies: Dictionary = {}
 var _future_enemies: Dictionary = {}
 
@@ -84,24 +88,24 @@ func _define_enemies() -> void:
 	_past_enemies = {
 		0: [
 			{"type": "orc", "x": 632, "y": 904, "hp": 3},
-			#{"type": "orc", "x": 616, "y": 1088, "hp": 3},
-			#{"type": "orc", "x": 950, "y": 800, "hp": 3},
-			#{"type": "orc", "x": 856, "y": 928, "hp": 3},
+			{"type": "orc", "x": 616, "y": 1088, "hp": 3},
+			{"type": "orc", "x": 950, "y": 800, "hp": 3},
+			{"type": "orc", "x": 856, "y": 928, "hp": 3},
 		],
-		#1: [
-			#{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
-			#{"type": "archer", "x": 768, "y": 2088, "hp": 3},
-			#{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
-			#{"type": "archer", "x": 688, "y": 1816, "hp": 3},
-		#],
-		#2: [
-			#{"type": "orc", "x": -736, "y": 1778, "hp": 3},
-			#{"type": "orc", "x": -760, "y": 1950, "hp": 3},
-			#{"type": "orc", "x": -368, "y": 2000, "hp": 3},
-			#{"type": "archer", "x": -360, "y": 1728, "hp": 3},
-			#{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
-			#{"type": "archer", "x": -96, "y": 1720, "hp": 3},
-		#]
+		1: [
+			{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
+			{"type": "archer", "x": 768, "y": 2088, "hp": 3},
+			{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
+			{"type": "archer", "x": 688, "y": 1816, "hp": 3},
+		],
+		2: [
+			{"type": "orc", "x": -736, "y": 1778, "hp": 3},
+			{"type": "orc", "x": -760, "y": 1950, "hp": 3},
+			{"type": "orc", "x": -368, "y": 2000, "hp": 3},
+			{"type": "archer", "x": -360, "y": 1728, "hp": 3},
+			{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
+			{"type": "archer", "x": -96, "y": 1720, "hp": 3},
+		]
 	}
 	_future_enemies = {
 		0: [
@@ -218,8 +222,16 @@ func get_live_past_enemies() -> int:
 
 func _spawn_enemies() -> void:
 	_spawn_enemies_from_dict(_past_enemies, "past", past_world)
+	_live_enemies_past = _live_enemies
+	_total_enemies_past = _live_enemies_past
 	_spawn_enemies_from_dict(_future_enemies, "future", future_world)
-	_total_enemies = _live_enemies
+	_live_enemies_future = _live_enemies - _total_enemies_past
+	_total_enemies_future = _live_enemies_future
+	_total_enemies = _total_enemies_past + _total_enemies_future
+	if _live_enemies_past > 0:
+		TimelineManager.enemy_killed.connect(_on_past_enemy_killed)
+	if _live_enemies_future > 0:
+		TimelineManager.enemy_killed.connect(_on_future_enemy_killed)
 	if _live_enemies > 0:
 		TimelineManager.enemy_killed.connect(_on_enemy_killed)
 
@@ -246,8 +258,24 @@ func _spawn_enemies_from_dict(enemy_dict: Dictionary, timeline: String, world: N
 
 func _on_enemy_killed(_timeline: String) -> void:
 	_live_enemies -= 1
-	_update_future_suppression()
-	_update_past_haze()
+	
+func _on_past_enemy_killed(_timeline: String) -> void:
+	if _timeline != "past":
+		return
+
+	_live_enemies_past -= 1
+	if (_total_enemies_past-_live_enemies_past)==4:
+		_update_past_haze()
+		DialogueManager.start_dialogue("res://data/dialogue/start_haze.json")
+
+func _on_future_enemy_killed(_timeline:String) -> void:
+	if _timeline!="future":
+		return
+
+	_live_enemies_future -= 1
+	if(_total_enemies_future-_live_enemies_future)==4:
+		_update_future_suppression()
+		DialogueManager.start_dialogue("res://data/dialogue/start_suppression.json")
 
 func _update_future_suppression() -> void:
 	if not future_player:
@@ -283,8 +311,7 @@ func _setup_past_haze() -> void:
 	_haze_material.shader = preload("res://scripts/shaders/haze_shader.gdshader")
 	_haze_rect.material   = _haze_material
 
-	_haze_layer.add_child(_haze_rect)
-	_update_past_haze()   
+	_haze_layer.add_child(_haze_rect)   
 
 
 func _update_past_haze() -> void:
@@ -295,14 +322,11 @@ func _update_past_haze() -> void:
 		return
 
 	var progress := 0.0
-	if _total_enemies > 0:
-		progress = 1.0 - (float(_live_enemies) / float(_total_enemies))
+	if _total_enemies_past > 0:
+		progress = 1.0 - (float(_live_enemies_past) / float(_total_enemies_past))
 
 	var t := ease(progress, -2.0)
 	_haze_material.set_shader_parameter("progress", t)
-	
-
-
 
 
 func _spawn_npcs() -> void:
