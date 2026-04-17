@@ -18,13 +18,14 @@ const ROOM_TRANSITION_TIME := 0.6
 var past_world: Node2D
 var future_world: Node2D
 var past_player: PlayerBase
-var future_player: PlayerBase
+var future_player: PlayerFuture
 var past_overlay: ColorRect
 var future_overlay: ColorRect
 var current_past_room: Room
 var current_future_room: Room
 
 var _live_enemies: int = 0
+var _total_enemies: int = 0
 var _past_enemies: Dictionary = {}
 var _future_enemies: Dictionary = {}
 
@@ -224,6 +225,7 @@ func _spawn_gears_from_dict(gear_dict: Dictionary, world: Node2D) -> void:
 func _spawn_enemies() -> void:
 	_spawn_enemies_from_dict(_past_enemies, "past", past_world)
 	_spawn_enemies_from_dict(_future_enemies, "future", future_world)
+	_total_enemies = _live_enemies
 	if _live_enemies > 0:
 		TimelineManager.enemy_killed.connect(_on_enemy_killed)
 
@@ -250,6 +252,23 @@ func _spawn_enemies_from_dict(enemy_dict: Dictionary, timeline: String, world: N
 
 func _on_enemy_killed(_timeline: String) -> void:
 	_live_enemies -= 1
+	_update_future_suppression()
+
+func _update_future_suppression() -> void:
+	if not future_player:
+		return
+	
+	var progress := 0.0
+	if _total_enemies > 0:
+		progress = 1.0 - (float(_live_enemies)/float(_total_enemies))
+		
+	var t := ease(progress, -2.0)
+	future_player.SUPPRESS_CHANCE        = lerp(0.2,  0.95, t)
+	future_player.SUPPRESS_INTERVAL_MIN  = lerp(5.0,  0.4,  t)
+	future_player.SUPPRESS_INTERVAL_MAX  = lerp(10.0, 1.2,  t)
+	future_player.SUPPRESS_DURATION_MIN  = lerp(0.3,  0.8,  t)
+	future_player.SUPPRESS_DURATION_MAX  = lerp(0.8,  2.5,  t)
+	
 	
 func get_live_enemies() -> int:
 	return _live_enemies
