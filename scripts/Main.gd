@@ -325,33 +325,9 @@ func _spawn_npcs() -> void:
 	var past_solan := SOLAN_SCENE.instantiate()
 	past_solan.position = Vector2(540, 200)
 	past_solan.z_index = 10
-	past_world.add_child(past_solan)
 	(past_solan as Solen).set_state(Solen.STATE.IDLE_PAST)
-
-	var past_trigger := Area2D.new()
-	past_trigger.position = Vector2(540, 200)
-	past_trigger.collision_layer = 0
-	past_trigger.collision_mask = PLAYER_LAYER
-	var ps := CollisionShape2D.new()
-	var pc := CircleShape2D.new()
-	pc.radius = 40.0
-	ps.shape = pc
-	past_trigger.add_child(ps)
-	var past_fired := [false]
-	past_trigger.body_entered.connect(func(body: Node2D):
-		if past_fired[0] or not body.is_in_group("players"):
-			return
-		if DialogueManager.is_active():
-			return
-		past_fired[0] = true
-		past_trigger.monitoring = false
-		(past_solan as Solen).set_state(Solen.STATE.TALK)
-		DialogueManager.start_dialogue("res://data/dialogue/guide_past.json")
-		DialogueManager.dialogue_ended.connect(func():
-			(past_solan as Solen).set_state(Solen.STATE.IDLE_PAST)
-		, CONNECT_ONE_SHOT)
-	)
-	past_world.add_child(past_trigger)
+	(past_solan as Solen).set_type(Solen.TYPE.PAST)
+	past_world.add_child(past_solan)
 
 	# Future Solan
 	var future_solan := SOLAN_SCENE.instantiate()
@@ -359,31 +335,7 @@ func _spawn_npcs() -> void:
 	future_solan.z_index = 10
 	future_world.add_child(future_solan)
 	(future_solan as Solen).set_state(Solen.STATE.IDLE_FUTURE)
-
-	var future_trigger := Area2D.new()
-	future_trigger.position = Vector2(688, 200)
-	future_trigger.collision_layer = 0
-	future_trigger.collision_mask = PLAYER_LAYER
-	var fs := CollisionShape2D.new()
-	var fc := CircleShape2D.new()
-	fc.radius = 40.0
-	fs.shape = fc
-	future_trigger.add_child(fs)
-	var future_fired := [false]
-	future_trigger.body_entered.connect(func(body: Node2D):
-		if future_fired[0] or not body.is_in_group("players"):
-			return
-		if DialogueManager.is_active():
-			return
-		future_fired[0] = true
-		future_trigger.monitoring = false
-		(future_solan as Solen).set_state(Solen.STATE.TALK)
-		DialogueManager.start_dialogue("res://data/dialogue/guide_future.json")
-		DialogueManager.dialogue_ended.connect(func():
-			(future_solan as Solen).set_state(Solen.STATE.IDLE_FUTURE)
-		, CONNECT_ONE_SHOT)
-	)
-	future_world.add_child(future_trigger)
+	(future_solan as Solen).set_type(Solen.TYPE.FUTURE)
 
 
 func _process(delta: float) -> void:
