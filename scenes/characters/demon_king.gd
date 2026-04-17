@@ -80,12 +80,16 @@ func _tick_walk(delta: float) -> void:
 		return
 	var dist_sq: float = global_position.distance_squared_to(player.global_position)
 
-	# Phase 2: heavy attack can pre-empt range-based choices
+	# Phase 2: heavy attack is mixed in, but never dominates over lights
 	if stats.hp <= PHASE_2_HP:
 		var t: float = 1.0 - float(stats.hp) / float(PHASE_2_HP)
-		var heavy_chance: float = lerp(0.3, 0.7, t)
+		var heavy_chance: float = lerp(0.3, 0.5, t)
 		if randf() < heavy_chance:
 			_begin_heavy()
+			return
+		# When not doing heavy, prefer a light swing over a roll reposition
+		if dist_sq <= (LIGHT_RANGE * 1.5) * (LIGHT_RANGE * 1.5):
+			_begin_light()
 			return
 
 	if dist_sq <= LIGHT_RANGE * LIGHT_RANGE:
