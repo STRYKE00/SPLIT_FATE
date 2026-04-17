@@ -21,7 +21,6 @@ DialogueManager="*res://autoloads/DialogueManager.gd"
 GameState="*res://autoloads/GameState.gd"
 TimelineManager="*res://autoloads/TimelineManager.gd"
 AudioManager="*res://autoloads/AudioManager.gd"
-DebugSkipButton="*res://scripts/DebugSkipButton.gd"
 
 [display]
 
