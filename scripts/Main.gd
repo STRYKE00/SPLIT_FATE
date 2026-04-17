@@ -92,20 +92,20 @@ func _define_enemies() -> void:
 			{"type": "orc", "x": 950, "y": 800, "hp": 3},
 			{"type": "orc", "x": 856, "y": 928, "hp": 3},
 		],
-		1: [
-			{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
-			{"type": "archer", "x": 768, "y": 2088, "hp": 3},
-			{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
-			{"type": "archer", "x": 688, "y": 1816, "hp": 3},
-		],
-		2: [
-			{"type": "orc", "x": -736, "y": 1778, "hp": 3},
-			{"type": "orc", "x": -760, "y": 1950, "hp": 3},
-			{"type": "orc", "x": -368, "y": 2000, "hp": 3},
-			{"type": "archer", "x": -360, "y": 1728, "hp": 3},
-			{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
-			{"type": "archer", "x": -96, "y": 1720, "hp": 3},
-		]
+		#1: [
+			#{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
+			#{"type": "archer", "x": 768, "y": 2088, "hp": 3},
+			#{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
+			#{"type": "archer", "x": 688, "y": 1816, "hp": 3},
+		#],
+		#2: [
+			#{"type": "orc", "x": -736, "y": 1778, "hp": 3},
+			#{"type": "orc", "x": -760, "y": 1950, "hp": 3},
+			#{"type": "orc", "x": -368, "y": 2000, "hp": 3},
+			#{"type": "archer", "x": -360, "y": 1728, "hp": 3},
+			#{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
+			#{"type": "archer", "x": -96, "y": 1720, "hp": 3},
+		#]
 	}
 	_future_enemies = {
 		0: [
@@ -216,9 +216,7 @@ func get_live_enemies() -> int:
 
 
 func get_live_past_enemies() -> int:
-	if _puzzle and _puzzle.has_method("get_live_past_enemies"):
-		return _puzzle.get_live_past_enemies()
-	return 0
+	return _live_enemies_past
 
 func _spawn_enemies() -> void:
 	_spawn_enemies_from_dict(_past_enemies, "past", past_world)
