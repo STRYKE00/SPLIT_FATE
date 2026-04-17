@@ -275,8 +275,7 @@ func _update_past_haze() -> void:
 	_haze_material.set_shader_parameter("progress", t)
 	
 
-func get_live_enemies() -> int:
-	return _live_enemies
+
 
 
 func _spawn_npcs() -> void:
