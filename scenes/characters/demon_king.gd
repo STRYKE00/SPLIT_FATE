@@ -197,8 +197,10 @@ func _cleanup_telegraph() -> void:
 	_telegraph = null
 
 
-func _tick_hurt(_delta: float) -> void:
-	pass  # Task 9
+func _tick_hurt(delta: float) -> void:
+	velocity = velocity.lerp(Vector2.ZERO, 8.0 * delta)
+	if _state_timer <= 0.0:
+		_s = SolenState.WALK
 
 
 func _pick_nearest_player() -> Node2D:
@@ -219,3 +221,48 @@ func _pick_nearest_player() -> Node2D:
 func _play_anim(anim: String) -> void:
 	if sprite.animation != anim:
 		sprite.play(anim)
+
+
+func receive_hit(damage: int, knockback_dir: Vector2) -> void:
+	if is_dead or _invulnerable:
+		return
+	stats.take_damage(damage)
+	TimelineManager.boss_hp_changed.emit(stats.hp, stats.max_hp)
+	if stats.is_dead:
+		return
+	# Uninterruptible heavy windup — do not cancel into HURT
+	if _s == SolenState.HEAVY_ATTACK:
+		_flash()
+		return
+	_s = SolenState.HURT
+	_state_timer = HURT_DURATION
+	velocity = knockback_dir * KNOCKBACK_FORCE
+	hitbox.monitoring = false
+	_play_anim("hurt")
+	_flash()
+
+
+func _on_died() -> void:
+	is_dead = true
+	_s = SolenState.DEAD
+	hitbox.monitoring = false
+	hurtbox.collision_layer = 0
+	detection.monitoring = false
+	collision_layer = 0
+	velocity = Vector2.ZERO
+	_cleanup_telegraph()
+	_play_anim("death")
+	TimelineManager.enemy_killed.emit(timeline)
+	TimelineManager.boss_defeated.emit(timeline)
+	await get_tree().create_timer(1.2).timeout
+	queue_free()
+
+
+func play_victory() -> void:
+	if is_dead:
+		return
+	_s = SolenState.VICTORY
+	velocity = Vector2.ZERO
+	hitbox.monitoring = false
+	_cleanup_telegraph()
+	_play_anim("victory")
