@@ -74,10 +74,19 @@ func _tick_walk(delta: float) -> void:
 	_update_flip()
 	_play_anim("walk")
 
-	# Attack selection (Tasks 6 and 7; heavy added in Task 8)
+	# Attack selection
 	if _cooldown > 0.0:
 		return
 	var dist_sq: float = global_position.distance_squared_to(player.global_position)
+
+	# Phase 2: heavy attack can pre-empt range-based choices
+	if stats.hp <= PHASE_2_HP:
+		var t: float = 1.0 - float(stats.hp) / float(PHASE_2_HP)
+		var heavy_chance: float = lerp(0.3, 0.7, t)
+		if randf() < heavy_chance:
+			_begin_heavy()
+			return
+
 	if dist_sq <= LIGHT_RANGE * LIGHT_RANGE:
 		_begin_light()
 	elif dist_sq > (LIGHT_RANGE * 1.5) * (LIGHT_RANGE * 1.5):
@@ -122,8 +131,70 @@ func _tick_roll(delta: float) -> void:
 		_s = SolenState.WALK
 
 
+var _telegraph: Node2D = null
+
+
+func _begin_heavy() -> void:
+	_s = SolenState.HEAVY_ATTACK
+	_cooldown = ATTACK_COOLDOWN + HEAVY_TELEGRAPH
+	_state_timer = HEAVY_TELEGRAPH
+	velocity = Vector2.ZERO
+	hitbox.monitoring = false
+	_play_anim("heavy_attack")
+	_spawn_telegraph()
+
+
 func _tick_heavy(_delta: float) -> void:
-	pass  # Task 8
+	velocity = Vector2.ZERO
+	if _state_timer <= 0.0:
+		_resolve_heavy_damage()
+		_cleanup_telegraph()
+		_s = SolenState.WALK
+
+
+func _spawn_telegraph() -> void:
+	_cleanup_telegraph()
+	var t := Node2D.new()
+	t.name = "HeavyTelegraph"
+	add_child(t)
+	_telegraph = t
+
+	var visual := _make_ring_visual()
+	t.add_child(visual)
+	visual.scale = Vector2(0.01, 0.01)
+
+	var tw := t.create_tween()
+	tw.tween_property(visual, "scale", Vector2.ONE, HEAVY_TELEGRAPH)
+
+
+func _make_ring_visual() -> Node2D:
+	var holder := Node2D.new()
+	var size: float = HEAVY_RADIUS * 2.0
+	var rect := ColorRect.new()
+	rect.color = Color(1.0, 0.2, 0.2, 0.35)
+	rect.size = Vector2(size, size)
+	rect.position = Vector2(-size * 0.5, -size * 0.5)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.add_child(rect)
+	return holder
+
+
+func _resolve_heavy_damage() -> void:
+	for p in get_tree().get_nodes_in_group("players"):
+		if not is_instance_valid(p):
+			continue
+		var d: float = global_position.distance_to(p.global_position)
+		if d <= HEAVY_RADIUS and p.has_method("receive_hit"):
+			var dir: Vector2 = (p.global_position - global_position).normalized()
+			if dir == Vector2.ZERO:
+				dir = Vector2.RIGHT
+			p.receive_hit(HEAVY_DAMAGE, dir)
+
+
+func _cleanup_telegraph() -> void:
+	if _telegraph and is_instance_valid(_telegraph):
+		_telegraph.queue_free()
+	_telegraph = null
 
 
 func _tick_hurt(_delta: float) -> void:
