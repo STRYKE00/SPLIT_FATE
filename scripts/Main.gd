@@ -18,13 +18,44 @@ const ROOM_TRANSITION_TIME := 0.6
 var past_world: Node2D
 var future_world: Node2D
 var past_player: PlayerBase
-var future_player: PlayerBase
+var future_player: PlayerFuture
 var past_overlay: ColorRect
 var future_overlay: ColorRect
 var current_past_room: Room
 var current_future_room: Room
 
 var _puzzle: Node
+var _live_enemies: int = 0
+var _total_enemies: int = 0
+var _past_enemies: Dictionary = {}
+var _future_enemies: Dictionary = {}
+
+var _past_gears: Dictionary = {}
+var _future_gears: Dictionary = {}
+
+var _haze_layer   : CanvasLayer
+var _haze_rect    : ColorRect
+var _haze_material: ShaderMaterial
+
+var _gear_puzzle: GearPuzzleManager
+const BOSS_ROOM_INDEX := 4
+
+const ENEMY_SCENES = {
+	"archer": preload("res://scenes/characters/Enemies/archer.tscn"),
+	"orc": preload("res://scenes/characters/Enemies/Orc.tscn"),
+	"armored_orc": preload("res://scenes/characters/Enemies/armored_orc.tscn"),
+	"elite_orc": preload("res://scenes/characters/Enemies/elite_orc.tscn"),
+	"orc_rider": preload("res://scenes/characters/Enemies/orc_rider.tscn"),
+	"soldier": preload("res://scenes/characters/Enemies/soldier.tscn"),
+	"knight": preload("res://scenes/characters/Enemies/knight.tscn"),
+	"skeleton": preload("res://scenes/characters/Enemies/skeleton.tscn"),
+	"armored_skeleton": preload("res://scenes/characters/Enemies/armored_skeleton.tscn"),
+	"skeleton_archer": preload("res://scenes/characters/Enemies/skeleton_archer.tscn"),
+	"greatsword_skeleton": preload("res://scenes/characters/Enemies/greatsword_skeleton.tscn"),
+	"werewolf": preload("res://scenes/characters/Enemies/werewolf.tscn"),
+	"werebear": preload("res://scenes/characters/Enemies/werebear.tscn"),
+	"default": preload("res://scenes/characters/EnemyBase.tscn")
+}
 
 
 func _ready() -> void:
@@ -62,6 +93,7 @@ func _load_past_map() -> void:
 	past_world.add_child(map)
 	past_player.position = Vector2(540.0, 384.0)
 	GameState.current_room_past = 0
+	_setup_past_haze()
 
 
 func _load_future_map() -> void:
@@ -136,6 +168,136 @@ func get_live_past_enemies() -> int:
 	if _puzzle and _puzzle.has_method("get_live_past_enemies"):
 		return _puzzle.get_live_past_enemies()
 	return 0
+func _spawn_gear_puzzle() -> void:
+	_gear_puzzle = GearPuzzleManager.new()
+	_gear_puzzle.name = "GearPuzzleManager"
+	add_child(_gear_puzzle)
+
+func _spawn_gears() -> void:
+	_spawn_gears_from_dict(_past_gears, past_world)
+	_spawn_gears_from_dict(_future_gears, future_world)
+				
+
+func _spawn_gears_from_dict(gear_dict: Dictionary, world: Node2D) -> void:
+	for gear_idx in gear_dict:
+		for cfg in gear_dict[gear_idx]:
+			var gear_scene: PackedScene = preload("res://scenes/gear_base.tscn")
+			var gear: GearBase = gear_scene.instantiate()
+			gear.position = Vector2(cfg["x"], cfg["y"])
+			gear.gear_type = cfg["type"]
+			world.add_child(gear)
+			gear.setup()
+	
+
+func _spawn_enemies() -> void:
+	_spawn_enemies_from_dict(_past_enemies, "past", past_world)
+	_spawn_enemies_from_dict(_future_enemies, "future", future_world)
+	_total_enemies = _live_enemies
+	if _live_enemies > 0:
+		TimelineManager.enemy_killed.connect(_on_enemy_killed)
+
+
+func _spawn_enemies_from_dict(enemy_dict: Dictionary, timeline: String, world: Node2D) -> void:
+	for room_idx in enemy_dict:
+		for cfg in enemy_dict[room_idx]:
+			var type_key: String = cfg.get("type", "default")
+			var enemy_scene: PackedScene = ENEMY_SCENES.get(type_key, ENEMY_SCENES["default"])
+			var enemy: EnemyBase = enemy_scene.instantiate()
+			enemy.position = Vector2(cfg["x"], cfg["y"])
+			enemy.timeline = timeline
+			enemy.tint = cfg.get("tint", Color.WHITE)
+			enemy.hp = cfg.get("hp", 3)
+			enemy.speed = cfg.get("speed", 55.0)
+			enemy.chase_speed = cfg.get("chase_speed", 85.0)
+			enemy.is_boss = cfg.get("is_boss", false)
+			enemy.attack_damage = cfg.get("attack_damage", 1)
+			enemy.attack_cooldown = cfg.get("attack_cooldown", 1.2)
+			enemy.detection_radius = cfg.get("detection_radius", 120.0)
+			enemy.z_index = 10
+			_live_enemies+=1
+			world.add_child(enemy)
+
+func _on_enemy_killed(_timeline: String) -> void:
+	_live_enemies -= 1
+	_update_future_suppression()
+	_update_past_haze()
+
+func _update_future_suppression() -> void:
+	if not future_player:
+		return
+	
+	var progress := 0.0
+	if _total_enemies > 0:
+		progress = 1.0 - (float(_live_enemies)/float(_total_enemies))
+		
+	var t := ease(progress, -2.0)
+	future_player.SUPPRESS_CHANCE       = lerp(0.65, 0.95, t)
+	future_player.SUPPRESS_INTERVAL_MIN = lerp(1.5,  0.2,  t)
+	future_player.SUPPRESS_INTERVAL_MAX = lerp(3.0,  0.6,  t)
+	future_player.SUPPRESS_DURATION_MIN = lerp(0.8,  1.8,  t)
+	future_player.SUPPRESS_DURATION_MAX = lerp(1.8,  4.0,  t)
+	
+	if not future_player._suppress_input:
+		future_player._reset_cooldown()
+	
+
+func _setup_past_haze() -> void:
+	_haze_layer          = CanvasLayer.new()
+	
+	_haze_layer.layer    = 10         
+	past_world.add_child(_haze_layer)
+
+	_haze_rect           = ColorRect.new()
+	_haze_rect.anchor_right  = 1.0
+	_haze_rect.anchor_bottom = 1.0
+	_haze_rect.mouse_filter  = Control.MOUSE_FILTER_IGNORE
+
+	_haze_material        = ShaderMaterial.new()
+	_haze_material.shader = preload("res://scripts/shaders/haze_shader.gdshader")
+	_haze_rect.material   = _haze_material
+
+	_haze_layer.add_child(_haze_rect)
+	_update_past_haze()   
+
+
+func _update_past_haze() -> void:
+	if not _haze_material:
+		return
+
+	if not past_player:
+		return
+
+	var progress := 0.0
+	if _total_enemies > 0:
+		progress = 1.0 - (float(_live_enemies) / float(_total_enemies))
+
+	var t := ease(progress, -2.0)
+	_haze_material.set_shader_parameter("progress", t)
+	
+
+func get_live_enemies() -> int:
+	return _live_enemies
+
+
+func _spawn_npcs() -> void:
+	const SOLAN_SCENE := preload("res://scenes/characters/Solan.tscn")
+	const PLAYER_LAYER := 2
+	
+	# Past Solan
+	var past_solan := SOLAN_SCENE.instantiate()
+	past_solan.position = Vector2(540, 200)
+	past_solan.z_index = 10
+	(past_solan as Solen).set_state(Solen.STATE.IDLE_PAST)
+	(past_solan as Solen).set_type(Solen.TYPE.PAST)
+	past_world.add_child(past_solan)
+
+	# Future Solan
+	var future_solan := SOLAN_SCENE.instantiate()
+	future_solan.position = Vector2(688, 200)
+	future_solan.z_index = 10
+	future_world.add_child(future_solan)
+	(future_solan as Solen).set_state(Solen.STATE.IDLE_FUTURE)
+	(future_solan as Solen).set_type(Solen.TYPE.FUTURE)
 
 
 func _process(delta: float) -> void:
