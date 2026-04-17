@@ -27,6 +27,9 @@ var current_future_room: Room
 var _past_enemies: Dictionary = {}
 var _future_enemies: Dictionary = {}
 
+var _past_gears: Dictionary = {}
+var _future_gears: Dictionary = {}
+
 var _gear_puzzle: GearPuzzleManager
 const BOSS_ROOM_INDEX := 4
 
@@ -58,6 +61,7 @@ func _ready() -> void:
 	right_viewport.world_2d = World2D.new()
 
 	_define_enemies()
+	_define_gears()
 	_spawn_worlds()
 	_spawn_players()
 	_spawn_gear_puzzle()
@@ -65,11 +69,21 @@ func _ready() -> void:
 	_load_future_map()
 	_spawn_npcs()
 	_spawn_enemies()
+	_spawn_gears()
 	_build_overlays()
 	_connect_hud()
 	_connect_signals()
 	_fade_in_both()
 
+func _define_gears() -> void:
+	_past_gears = {
+		0: [{"type": "puzzle","x": 450, "y": 210}],
+	}
+	
+	_future_gears = {
+		0: [{"type": "puzzle","x": 540, "y": 210}],
+	}
+	
 func _define_enemies() -> void:
 	_past_enemies = {
 		0: [
@@ -191,6 +205,20 @@ func _spawn_gear_puzzle() -> void:
 	_gear_puzzle.name = "GearPuzzleManager"
 	add_child(_gear_puzzle)
 
+func _spawn_gears() -> void:
+	_spawn_gears_from_dict(_past_gears, past_world)
+	_spawn_gears_from_dict(_future_gears, future_world)
+				
+
+func _spawn_gears_from_dict(gear_dict: Dictionary, world: Node2D) -> void:
+	for gear_idx in gear_dict:
+		for cfg in gear_dict[gear_idx]:
+			var type: String = cfg["type"]
+			var gear_scene: PackedScene = preload("res://scenes/gear_base.tscn")
+			var gear: GearBase = gear_scene.instantiate()
+			gear.position = Vector2(cfg["x"], cfg["y"])
+			world.add_child(gear)
+	
 
 func _spawn_enemies() -> void:
 	_spawn_enemies_from_dict(_past_enemies, "past", past_world)
