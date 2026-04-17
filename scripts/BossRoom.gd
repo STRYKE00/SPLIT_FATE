@@ -4,6 +4,9 @@ const MAIN_MENU_PATH := "res://scenes/main_menu.tscn"
 const OUTRO_DELAY := 2.0
 
 @onready var solen: Node = $DemonKing
+@onready var _past: Node = $PlayerPast
+@onready var _future: Node = $PlayerFuture
+@onready var _hud: CanvasLayer = $BossHUD
 
 var _past_dead := false
 var _future_dead := false
@@ -14,6 +17,10 @@ var _defeat_fired := false
 func _ready() -> void:
 	TimelineManager.player_died.connect(_on_player_died)
 	TimelineManager.boss_defeated.connect(_on_boss_defeated)
+	if _hud and _past:
+		_hud.connect_player_past(_past)
+	if _hud and _future:
+		_hud.connect_player_future(_future)
 
 
 func _on_player_died(timeline: String) -> void:

@@ -1,16 +1,16 @@
 extends EnemyBase
 
-const MAX_HP := 20
-const PHASE_2_HP := 10
+const MAX_HP := 50
+const PHASE_2_HP := 25
 const WALK_SPEED := 70.0
 const CHASE_SPEED := 110.0
 
 const LIGHT_RANGE := 36.0
 const LIGHT_DAMAGE := 1
 const LIGHT_ATTACK_DURATION := 0.6
-const HEAVY_TELEGRAPH := 1.0
 const HEAVY_RADIUS := 112.0
 const HEAVY_DAMAGE := 3
+const ROCK_WAVE_SCENE := preload("res://scenes/characters/rockWave.tscn")
 const ROLL_SPEED := 260.0
 const ROLL_DURATION := 0.35
 const ATTACK_COOLDOWN := 1.4
@@ -137,54 +137,39 @@ func _tick_roll(delta: float) -> void:
 		_s = SolenState.WALK
 
 
-var _telegraph: Node2D = null
+func _heavy_anim_duration() -> float:
+	var frames: SpriteFrames = sprite.sprite_frames
+	if frames == null or not frames.has_animation("heavy_attack"):
+		return 1.0
+	var count: int = frames.get_frame_count("heavy_attack")
+	var speed: float = max(0.01, frames.get_animation_speed("heavy_attack"))
+	return float(count) / speed
 
 
 func _begin_heavy() -> void:
+	var dur: float = _heavy_anim_duration()
 	_s = SolenState.HEAVY_ATTACK
-	_cooldown = ATTACK_COOLDOWN + HEAVY_TELEGRAPH
-	_state_timer = HEAVY_TELEGRAPH
+	_cooldown = ATTACK_COOLDOWN + dur
+	_state_timer = dur
 	velocity = Vector2.ZERO
 	hitbox.monitoring = false
 	_play_anim("heavy_attack")
-	_spawn_telegraph()
 
 
 func _tick_heavy(_delta: float) -> void:
 	velocity = Vector2.ZERO
 	if _state_timer <= 0.0:
+		_spawn_rock_wave()
 		_resolve_heavy_damage()
-		_cleanup_telegraph()
 		_s = SolenState.WALK
 
 
-func _spawn_telegraph() -> void:
-	_cleanup_telegraph()
-	var t := Node2D.new()
-	t.name = "HeavyTelegraph"
-	add_child(t)
-	_telegraph = t
-
-	var visual := _make_ring_visual()
-	t.add_child(visual)
-	visual.scale = Vector2(0.01, 0.01)
-
-	var tw := t.create_tween()
-	tw.tween_property(visual, "scale", Vector2.ONE, HEAVY_TELEGRAPH)
-
-
-func _make_ring_visual() -> Node2D:
-	var holder := Node2D.new()
-	var poly := Polygon2D.new()
-	poly.color = Color(1.0, 0.2, 0.2, 0.35)
-	var verts := PackedVector2Array()
-	var segments := 48
-	for i in range(segments):
-		var angle: float = (float(i) / float(segments)) * TAU
-		verts.append(Vector2(cos(angle), sin(angle)) * HEAVY_RADIUS)
-	poly.polygon = verts
-	holder.add_child(poly)
-	return holder
+func _spawn_rock_wave() -> void:
+	var wave: Node2D = ROCK_WAVE_SCENE.instantiate()
+	get_parent().add_child(wave)
+	wave.global_position = global_position
+	var anim_sprite: AnimatedSprite2D = wave.get_node("AnimatedSprite2D")
+	anim_sprite.animation_finished.connect(func(): wave.queue_free())
 
 
 func _resolve_heavy_damage() -> void:
@@ -197,12 +182,6 @@ func _resolve_heavy_damage() -> void:
 			if dir == Vector2.ZERO:
 				dir = Vector2.RIGHT
 			p.receive_hit(HEAVY_DAMAGE, dir)
-
-
-func _cleanup_telegraph() -> void:
-	if _telegraph and is_instance_valid(_telegraph):
-		_telegraph.queue_free()
-	_telegraph = null
 
 
 func _tick_hurt(delta: float) -> void:
@@ -258,7 +237,6 @@ func _on_died() -> void:
 	detection.monitoring = false
 	collision_layer = 0
 	velocity = Vector2.ZERO
-	_cleanup_telegraph()
 	_play_anim("death")
 	TimelineManager.enemy_killed.emit(timeline)
 	TimelineManager.boss_defeated.emit(timeline)
@@ -272,5 +250,4 @@ func play_victory() -> void:
 	_s = SolenState.VICTORY
 	velocity = Vector2.ZERO
 	hitbox.monitoring = false
-	_cleanup_telegraph()
 	_play_anim("victory")
