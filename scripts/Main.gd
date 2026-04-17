@@ -24,6 +24,7 @@ var future_overlay: ColorRect
 var current_past_room: Room
 var current_future_room: Room
 
+var _live_enemies: int = 0
 var _past_enemies: Dictionary = {}
 var _future_enemies: Dictionary = {}
 
@@ -81,7 +82,6 @@ func _define_gears() -> void:
 	}
 	
 	_future_gears = {
-		0: [{"type": "puzzle","x": 540, "y": 210}],
 	}
 	
 func _define_enemies() -> void:
@@ -213,16 +213,19 @@ func _spawn_gears() -> void:
 func _spawn_gears_from_dict(gear_dict: Dictionary, world: Node2D) -> void:
 	for gear_idx in gear_dict:
 		for cfg in gear_dict[gear_idx]:
-			var type: String = cfg["type"]
 			var gear_scene: PackedScene = preload("res://scenes/gear_base.tscn")
 			var gear: GearBase = gear_scene.instantiate()
 			gear.position = Vector2(cfg["x"], cfg["y"])
+			gear.gear_type = cfg["type"]
 			world.add_child(gear)
+			gear.setup()
 	
 
 func _spawn_enemies() -> void:
 	_spawn_enemies_from_dict(_past_enemies, "past", past_world)
 	_spawn_enemies_from_dict(_future_enemies, "future", future_world)
+	if _live_enemies > 0:
+		TimelineManager.enemy_killed.connect(_on_enemy_killed)
 
 
 func _spawn_enemies_from_dict(enemy_dict: Dictionary, timeline: String, world: Node2D) -> void:
@@ -242,7 +245,14 @@ func _spawn_enemies_from_dict(enemy_dict: Dictionary, timeline: String, world: N
 			enemy.attack_cooldown = cfg.get("attack_cooldown", 1.2)
 			enemy.detection_radius = cfg.get("detection_radius", 120.0)
 			enemy.z_index = 10
+			_live_enemies+=1
 			world.add_child(enemy)
+
+func _on_enemy_killed(_timeline: String) -> void:
+	_live_enemies -= 1
+	
+func get_live_enemies() -> int:
+	return _live_enemies
 
 
 func _spawn_npcs() -> void:
