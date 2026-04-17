@@ -88,9 +88,9 @@ func _define_enemies() -> void:
 	_past_enemies = {
 		0: [
 			{"type": "orc", "x": 632, "y": 904, "hp": 3},
-			{"type": "orc", "x": 616, "y": 1088, "hp": 3},
-			{"type": "orc", "x": 950, "y": 800, "hp": 3},
-			{"type": "orc", "x": 856, "y": 928, "hp": 3},
+			#{"type": "orc", "x": 616, "y": 1088, "hp": 3},
+			#{"type": "orc", "x": 950, "y": 800, "hp": 3},
+			#{"type": "orc", "x": 856, "y": 928, "hp": 3},
 		],
 		#1: [
 			#{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
