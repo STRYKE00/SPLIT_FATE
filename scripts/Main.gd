@@ -265,6 +265,7 @@ func _on_past_enemy_killed(_timeline: String) -> void:
 	print("total past enemies: ", _total_enemies_past)
 	if (_total_enemies_past-_live_enemies_past)==4:
 		_update_past_haze()
+		DialogueManager.start_dialogue("res://data/dialogue/start_haze.json")
 
 func _update_future_suppression() -> void:
 	if not future_player:
