@@ -41,13 +41,10 @@ func setup(p_past_world: Node2D, p_future_world: Node2D, p_past_overlay: ColorRe
 	past_overlay = p_past_overlay
 	future_overlay = p_future_overlay
 
-	_define_enemies()
 	_define_gears()
 	_spawn_gear_puzzle()
-	_spawn_enemies()
 	_spawn_gears()
 	_spawn_broken_bridge()
-	_spawn_npcs()
 
 
 # ── Gear definitions ──
@@ -86,86 +83,6 @@ func _spawn_gears_from_dict(gear_dict: Dictionary, world: Node2D) -> void:
 			gear.z_index = 10
 			world.add_child(gear)
 			gear.setup()
-
-
-# ── Enemy definitions ──
-
-func _define_enemies() -> void:
-	_past_enemies = {
-		0: [
-			{"type": "orc", "x": 632, "y": 904, "hp": 3},
-			#{"type": "orc", "x": 616, "y": 1088, "hp": 3},
-			#{"type": "orc", "x": 950, "y": 800, "hp": 3},
-			#{"type": "orc", "x": 856, "y": 928, "hp": 3},
-		],
-		1: [
-			#{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
-			#{"type": "archer", "x": 768, "y": 2088, "hp": 3},
-			#{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
-			#{"type": "archer", "x": 688, "y": 1816, "hp": 3},
-		],
-		2: [
-			#{"type": "orc", "x": -736, "y": 1778, "hp": 3},
-			#{"type": "orc", "x": -760, "y": 1950, "hp": 3},
-			#{"type": "orc", "x": -368, "y": 2000, "hp": 3},
-			#{"type": "archer", "x": -360, "y": 1728, "hp": 3},
-			#{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
-			#{"type": "archer", "x": -96, "y": 1720, "hp": 3},
-		]
-	}
-	_future_enemies = {
-		0: [
-			{"type": "skeleton", "x": 358, "y": 1029, "hp": 3},
-			{"type": "skeleton", "x": 1017, "y": 1019, "hp": 3},
-			{"type": "skeleton", "x": 309, "y": 1292, "hp": 3},
-			{"type": "skeleton", "x": 1062, "y": 1316, "hp": 3},
-		],
-		1: [
-			{"type": "skeleton", "x": 356, "y": 1811, "hp": 3},
-			{"type": "skeleton_archer", "x": 1038, "y": 1776, "hp": 3},
-			{"type": "armored_skeleton", "x": 356, "y": 2014, "hp": 3},
-			{"type": "skeleton_archer", "x": 1062, "y": 2070, "hp": 3},
-		],
-		2: [
-			{"type": "skeleton", "x": -331, "y": 1735, "hp": 3},
-			{"type": "skeleton", "x": -426, "y": 1924, "hp": 3},
-			{"type": "skeleton", "x": -368, "y": 2135, "hp": 3},
-			{"type": "skeleton_archer", "x": -900, "y": 2100, "hp": 3},
-			{"type": "armored_skeleton", "x": -665, "y": 1902, "hp": 3},
-			{"type": "skeleton_archer", "x": -900, "y": 1735, "hp": 3},
-		]
-	}
-
-
-func _spawn_enemies() -> void:
-	_spawn_enemies_from_dict(_past_enemies, "past", past_world)
-	_spawn_enemies_from_dict(_future_enemies, "future", future_world)
-	if _live_enemies > 0:
-		TimelineManager.enemy_killed.connect(_on_enemy_killed)
-
-
-func _spawn_enemies_from_dict(enemy_dict: Dictionary, timeline: String, world: Node2D) -> void:
-	for room_idx in enemy_dict:
-		for cfg in enemy_dict[room_idx]:
-			var type_key: String = cfg.get("type", "default")
-			var enemy_scene: PackedScene = ENEMY_SCENES.get(type_key, ENEMY_SCENES["default"])
-			var enemy: EnemyBase = enemy_scene.instantiate()
-			enemy.position = Vector2(cfg["x"], cfg["y"])
-			enemy.timeline = timeline
-			enemy.tint = cfg.get("tint", Color.WHITE)
-			enemy.hp = cfg.get("hp", 3)
-			enemy.speed = cfg.get("speed", 55.0)
-			enemy.chase_speed = cfg.get("chase_speed", 85.0)
-			enemy.is_boss = cfg.get("is_boss", false)
-			enemy.attack_damage = cfg.get("attack_damage", 1)
-			enemy.attack_cooldown = cfg.get("attack_cooldown", 1.2)
-			enemy.detection_radius = cfg.get("detection_radius", 120.0)
-			enemy.z_index = 10
-			_live_enemies += 1
-			if timeline == "past":
-				_live_past_enemies += 1
-			world.add_child(enemy)
-
 
 func _on_enemy_killed(timeline: String) -> void:
 	_live_enemies -= 1
