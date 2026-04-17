@@ -225,11 +225,13 @@ func _spawn_enemies() -> void:
 	_live_enemies_past = _live_enemies
 	_total_enemies_past = _live_enemies_past
 	_spawn_enemies_from_dict(_future_enemies, "future", future_world)
-	_live_enemies_future = _live_enemies
+	_live_enemies_future = _live_enemies - _total_enemies_past
 	_total_enemies_future = _live_enemies_future
 	_total_enemies = _total_enemies_past + _total_enemies_future
 	if _live_enemies_past > 0:
 		TimelineManager.enemy_killed.connect(_on_past_enemy_killed)
+	if _live_enemies_future > 0:
+		TimelineManager.enemy_killed.connect(_on_future_enemy_killed)
 	if _live_enemies > 0:
 		TimelineManager.enemy_killed.connect(_on_enemy_killed)
 
@@ -256,16 +258,24 @@ func _spawn_enemies_from_dict(enemy_dict: Dictionary, timeline: String, world: N
 
 func _on_enemy_killed(_timeline: String) -> void:
 	_live_enemies -= 1
-	_update_future_suppression()
 	
 func _on_past_enemy_killed(_timeline: String) -> void:
+	if _timeline != "past":
+		return
+
 	_live_enemies_past -= 1
-	print("past enemy killed")
-	print("remaining: ", _live_enemies_past)
-	print("total past enemies: ", _total_enemies_past)
 	if (_total_enemies_past-_live_enemies_past)==4:
 		_update_past_haze()
 		DialogueManager.start_dialogue("res://data/dialogue/start_haze.json")
+
+func _on_future_enemy_killed(_timeline:String) -> void:
+	if _timeline!="future":
+		return
+
+	_live_enemies_future -= 1
+	if(_total_enemies_future-_live_enemies_future)==4:
+		_update_future_suppression()
+		DialogueManager.start_dialogue("res://data/dialogue/start_suppression.json")
 
 func _update_future_suppression() -> void:
 	if not future_player:
@@ -312,8 +322,8 @@ func _update_past_haze() -> void:
 		return
 
 	var progress := 0.0
-	if _total_enemies > 0:
-		progress = 1.0 - (float(_live_enemies) / float(_total_enemies))
+	if _total_enemies_past > 0:
+		progress = 1.0 - (float(_live_enemies_past) / float(_total_enemies_past))
 
 	var t := ease(progress, -2.0)
 	_haze_material.set_shader_parameter("progress", t)

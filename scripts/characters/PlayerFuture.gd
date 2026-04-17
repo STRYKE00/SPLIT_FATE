@@ -3,11 +3,11 @@ extends PlayerBase
 class_name PlayerFuture
 
 # --- suppression config ---
-var SUPPRESS_INTERVAL_MIN := 3.0 
-var SUPPRESS_INTERVAL_MAX := 7.0
-var SUPPRESS_DURATION_MIN := 0.5
-var SUPPRESS_DURATION_MAX := 1.8
-var SUPPRESS_CHANCE      := 0.65   # 0.0–1.0 weight: chance to actually suppress on trigger
+var SUPPRESS_INTERVAL_MIN := 0.0 
+var SUPPRESS_INTERVAL_MAX := 0.0
+var SUPPRESS_DURATION_MIN := 0.0
+var SUPPRESS_DURATION_MAX := 0.0
+var SUPPRESS_CHANCE      := 0.00   
 
 var _suppress_input := false
 var _suppress_timer := 0.0
