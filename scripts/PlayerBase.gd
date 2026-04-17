@@ -49,6 +49,7 @@ var dash_dir: Vector2 = Vector2.RIGHT
 var shake_amount: float = 0.0
 var timeline: String = ""
 var slash_color: Color = Color.WHITE
+var room_transitioning: bool = false
 
 var action_left    := ""
 var action_right   := ""
@@ -150,7 +151,7 @@ func _frame(path: String) -> AtlasTexture:
 # --- Physics & State Machine ---
 
 func _physics_process(delta: float) -> void:
-	if GameState.is_dialogue_active or GameState.is_transitioning:
+	if GameState.is_dialogue_active or GameState.is_transitioning or room_transitioning:
 		velocity = velocity.lerp(Vector2.ZERO, DECEL_WEIGHT * delta)
 		move_and_slide()
 		_play("idle")
