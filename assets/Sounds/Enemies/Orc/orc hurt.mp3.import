@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://jvmof60owxnw"
+path="res://.godot/imported/orc hurt.mp3-8b0800d9acc17e83700a7d0031e30006.mp3str"
+
+[deps]
+
+source_file="res://assets/Sounds/Enemies/Orc/orc hurt.mp3"
+dest_files=["res://.godot/imported/orc hurt.mp3-8b0800d9acc17e83700a7d0031e30006.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

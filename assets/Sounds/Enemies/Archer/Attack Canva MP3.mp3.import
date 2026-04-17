@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dld5jr3xopw40"
+path="res://.godot/imported/Attack Canva MP3.mp3-8e02c8af774489e18485f40c2b16a1b6.mp3str"
+
+[deps]
+
+source_file="res://assets/Sounds/Enemies/Archer/Attack Canva MP3.mp3"
+dest_files=["res://.godot/imported/Attack Canva MP3.mp3-8e02c8af774489e18485f40c2b16a1b6.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
