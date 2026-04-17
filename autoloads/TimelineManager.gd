@@ -10,6 +10,7 @@ signal enemy_killed(timeline: String)
 signal sync_changed(value: float)
 signal boss_spawned(boss: Node)
 signal boss_defeated(timeline: String)
+signal boss_hp_changed(current: int, max_hp: int)
 signal gear_collected(piece_id: String, timeline: String)
 signal communicator_found(timeline: String)
 
