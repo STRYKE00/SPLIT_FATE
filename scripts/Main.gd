@@ -18,18 +18,23 @@ const ROOM_TRANSITION_TIME := 0.6
 var past_world: Node2D
 var future_world: Node2D
 var past_player: PlayerBase
-var future_player: PlayerBase
+var future_player: PlayerFuture
 var past_overlay: ColorRect
 var future_overlay: ColorRect
 var current_past_room: Room
 var current_future_room: Room
 
 var _live_enemies: int = 0
+var _total_enemies: int = 0
 var _past_enemies: Dictionary = {}
 var _future_enemies: Dictionary = {}
 
 var _past_gears: Dictionary = {}
 var _future_gears: Dictionary = {}
+
+var _haze_layer   : CanvasLayer
+var _haze_rect    : ColorRect
+var _haze_material: ShaderMaterial
 
 var _gear_puzzle: GearPuzzleManager
 const BOSS_ROOM_INDEX := 4
@@ -136,6 +141,7 @@ func _load_past_map() -> void:
 	past_world.add_child(map)
 	past_player.position = Vector2(540.0, 384.0)
 	GameState.current_room_past = 0
+	_setup_past_haze()
 
 
 func _load_future_map() -> void:
@@ -224,6 +230,7 @@ func _spawn_gears_from_dict(gear_dict: Dictionary, world: Node2D) -> void:
 func _spawn_enemies() -> void:
 	_spawn_enemies_from_dict(_past_enemies, "past", past_world)
 	_spawn_enemies_from_dict(_future_enemies, "future", future_world)
+	_total_enemies = _live_enemies
 	if _live_enemies > 0:
 		TimelineManager.enemy_killed.connect(_on_enemy_killed)
 
@@ -250,7 +257,62 @@ func _spawn_enemies_from_dict(enemy_dict: Dictionary, timeline: String, world: N
 
 func _on_enemy_killed(_timeline: String) -> void:
 	_live_enemies -= 1
+	_update_future_suppression()
+	_update_past_haze()
+
+func _update_future_suppression() -> void:
+	if not future_player:
+		return
 	
+	var progress := 0.0
+	if _total_enemies > 0:
+		progress = 1.0 - (float(_live_enemies)/float(_total_enemies))
+		
+	var t := ease(progress, -2.0)
+	future_player.SUPPRESS_CHANCE       = lerp(0.65, 0.95, t)
+	future_player.SUPPRESS_INTERVAL_MIN = lerp(1.5,  0.2,  t)
+	future_player.SUPPRESS_INTERVAL_MAX = lerp(3.0,  0.6,  t)
+	future_player.SUPPRESS_DURATION_MIN = lerp(0.8,  1.8,  t)
+	future_player.SUPPRESS_DURATION_MAX = lerp(1.8,  4.0,  t)
+	
+	if not future_player._suppress_input:
+		future_player._reset_cooldown()
+	
+
+func _setup_past_haze() -> void:
+	_haze_layer          = CanvasLayer.new()
+	
+	_haze_layer.layer    = 10         
+	past_world.add_child(_haze_layer)
+
+	_haze_rect           = ColorRect.new()
+	_haze_rect.anchor_right  = 1.0
+	_haze_rect.anchor_bottom = 1.0
+	_haze_rect.mouse_filter  = Control.MOUSE_FILTER_IGNORE
+
+	_haze_material        = ShaderMaterial.new()
+	_haze_material.shader = preload("res://scripts/shaders/haze_shader.gdshader")
+	_haze_rect.material   = _haze_material
+
+	_haze_layer.add_child(_haze_rect)
+	_update_past_haze()   
+
+
+func _update_past_haze() -> void:
+	if not _haze_material:
+		return
+
+	if not past_player:
+		return
+
+	var progress := 0.0
+	if _total_enemies > 0:
+		progress = 1.0 - (float(_live_enemies) / float(_total_enemies))
+
+	var t := ease(progress, -2.0)
+	_haze_material.set_shader_parameter("progress", t)
+	
+
 func get_live_enemies() -> int:
 	return _live_enemies
 
