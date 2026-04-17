@@ -1,0 +1,277 @@
+[gd_scene format=3 uid="uid://co3dr32vco7k8"]
+
+[ext_resource type="Texture2D" uid="uid://bbq5ffdin7nt0" path="res://assets/tiles/Bridge (past)/2.png" id="1_50730"]
+[ext_resource type="Texture2D" uid="uid://dkjix7h6d0u3r" path="res://assets/tiles/Bridge (past)/3.png" id="2_50730"]
+[ext_resource type="Texture2D" uid="uid://bjr3sq517lvg1" path="res://assets/tiles/Bridge (past)/4.png" id="3_lpjrn"]
+[ext_resource type="Texture2D" uid="uid://cd8ch4yafsx4s" path="res://assets/tiles/Bridge (past)/5.png" id="4_a1eq3"]
+[ext_resource type="Texture2D" uid="uid://mxqucbu2p2h5" path="res://assets/tiles/Bridge (past)/6.png" id="5_of2vc"]
+[ext_resource type="Texture2D" uid="uid://bfhj0tsfhlswt" path="res://assets/tiles/Bridge (past)/7.png" id="6_4gn64"]
+[ext_resource type="Texture2D" uid="uid://do67pc6lxuao" path="res://assets/tiles/Bridge (past)/8.png" id="7_8kadx"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2f6tl"]
+size = Vector2(58, 8)
+
+[sub_resource type="Animation" id="Animation_1qquc"]
+resource_name = "Broken"
+length = 4.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("bridge 0:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("bridge 1:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.6, 1.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("StaticBody2D/WalkingArea:disabled")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("bridge 2:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 1.2, 1.8),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("bridge 3:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 1.8, 2.4),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("bridge 4:visible")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 2.4, 3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("bridge 5:visible")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 3, 3.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("bridge 6:visible")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 3.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, true]
+}
+
+[sub_resource type="Animation" id="Animation_knep6"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("bridge 0:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("bridge 1:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("StaticBody2D/WalkingArea:disabled")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("bridge 2:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("bridge 3:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("bridge 4:visible")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("bridge 5:visible")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("bridge 6:visible")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ys2n1"]
+_data = {
+&"Broken": SubResource("Animation_1qquc"),
+&"RESET": SubResource("Animation_knep6")
+}
+
+[node name="Bridge (past)" type="Node2D" unique_id=1747912565]
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1614895812]
+
+[node name="bridge 0" type="Sprite2D" parent="Area2D" unique_id=1426268417]
+texture = ExtResource("1_50730")
+region_enabled = true
+region_rect = Rect2(0, 26, 64, 24)
+
+[node name="bridge 1" type="Sprite2D" parent="Area2D" unique_id=1288941650]
+visible = false
+position = Vector2(1, 0)
+texture = ExtResource("2_50730")
+region_enabled = true
+region_rect = Rect2(0, 26, 64, 24)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Area2D" unique_id=933510322]
+
+[node name="WalkingArea" type="CollisionShape2D" parent="Area2D/StaticBody2D" unique_id=2118569899]
+position = Vector2(1, 6)
+shape = SubResource("RectangleShape2D_2f6tl")
+disabled = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Area2D" unique_id=830002891]
+libraries/ = SubResource("AnimationLibrary_ys2n1")
+
+[node name="bridge 2" type="Sprite2D" parent="Area2D" unique_id=242272800]
+visible = false
+texture = ExtResource("3_lpjrn")
+region_enabled = true
+region_rect = Rect2(0, 25, 64, 26)
+
+[node name="bridge 3" type="Sprite2D" parent="Area2D" unique_id=1909067175]
+visible = false
+position = Vector2(4, -1)
+texture = ExtResource("4_a1eq3")
+region_enabled = true
+region_rect = Rect2(0, 25, 64, 25)
+
+[node name="bridge 4" type="Sprite2D" parent="Area2D" unique_id=606268029]
+visible = false
+position = Vector2(4, -2)
+texture = ExtResource("5_of2vc")
+region_enabled = true
+region_rect = Rect2(0, 23, 64, 27)
+
+[node name="bridge 5" type="Sprite2D" parent="Area2D" unique_id=1453786965]
+visible = false
+position = Vector2(1, -2)
+texture = ExtResource("6_4gn64")
+region_enabled = true
+region_rect = Rect2(0, 25, 64, 26)
+
+[node name="bridge 6" type="Sprite2D" parent="Area2D" unique_id=391796490]
+visible = false
+position = Vector2(1, -2)
+texture = ExtResource("7_8kadx")
+region_enabled = true
+region_rect = Rect2(0, 24, 64, 27)
