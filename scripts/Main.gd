@@ -24,6 +24,7 @@ var future_overlay: ColorRect
 var current_past_room: Room
 var current_future_room: Room
 
+var _puzzle: Node
 var _live_enemies: int = 0
 var _total_enemies: int = 0
 var _past_enemies: Dictionary = {}
@@ -66,74 +67,25 @@ func _ready() -> void:
 	left_viewport.world_2d = World2D.new()
 	right_viewport.world_2d = World2D.new()
 
-	_define_enemies()
-	_define_gears()
 	_spawn_worlds()
 	_spawn_players()
-	_spawn_gear_puzzle()
 	_load_past_map()
 	_load_future_map()
-	_spawn_npcs()
-	_spawn_enemies()
-	_spawn_gears()
 	_build_overlays()
+	_setup_puzzle()
 	_connect_hud()
 	_connect_signals()
 	_fade_in_both()
 
-func _define_gears() -> void:
-	_past_gears = {
-		0: [{"type": "puzzle","x": 450, "y": 210}],
-	}
-	
-	_future_gears = {
-	}
-	
-func _define_enemies() -> void:
-	_past_enemies = {
-		0: [
-			{"type": "orc", "x": 632, "y": 904, "hp": 3},
-			{"type": "orc", "x": 616, "y": 1088, "hp": 3},
-			{"type": "orc", "x": 950, "y": 800, "hp": 3},
-			{"type": "orc", "x": 856, "y": 928, "hp": 3},
-		],
-		1: [
-			{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
-			{"type": "archer", "x": 768, "y": 2088, "hp": 3},
-			{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
-			{"type": "archer", "x": 688, "y": 1816, "hp": 3},
-		],
-		2: [
-			{"type": "orc", "x": -736, "y": 1778, "hp": 3},
-			{"type": "orc", "x": -760, "y": 1950, "hp": 3},
-			{"type": "orc", "x": -368, "y": 2000, "hp": 3},
-			{"type": "archer", "x": -360, "y": 1728, "hp": 3},
-			{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
-			{"type": "archer", "x": -96, "y": 1720, "hp": 3},
-		]
-	}
-	_future_enemies = {
-		0: [
-			{"type": "skeleton", "x": 358, "y": 1029, "hp": 3},
-			{"type": "skeleton", "x": 1017, "y": 1019, "hp": 3},
-			{"type": "skeleton", "x": 309, "y": 1292, "hp": 3},
-			{"type": "skeleton", "x": 1062, "y": 1316, "hp": 3},
-		],
-		1: [
-			{"type": "skeleton", "x": 356, "y": 1811, "hp": 3},
-			{"type": "skeleton_archer", "x": 1038, "y": 1776, "hp": 3},
-			{"type": "armored_skeleton", "x": 356, "y": 2014, "hp": 3},
-			{"type": "skeleton_archer", "x": 1062, "y": 2070, "hp": 3},
-		],
-		2: [
-			{"type": "skeleton", "x": -331, "y": 1735, "hp": 3},
-			{"type": "skeleton", "x": -426, "y": 1924, "hp": 3},
-			{"type": "skeleton", "x": -368, "y": 2135, "hp": 3},
-			{"type": "skeleton_archer", "x": -900, "y": 2100, "hp": 3},
-			{"type": "armored_skeleton", "x": -665, "y": 1902, "hp": 3},
-			{"type": "skeleton_archer", "x": -900, "y": 1735, "hp": 3},
-		]
-	}
+
+func _setup_puzzle() -> void:
+	var puzzle_script := preload("res://scripts/world/area1/Puzzle.gd")
+	_puzzle = Node.new()
+	_puzzle.set_script(puzzle_script)
+	_puzzle.name = "Puzzle"
+	add_child(_puzzle)
+	_puzzle.setup(past_world, future_world, past_overlay, future_overlay)
+
 
 func _load_past_map() -> void:
 	var map := preload("res://scenes/Past_map_1.tscn").instantiate()
@@ -206,6 +158,16 @@ func _connect_signals() -> void:
 	TimelineManager.reset_sync()
 
 
+func get_live_enemies() -> int:
+	if _puzzle and _puzzle.has_method("get_live_enemies"):
+		return _puzzle.get_live_enemies()
+	return 0
+
+
+func get_live_past_enemies() -> int:
+	if _puzzle and _puzzle.has_method("get_live_past_enemies"):
+		return _puzzle.get_live_past_enemies()
+	return 0
 func _spawn_gear_puzzle() -> void:
 	_gear_puzzle = GearPuzzleManager.new()
 	_gear_puzzle.name = "GearPuzzleManager"
