@@ -12,7 +12,10 @@ const KNOCKBACK_FORCE := 180.0
 @export var hp: int = 3
 @export var tint: Color = Color.WHITE
 @export var is_boss: bool = false
-
+@export_group("Audio")
+@export var attack_sound: AudioStream
+@export var hurt_sound: AudioStream
+@export var death_sound: AudioStream
 enum State { IDLE, PATROL, CHASE, ATTACK, HURT, DEAD }
 
 var state: State = State.IDLE
@@ -35,6 +38,7 @@ var type = ""
 @onready var hurtbox: Area2D              = $Hurtbox
 @onready var detection: Area2D            = $Detection
 @onready var stats: StatsComponent        = $StatsComponent
+@onready var sfx_player: AudioStreamPlayer = $SfxPlayer
 
 func _init_configs()->void:
 	# Apply per-instance config to scene nodes
@@ -198,9 +202,13 @@ func _begin_attack() -> void:
 	hitbox.monitoring = true
 	velocity = facing * speed * 0.4
 	_play("attack")
+	play_sfx(attack_sound)
 
 
 func receive_hit(damage: int, knockback_dir: Vector2) -> void:
+	print("receive_hit called")
+	print("hurt_sound: ", hurt_sound)
+	print("sfx_player: ", sfx_player)
 	if is_dead:
 		return
 	if is_boss and not TimelineManager.is_synced():
@@ -208,6 +216,7 @@ func receive_hit(damage: int, knockback_dir: Vector2) -> void:
 		return
 	stats.take_damage(damage)
 	if stats.is_dead:
+		play_sfx(death_sound)
 		return
 	state = State.HURT
 	hurt_timer = 0.25
@@ -215,6 +224,7 @@ func receive_hit(damage: int, knockback_dir: Vector2) -> void:
 	hitbox.monitoring = false
 	_play("hurt")
 	_flash()
+	play_sfx(hurt_sound)
 
 
 func _flash_blocked() -> void:
@@ -329,3 +339,9 @@ func _update_flip() -> void:
 func _play(anim: String) -> void:
 	if sprite.animation != anim:
 		sprite.play(anim)
+
+func play_sfx(stream: AudioStream) -> void:
+	if stream != null and sfx_player != null:
+		sfx_player.stream = stream
+		sfx_player.play()
+		print("playing: ", sfx_player.playing)

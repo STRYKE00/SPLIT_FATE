@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://d3gepysdatljo"
+path="res://.godot/imported/Attack Canva MP3.mp3-0a8f6b8550ceb663da446d0c622e8816.mp3str"
+
+[deps]
+
+source_file="res://assets/Sounds/Enemies/Skeleton/Attack Canva MP3.mp3"
+dest_files=["res://.godot/imported/Attack Canva MP3.mp3-0a8f6b8550ceb663da446d0c622e8816.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

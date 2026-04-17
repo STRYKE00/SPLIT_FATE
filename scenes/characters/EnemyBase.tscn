@@ -53,3 +53,5 @@ shape = SubResource("CircleShape2D_detect")
 [node name="StatsComponent" type="Node" parent="." unique_id=459567625]
 script = ExtResource("2_stats")
 max_hp = 3
+
+[node name="SfxPlayer" type="AudioStreamPlayer" parent="." unique_id=258543850]

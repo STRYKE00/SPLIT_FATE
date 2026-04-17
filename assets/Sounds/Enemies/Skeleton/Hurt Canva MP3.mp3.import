@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://snfu1m5wgxp4"
+path="res://.godot/imported/Hurt Canva MP3.mp3-aa22ba35822708aa477f878875f2bdd6.mp3str"
+
+[deps]
+
+source_file="res://assets/Sounds/Enemies/Skeleton/Hurt Canva MP3.mp3"
+dest_files=["res://.godot/imported/Hurt Canva MP3.mp3-aa22ba35822708aa477f878875f2bdd6.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
