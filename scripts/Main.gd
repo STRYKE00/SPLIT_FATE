@@ -32,6 +32,10 @@ var _future_enemies: Dictionary = {}
 var _past_gears: Dictionary = {}
 var _future_gears: Dictionary = {}
 
+var _haze_layer   : CanvasLayer
+var _haze_rect    : ColorRect
+var _haze_material: ShaderMaterial
+
 var _gear_puzzle: GearPuzzleManager
 const BOSS_ROOM_INDEX := 4
 
@@ -137,6 +141,7 @@ func _load_past_map() -> void:
 	past_world.add_child(map)
 	past_player.position = Vector2(540.0, 384.0)
 	GameState.current_room_past = 0
+	_setup_past_haze()
 
 
 func _load_future_map() -> void:
@@ -253,6 +258,7 @@ func _spawn_enemies_from_dict(enemy_dict: Dictionary, timeline: String, world: N
 func _on_enemy_killed(_timeline: String) -> void:
 	_live_enemies -= 1
 	_update_future_suppression()
+	_update_past_haze()
 
 func _update_future_suppression() -> void:
 	if not future_player:
@@ -269,7 +275,38 @@ func _update_future_suppression() -> void:
 	future_player.SUPPRESS_DURATION_MIN  = lerp(0.3,  0.8,  t)
 	future_player.SUPPRESS_DURATION_MAX  = lerp(0.8,  2.5,  t)
 	
+
+func _setup_past_haze() -> void:
+	_haze_layer          = CanvasLayer.new()
 	
+	_haze_layer.layer    = 10         
+	past_world.add_child(_haze_layer)
+
+	_haze_rect           = ColorRect.new()
+	_haze_rect.anchor_right  = 1.0
+	_haze_rect.anchor_bottom = 1.0
+	_haze_rect.mouse_filter  = Control.MOUSE_FILTER_IGNORE
+
+	_haze_material        = ShaderMaterial.new()
+	_haze_material.shader = preload("res://scripts/shaders/haze_shader.gdshader")
+	_haze_rect.material   = _haze_material
+
+	_haze_layer.add_child(_haze_rect)
+	_update_past_haze()   
+
+
+func _update_past_haze() -> void:
+	if not _haze_material:
+		return
+
+	var progress := 0.0
+	if _total_enemies > 0:
+		progress = 1.0 - (float(_live_enemies) / float(_total_enemies))
+
+	var t := ease(progress, -2.0)
+	_haze_material.set_shader_parameter("progress", t)
+	
+
 func get_live_enemies() -> int:
 	return _live_enemies
 
