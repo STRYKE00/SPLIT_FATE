@@ -269,11 +269,14 @@ func _update_future_suppression() -> void:
 		progress = 1.0 - (float(_live_enemies)/float(_total_enemies))
 		
 	var t := ease(progress, -2.0)
-	future_player.SUPPRESS_CHANCE        = lerp(0.2,  0.95, t)
-	future_player.SUPPRESS_INTERVAL_MIN  = lerp(5.0,  0.4,  t)
-	future_player.SUPPRESS_INTERVAL_MAX  = lerp(10.0, 1.2,  t)
-	future_player.SUPPRESS_DURATION_MIN  = lerp(0.3,  0.8,  t)
-	future_player.SUPPRESS_DURATION_MAX  = lerp(0.8,  2.5,  t)
+	future_player.SUPPRESS_CHANCE       = lerp(0.65, 0.95, t)
+	future_player.SUPPRESS_INTERVAL_MIN = lerp(1.5,  0.2,  t)
+	future_player.SUPPRESS_INTERVAL_MAX = lerp(3.0,  0.6,  t)
+	future_player.SUPPRESS_DURATION_MIN = lerp(0.8,  1.8,  t)
+	future_player.SUPPRESS_DURATION_MAX = lerp(1.8,  4.0,  t)
+	
+	if not future_player._suppress_input:
+		future_player._reset_cooldown()
 	
 
 func _setup_past_haze() -> void:
@@ -297,6 +300,9 @@ func _setup_past_haze() -> void:
 
 func _update_past_haze() -> void:
 	if not _haze_material:
+		return
+
+	if not past_player:
 		return
 
 	var progress := 0.0
