@@ -20,6 +20,8 @@ func play_bgm(stream: AudioStream, fade_in: float = 1.0) -> void:
 		tw.tween_property(_bgm, "volume_db", -40.0, 0.3)
 		await tw.finished
 		_bgm.stop()
+	if stream is AudioStreamMP3:
+		stream.loop = true
 	_bgm.stream = stream
 	_bgm.volume_db = -40.0
 	_bgm.play()

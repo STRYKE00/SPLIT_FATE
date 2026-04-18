@@ -1,8 +1,10 @@
 extends CanvasLayer
 
 const CHARS_PER_SEC := 35.0
+var TYPING_SFX := preload("res://assets/Sounds/Typing sound effect.mp3")
 
 var _full_text: String = ""
+var _typing_player: AudioStreamPlayer
 var _char_progress: float = 0.0
 var _showing: bool = false
 var _text_complete: bool = false
@@ -11,6 +13,7 @@ var _speaker_colors := {
 	"Mira":  Color(0.2, 0.85, 0.7),
 	"Ren":   Color(0.7, 0.5, 1.0),
 	"Solen": Color(1.0, 0.85, 0.4),
+	"Demon King": Color(0.9, 0.15, 0.15),
 }
 
 # --- Node references (set up in the DialogueBox.tscn scene file) ---
@@ -22,6 +25,11 @@ var _speaker_colors := {
 
 func _ready() -> void:
 	_hide_box()
+	_typing_player = AudioStreamPlayer.new()
+	_typing_player.stream = TYPING_SFX
+	if TYPING_SFX is AudioStreamMP3:
+		TYPING_SFX.loop = true
+	add_child(_typing_player)
 	DialogueManager.line_ready.connect(_on_line)
 	DialogueManager.dialogue_ended.connect(_on_end)
 	DialogueManager.dialogue_started.connect(_on_start)
@@ -37,6 +45,7 @@ func _process(delta: float) -> void:
 			_text_label.text = _full_text
 			_text_complete = true
 			_advance_arrow.visible = true
+			_typing_player.stop()
 		else:
 			_text_label.text = _full_text.substr(0, count)
 	if _advance_arrow.visible:

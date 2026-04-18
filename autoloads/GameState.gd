@@ -8,6 +8,9 @@ var is_transitioning: bool = false
 
 var flags: Dictionary = {}
 
+var past_player_hp: int = -1
+var future_player_hp: int = -1
+
 func set_flag(key: String, value: Variant) -> void:
 	flags[key] = value
 

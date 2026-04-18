@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://6o4b3p57hhmu"]
 
-[ext_resource type="Texture2D" uid="uid://ufj58r4mgfe0" path="res://assets/ui/bg1.png" id="1_l6cm7"]
+[ext_resource type="Texture2D" uid="uid://b3c4pfergt2ie" path="res://assets/ui/Background_main_menu.png" id="2_rtw2f"]
 [ext_resource type="Script" uid="uid://bpdhkrnqf5iwy" path="res://scripts/main_menu.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://cjfnlu3ea1gru" path="res://assets/ui/title3.png" id="4_title"]
 [ext_resource type="Texture2D" uid="uid://3clpqsr7jw8n" path="res://assets/ui/play_button.png" id="5_frame1"]
@@ -13,8 +13,9 @@ script = ExtResource("2_script")
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=2124935513]
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1686950468]
-position = Vector2(688, 384)
-texture = ExtResource("1_l6cm7")
+position = Vector2(688, 383.99997)
+scale = Vector2(1.0749999, 1.0756303)
+texture = ExtResource("2_rtw2f")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1989543593]
 layer = 10

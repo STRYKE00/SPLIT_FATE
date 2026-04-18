@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://hsuvfxsbopuv"]
+[gd_scene format=3 uid="uid://hsuvfxsbopuv"]
 
 [ext_resource type="Texture2D" uid="uid://b7p0b1mi0i5u2" path="res://assets/Character/Demon King/VFX ha/59.png" id="1_f0"]
 [ext_resource type="Texture2D" uid="uid://c0xg555253qta" path="res://assets/Character/Demon King/VFX ha/60.png" id="2_f1"]
