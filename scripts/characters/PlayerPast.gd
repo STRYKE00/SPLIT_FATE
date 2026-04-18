@@ -15,6 +15,26 @@ func _ready() -> void:
 	sprite.play("idle")
 	_connect_signals()
 
+func _begin_heavy() -> void:
+	if heavy_cooldown_timer > 0.0:
+		return
+	state = State.ATTACK
+	is_heavy = true
+	combo_stage = 0
+	combo_queued = false
+	combo_window_timer = 0.0
+
+	attack_timer = HEAVY_DURATION
+	attack_windup_timer = 0.0
+	attack_hit_timer = 0.0
+	heavy_cooldown_timer = 10
+
+	hitbox.monitoring = false
+	velocity = velocity * 0.2
+	stats.heal(1)
+	_play("heal")
+	shake_amount = 1.5
+
 func _play_dash_animation() -> void:
 	_play("roll")
 
