@@ -5,12 +5,16 @@ const PLAYER_LAYER := 2
 
 var gear_id: String = ""
 var gear_type: String = ""
-var trigger_size: Vector2 = Vector2(48, 48)
+var trigger_size: Vector2 = Vector2(24, 24)
 var after_clear: bool = false
 var _player_inside: Node2D = null
 var locked: bool = false
+var stats: StatsComponent
+var player: PlayerBase
 
 @onready var _shape: CollisionShape2D = $CollisionShape2D
+@onready var _color_rect: ColorRect = $ColorRect
+@onready var _label: Label = $ColorRect/Label
 
 func _ready() -> void:
 	collision_layer = 0
@@ -19,16 +23,27 @@ func _ready() -> void:
 	var rect_shape := RectangleShape2D.new()
 	rect_shape.size = trigger_size
 	_shape.shape = rect_shape
+	
+	_color_rect.size = trigger_size
+	
+	_set_color("#b1ba00")
+	_set_label_text("G")
 
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
+func _set_color(color: String):
+	_color_rect.color = color
+
+func _set_label_text(text: String):
+	_label.text = text
 
 func _on_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("players"):
 		return
 	_player_inside = body
-
+	player = (body as PlayerBase)
+	stats = body.find_child("StatsComponent")
 
 func _on_body_exited(body: Node2D) -> void:
 	if not body.is_in_group("players"):
