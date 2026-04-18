@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://dr7di8q383iib" path="res://assets/tiles/Dungeon_Forest/tileset.png" id="4_6gfcs"]
 [ext_resource type="PackedScene" uid="uid://d3p3atvwm5wp2" path="res://scenes/characters/PlayerPast.tscn" id="4_ppast"]
 [ext_resource type="PackedScene" uid="uid://b87dq6emds1wd" path="res://scenes/characters/PlayerFuture.tscn" id="5_pfut"]
-[ext_resource type="PackedScene" path="res://scenes/characters/DemonKing.tscn" id="6_dking"]
+[ext_resource type="PackedScene" uid="uid://go1l0s0kp6kj" path="res://scenes/characters/DemonKing.tscn" id="6_dking"]
 [ext_resource type="PackedScene" path="res://scenes/ui/BossHUD.tscn" id="7_bhud"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_50k4e"]

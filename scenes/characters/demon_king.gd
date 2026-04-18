@@ -239,7 +239,7 @@ func _on_died() -> void:
 	velocity = Vector2.ZERO
 	_play_anim("death")
 	TimelineManager.enemy_killed.emit(timeline)
-	TimelineManager.boss_defeated.emit(timeline)
+	TimelineManager.boss_defeated.emit(timeline, position)
 	await get_tree().create_timer(1.2).timeout
 	queue_free()
 
