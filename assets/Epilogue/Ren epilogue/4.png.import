@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dkts54yaa3djt"
-path="res://.godot/imported/1.png-48e67226867c924b65a8a97ccb061ca2.ctex"
+uid="uid://cwyi6giep55aj"
+path="res://.godot/imported/4.png-ad60ae7dfae444cff4389cafbfcc9faa.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Prologue/REN PROLOGUE/1.png"
-dest_files=["res://.godot/imported/1.png-48e67226867c924b65a8a97ccb061ca2.ctex"]
+source_file="res://assets/Epilogue/Ren epilogue/4.png"
+dest_files=["res://.godot/imported/4.png-ad60ae7dfae444cff4389cafbfcc9faa.ctex"]
 
 [params]
 
