@@ -22,6 +22,7 @@ var keyboard_roll_action: String = "Shift"
 var keyboard_light_attack_action: String = "Space"
 var keyboard_heavy_attack_action: String = "Q"
 var keyboard_interact_action: String = "E"
+var heavy_attack_action: String = "healing effect"
 var target: Node2D = null
 var _player_inside: Node2D = null
 var talked: bool = false
@@ -58,6 +59,7 @@ func _physics_process(delta: float) -> void:
 		keyboard_light_attack_action = "Enter"
 		keyboard_heavy_attack_action = "','"
 		keyboard_interact_action = "'.'"
+		heavy_attack_action = "heavy attack"
 
 	if not is_tutorial_interact:
 		is_tutorial_interact = true
@@ -163,5 +165,5 @@ func _state_follow(delta: float) -> void:
 	if not is_tutorial_light_attack:
 		is_tutorial_light_attack = true
 		_queue_tutorial("Press %s/Square for light attack" % keyboard_light_attack_action)
-		_queue_tutorial("Press %s/Triangle for heavy attack" % keyboard_heavy_attack_action)
+		_queue_tutorial("Press %s/Triangle for %s" % [keyboard_heavy_attack_action, heavy_attack_action])
 		_queue_tutorial("Press %s/Circle to roll" % keyboard_roll_action)
