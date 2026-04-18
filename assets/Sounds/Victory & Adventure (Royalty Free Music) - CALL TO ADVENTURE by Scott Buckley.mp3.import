@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://wp6pjby67uvc"
+path="res://.godot/imported/Victory & Adventure (Royalty Free Music) - CALL TO ADVENTURE by Scott Buckley.mp3-a7ad441ca24572a964a57e3e39aa5e78.mp3str"
+
+[deps]
+
+source_file="res://assets/Sounds/Victory & Adventure (Royalty Free Music) - CALL TO ADVENTURE by Scott Buckley.mp3"
+dest_files=["res://.godot/imported/Victory & Adventure (Royalty Free Music) - CALL TO ADVENTURE by Scott Buckley.mp3-a7ad441ca24572a964a57e3e39aa5e78.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

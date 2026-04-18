@@ -1,8 +1,10 @@
 extends Node2D
 
 const MAIN_MENU_PATH := "res://scenes/main_menu.tscn"
+const EPILOGUE_PATH := "res://Epilogue.tscn"
 const OUTRO_DELAY := 2.0
 const SOLAN_SCENE := preload("res://scenes/characters/Solan.tscn")
+const PORTAL_SCENE := preload("res://Portal_epilogue.tscn")
 
 @onready var _demon_king: Node = $DemonKing
 @onready var _past: Node = $PlayerPast
@@ -313,16 +315,151 @@ func _on_player_died(timeline: String) -> void:
 		get_tree().change_scene_to_file(MAIN_MENU_PATH)
 
 
-func _on_boss_defeated(_timeline: String, _last_pos: Vector2) -> void:
+func _on_boss_defeated(_timeline: String, last_pos: Vector2) -> void:
 	if _cutscene_active:
 		return
 	if _defeat_fired:
 		return
 	_defeat_fired = true
+	_cutscene_active = true
+	GameState.is_transitioning = true
 	AudioManager.stop_bgm()
-	await get_tree().create_timer(OUTRO_DELAY).timeout
-	var future_solan := SOLAN_SCENE.instantiate()
-	future_solan.position = _last_pos
-	future_solan.z_index = 10
-	add_child(future_solan)
-	#get_tree().change_scene_to_file(MAIN_MENU_PATH)
+
+	# Freeze players
+	_past.set_physics_process(false)
+	_future.set_physics_process(false)
+
+	# Fade to black
+	_overlay.color = Color(0, 0, 0, 0)
+	var fade_out := create_tween()
+	fade_out.tween_property(_overlay, "color:a", 1.0, 1.5)
+	await fade_out.finished
+
+	# Hide demon king and HUD
+	if _demon_king:
+		_demon_king.visible = false
+		_demon_king.set_physics_process(false)
+		_demon_king.set_process(false)
+	if _hud:
+		_hud.visible = false
+
+	# Restore players to full HP and ensure they are fully visible
+	_past.stats.hp = _past.stats.max_hp
+	_past.stats.hp_changed.emit(_past.stats.hp, _past.stats.max_hp)
+	_past.modulate = Color(1, 1, 1, 1)
+	_past.sprite.modulate = Color(1, 1, 1, 1)
+	_future.stats.hp = _future.stats.max_hp
+	_future.stats.hp_changed.emit(_future.stats.hp, _future.stats.max_hp)
+	_future.modulate = Color(1, 1, 1, 1)
+	_future.sprite.modulate = Color(1, 1, 1, 1)
+	var past_anim :AnimatedSprite2D= _past.get_node_or_null("Sprite")
+	if past_anim :
+		past_anim.play("idle")
+	var future_anim :AnimatedSprite2D= _future.get_node_or_null("Sprite")
+	if future_anim :
+		future_anim.play("idle")
+		
+	future_anim.flip_h = true 
+	_solen = SOLAN_SCENE.instantiate()
+	_solen.position = last_pos
+	_solen.z_index = 10
+	_solen.set_physics_process(false)
+	_solen.set_process(false)
+	(_solen as Solen).set_state(Solen.STATE.IDLE_PAST)
+	add_child(_solen)
+
+	# Position players near Solen
+	_past.position = last_pos + Vector2(-80, 60)
+	_future.position = last_pos + Vector2(80, 60)
+
+	# Move camera to Solen
+	if _cutscene_camera:
+		_cutscene_camera.position = last_pos
+		_cutscene_camera.zoom = Vector2(2, 2)
+
+	await get_tree().create_timer(1.0).timeout
+
+	# Fade in — reveal Solen reverted
+	var fade_in := create_tween()
+	fade_in.tween_property(_overlay, "color:a", 0.0, 1.5)
+	await fade_in.finished
+
+	# Solen's grief dialogue
+	(_solen as Solen).set_state(Solen.STATE.TALK)
+	await _play_dialogue("res://data/dialogue/boss_outro_solen_grief.json")
+
+	# Solen death animation
+	_solen.sprite.play("death")
+	await _solen.sprite.animation_finished
+
+	await get_tree().create_timer(1.5).timeout
+
+	# Fade out Solen's body
+	var solen_fade := create_tween()
+	solen_fade.tween_property(_solen.sprite, "modulate:a", 0.0, 1.5)
+	await solen_fade.finished
+	var solen_pos: Vector2 = _solen.position
+	_solen.queue_free()
+	_solen = null
+
+	# Mira and Ren — how do we get home?
+	await _play_dialogue("res://data/dialogue/boss_outro_lost.json")
+	
+	AudioManager.play_bgm(preload("res://assets/Sounds/Victory & Adventure (Royalty Free Music) - CALL TO ADVENTURE by Scott Buckley.mp3"))
+	
+	# Camera shake — rift tremor
+	await _camera_shake(0.6, 4.0)
+
+	# Mysterious voice
+	await _play_dialogue("res://data/dialogue/boss_outro_voice.json")
+
+	# Spawn portal where Solen died
+	var portal: AnimatedSprite2D = PORTAL_SCENE.instantiate()
+	portal.position = solen_pos
+	portal.z_index = 10
+	portal.modulate.a = 0.0
+	add_child(portal)
+	portal.play("default")
+	
+	AudioManager.stop_bgm()
+
+	# Fade in the portal
+	var portal_fade := create_tween()
+	portal_fade.tween_property(portal, "modulate:a", 1.0, 1.5)
+	await portal_fade.finished
+
+	await get_tree().create_timer(2.0).timeout
+
+	# Fade to white (stepping through portal)
+	_overlay.color = Color(1, 1, 1, 0)
+	var rift_flash := create_tween()
+	rift_flash.tween_property(_overlay, "color:a", 1.0, 1.5)\
+		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_SINE)
+	await rift_flash.finished
+
+	# Play portal video
+	_play_portal_video()
+
+
+func _play_portal_video() -> void:
+	# Clear the scene and play the portal video fullscreen
+	for child in get_children():
+		child.queue_free()
+
+	var video_layer := CanvasLayer.new()
+	video_layer.layer = 100
+	add_child(video_layer)
+
+	var video_player := VideoStreamPlayer.new()
+	video_player.stream = load("res://assets/Epilogue/Portal_video.ogv")
+	video_player.anchor_left = 0.0
+	video_player.anchor_top = 0.0
+	video_player.anchor_right = 1.0
+	video_player.anchor_bottom = 1.0
+	video_player.expand = true
+	video_layer.add_child(video_player)
+
+	video_player.finished.connect(func() -> void:
+		get_tree().change_scene_to_file(EPILOGUE_PATH)
+	)
+	video_player.play()
