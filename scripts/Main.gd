@@ -91,24 +91,24 @@ func _define_enemies() -> void:
 	_past_enemies = {
 		0: [
 			{"type": "orc", "x": 632, "y": 904, "hp": 3},
-			#{"type": "orc", "x": 616, "y": 1088, "hp": 3},
-			#{"type": "orc", "x": 950, "y": 800, "hp": 3},
-			#{"type": "orc", "x": 856, "y": 928, "hp": 3},
+			{"type": "orc", "x": 616, "y": 1088, "hp": 3},
+			{"type": "orc", "x": 950, "y": 800, "hp": 3},
+			{"type": "orc", "x": 856, "y": 928, "hp": 3},
 		],
-		#1: [
-			#{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
-			#{"type": "archer", "x": 768, "y": 2088, "hp": 3},
-			#{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
-			#{"type": "archer", "x": 688, "y": 1816, "hp": 3},
-		#],
-		#2: [
-			#{"type": "orc", "x": -736, "y": 1778, "hp": 3},
-			#{"type": "orc", "x": -760, "y": 1950, "hp": 3},
-			#{"type": "orc", "x": -368, "y": 2000, "hp": 3},
-			#{"type": "archer", "x": -360, "y": 1728, "hp": 3},
-			#{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
-			#{"type": "archer", "x": -96, "y": 1720, "hp": 3},
-		#]
+		1: [
+			{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
+			{"type": "archer", "x": 768, "y": 2088, "hp": 3},
+			{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
+			{"type": "archer", "x": 688, "y": 1816, "hp": 3},
+		],
+		2: [
+			{"type": "orc", "x": -736, "y": 1778, "hp": 3},
+			{"type": "orc", "x": -760, "y": 1950, "hp": 3},
+			{"type": "orc", "x": -368, "y": 2000, "hp": 3},
+			{"type": "archer", "x": -360, "y": 1728, "hp": 3},
+			{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
+			{"type": "archer", "x": -96, "y": 1720, "hp": 3},
+		]
 	}
 	_future_enemies = {
 		0: [

@@ -1,6 +1,6 @@
 extends EnemyBase
 
-const MAX_HP := 2
+const MAX_HP := 50
 const PHASE_2_HP := 25
 const WALK_SPEED := 70.0
 const CHASE_SPEED := 110.0
