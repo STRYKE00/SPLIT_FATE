@@ -57,7 +57,6 @@ func _ready() -> void:
 	_setup_characters()
 	_run_epilogue()
 
-
 func _load_textures() -> void:
 	_bg.texture = load("res://assets/Epilogue/Rooftop_Epilogue.jpg")
 	for i in range(1, 7):
@@ -68,7 +67,7 @@ func _load_textures() -> void:
 
 
 func _setup_audio() -> void:
-	var warm := load("res://assets/Sounds/Warm music.mp3") as AudioStreamMP3
+	var warm := load("res://assets/Sounds/Beautiful Japanese Music - Inu Sad Song Mix - Emotional Soundtrack.mp3") as AudioStreamMP3
 	warm.loop = true
 	_music_player.stream = warm
 

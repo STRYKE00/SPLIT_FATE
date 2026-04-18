@@ -484,12 +484,14 @@ func _on_boss_defeated(_timeline: String, last_pos: Vector2) -> void:
 	fade_in.tween_property(_overlay, "color:a", 0.0, 1.5)
 	await fade_in.finished
 	if not _outro_active: return
-
+	
 	# Solen's grief dialogue
 	(_solen as Solen).set_state(Solen.STATE.TALK)
 	await _play_dialogue("res://data/dialogue/boss_outro_solen_grief.json")
 	if not _outro_active: return
-
+	
+	AudioManager.play_bgm(preload("res://assets/Sounds/Victory & Adventure (Royalty Free Music) - CALL TO ADVENTURE by Scott Buckley.mp3"))
+	
 	# Solen death animation
 	_solen.sprite.play("death")
 	await _solen.sprite.animation_finished
