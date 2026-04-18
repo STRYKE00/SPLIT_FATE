@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://dfbuypf1rrq5j"]
+
+[ext_resource type="PackedScene" uid="uid://b8wic7swh30ad" path="res://scenes/gear_base.tscn" id="1_40qwr"]
+[ext_resource type="Script" uid="uid://cprh8xtxuk6s3" path="res://scripts/gear_heal.gd" id="2_0tpjk"]
+
+[node name="GearHeal" unique_id=91463733 instance=ExtResource("1_40qwr")]
+script = ExtResource("2_0tpjk")

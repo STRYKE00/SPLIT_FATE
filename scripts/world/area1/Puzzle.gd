@@ -17,6 +17,11 @@ var _future_gears: Dictionary = {}
 
 var _gear_puzzle: GearPuzzleManager
 
+const GEAR_SCENE = {
+	"heal": preload("res://scenes/gear_heal.tscn"),
+	"default": preload("res://scenes/gear_base.tscn")
+	
+}
 
 func setup(p_past_world: Node2D, p_future_world: Node2D, p_past_overlay: ColorRect, p_future_overlay: ColorRect) -> void:
 	past_world = p_past_world
@@ -41,6 +46,9 @@ func _define_gears() -> void:
 	}
 
 	_future_gears = {
+		0: [
+			{"gear_id": "heal", "type": "powerup", "x": 0, "y": 1920},
+		]
 	}
 
 
@@ -58,11 +66,13 @@ func _spawn_gears() -> void:
 func _spawn_gears_from_dict(gear_dict: Dictionary, world: Node2D) -> void:
 	for gear_idx in gear_dict:
 		for cfg in gear_dict[gear_idx]:
-			var gear_scene: PackedScene = preload("res://scenes/gear_base.tscn")
+			var type_key:String = cfg.get("type", "default")
+			var id_key:String = cfg.get("gear_id", "default")
+			var gear_scene: PackedScene = GEAR_SCENE.get(id_key, GEAR_SCENE["default"])
 			var gear: GearBase = gear_scene.instantiate()
 			gear.position = Vector2(cfg["x"], cfg["y"])
 			gear.gear_id = cfg.get("gear_id", "")
-			gear.gear_type = cfg.get("type", "")
+			gear.gear_type = type_key
 			gear.z_index = 10
 			world.add_child(gear)
 			gear.setup()

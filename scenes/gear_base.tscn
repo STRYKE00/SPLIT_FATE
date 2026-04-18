@@ -6,8 +6,28 @@
 size = Vector2(48, 48)
 
 [node name="GearBase" type="Area2D" unique_id=91463733]
-z_index = 10
 script = ExtResource("1_ieqqg")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1056575615]
 shape = SubResource("RectangleShape2D_fftss")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=605373867]
+z_index = -1
+offset_left = -19.0
+offset_top = -21.0
+offset_right = 21.0
+offset_bottom = 19.0
+color = Color(1, 0, 0, 1)
+
+[node name="Label" type="Label" parent="ColorRect" unique_id=1031741]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 1.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "A"
+horizontal_alignment = 1
+vertical_alignment = 1
