@@ -22,6 +22,7 @@ var keyboard_roll_action: String = "Shift"
 var keyboard_light_attack_action: String = "Space"
 var keyboard_heavy_attack_action: String = "Q"
 var keyboard_interact_action: String = "E"
+var heavy_attack_action: String = "healing effect"
 var target: Node2D = null
 var _player_inside: Node2D = null
 var talked: bool = false
@@ -49,44 +50,51 @@ func _on_player_detected(body: Node2D) -> void:
 		target = body
 
 func _physics_process(delta: float) -> void:
-	if target==null:
+	if target == null:
 		return
-	
-	if type==TYPE.FUTURE:
+
+	if type == TYPE.FUTURE:
 		type_str = "future"
 		keyboard_roll_action = "' / '"
 		keyboard_light_attack_action = "Enter"
 		keyboard_heavy_attack_action = "','"
 		keyboard_interact_action = "'.'"
+		heavy_attack_action = "heavy attack"
 
 	if not is_tutorial_interact:
 		is_tutorial_interact = true
 		TimelineManager.tutorial_text.emit("Press %s/Cross to interact" % keyboard_interact_action, type_str)
-	
+
 	_process_tutorial_queue(delta)
-	
-	var interact_action: String = "past_interact" if target.timeline == "past" else "future_interact"
-	if Input.is_action_just_pressed(interact_action):
-		if talked:
-			return
-		
-		if type == TYPE.FUTURE:
-			DialogueManager.start_dialogue("res://data/dialogue/guide_future.json")
-		else:
-			DialogueManager.start_dialogue("res://data/dialogue/guide_past.json")
-			
-			
-		DialogueManager.dialogue_ended.connect(func():
-			talked = true
-			state=STATE.FOLLOW
-		, CONNECT_ONE_SHOT)
-	
+
+	if not DialogueManager.is_active():
+		var interact_action: String = "past_interact" if target.timeline == "past" else "future_interact"
+		if Input.is_action_just_pressed(interact_action):
+			if not talked:
+				if type == TYPE.FUTURE:
+					DialogueManager.start_dialogue("res://data/dialogue/guide_future.json")
+				else:
+					DialogueManager.start_dialogue("res://data/dialogue/guide_past.json")
+
+				DialogueManager.dialogue_ended.connect(func():
+					talked = true
+					state = STATE.FOLLOW
+				, CONNECT_ONE_SHOT)
 
 	match state:
 		STATE.FOLLOW:
 			_state_follow(delta)
 
 	move_and_slide()
+func _unhandled_input(event: InputEvent) -> void:
+	if not DialogueManager.is_active():
+		return
+
+	if not event.is_action_pressed("dialogue_advance"):
+		return
+
+	get_viewport().set_input_as_handled()
+	DialogueManager.next_line()
 
 func _process_tutorial_queue(delta: float) -> void:
 	if _tutorial_queue.is_empty():
@@ -157,5 +165,5 @@ func _state_follow(delta: float) -> void:
 	if not is_tutorial_light_attack:
 		is_tutorial_light_attack = true
 		_queue_tutorial("Press %s/Square for light attack" % keyboard_light_attack_action)
-		_queue_tutorial("Press %s/Triangle for heavy attack" % keyboard_heavy_attack_action)
+		_queue_tutorial("Press %s/Triangle for %s" % [keyboard_heavy_attack_action, heavy_attack_action])
 		_queue_tutorial("Press %s/Circle to roll" % keyboard_roll_action)
