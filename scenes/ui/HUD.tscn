@@ -118,14 +118,10 @@ show_percentage = false
 
 [node name="PastTextLabel" type="Label" parent="Root" unique_id=1975432167]
 layout_mode = 0
-offset_left = 438.0
-offset_top = 115.0
-offset_right = 478.0
-offset_bottom = 138.0
+offset_right = 40.0
+offset_bottom = 23.0
 
 [node name="FutureTextLabel" type="Label" parent="Root" unique_id=200235111]
 layout_mode = 0
-offset_left = 1382.0
-offset_top = 115.0
-offset_right = 1422.0
-offset_bottom = 138.0
+offset_right = 40.0
+offset_bottom = 23.0

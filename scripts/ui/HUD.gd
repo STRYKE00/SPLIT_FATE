@@ -16,6 +16,8 @@ const MAX_HP := 5
 var _hp_bar_texture: Texture2D
 var _banner: Label
 var _banner_tween: Tween
+var parent: Control
+var BANNER_TOP_PADDING := 50
 
 
 func _ready() -> void:
@@ -30,6 +32,30 @@ func _ready() -> void:
 	TimelineManager.timeline_action.connect(_on_timeline_action)
 	_boss_panel.visible = false
 	_build_banner()
+	_setup_viewport()
+	
+
+func _setup_viewport() -> void:
+	parent = get_parent()
+	if parent.name == "Main":
+		await get_tree().process_frame
+		await get_tree().process_frame
+
+		var split_container: HBoxContainer = parent.get_node_or_null("SplitContainer")
+		if split_container:
+			var split_container_left: SubViewportContainer = split_container.get_node_or_null("LeftContainer")
+			if split_container_left:
+				_past_text_banner.global_position = split_container_left.global_position + Vector2(0, BANNER_TOP_PADDING)
+				_past_text_banner.size = split_container_left.size
+				_past_text_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				_past_text_banner.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+			var split_container_right: SubViewportContainer = split_container.get_node_or_null("RightContainer")
+			if split_container_right:
+				_future_text_banner.global_position = split_container_right.global_position + Vector2(0, BANNER_TOP_PADDING)
+				_future_text_banner.size = split_container_right.size
+				_future_text_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				_future_text_banner.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
 func _build_banner() -> void:
 	_banner = Label.new()
