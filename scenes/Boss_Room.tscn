@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://cwo1gc6v6vm81" path="res://assets/tiles/Future_map_1/mainlevbuild.png" id="1_50k4e"]
 [ext_resource type="Texture2D" uid="uid://ddw8yuqbumbq2" path="res://assets/tiles/Future_map_1/torch_1.png" id="2_kkmjn"]
-[ext_resource type="Script" uid="uid://bq2alb64s4s64" path="res://scripts/BossRoom.gd" id="3_bossroom"]
+[ext_resource type="Script" uid="uid://bt72iswq86h52" path="res://scripts/BossRoom.gd" id="3_bossroom"]
 [ext_resource type="Texture2D" uid="uid://dr7di8q383iib" path="res://assets/tiles/Dungeon_Forest/tileset.png" id="4_6gfcs"]
 [ext_resource type="PackedScene" uid="uid://d3p3atvwm5wp2" path="res://scenes/characters/PlayerPast.tscn" id="4_ppast"]
 [ext_resource type="PackedScene" uid="uid://b87dq6emds1wd" path="res://scenes/characters/PlayerFuture.tscn" id="5_pfut"]

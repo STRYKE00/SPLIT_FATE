@@ -12,6 +12,7 @@ script = ExtResource("1_ieqqg")
 shape = SubResource("RectangleShape2D_fftss")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=605373867]
+visible = false
 z_index = -1
 offset_left = -19.0
 offset_top = -21.0
@@ -20,6 +21,7 @@ offset_bottom = 19.0
 color = Color(1, 0, 0, 1)
 
 [node name="Label" type="Label" parent="ColorRect" unique_id=1031741]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

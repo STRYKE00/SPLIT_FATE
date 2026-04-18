@@ -5,3 +5,9 @@
 
 [node name="GearHeal" unique_id=91463733 instance=ExtResource("1_40qwr")]
 script = ExtResource("2_0tpjk")
+
+[node name="ColorRect" parent="." index="1" unique_id=605373867]
+visible = true
+
+[node name="Label" parent="ColorRect" index="0" unique_id=1031741]
+visible = true
