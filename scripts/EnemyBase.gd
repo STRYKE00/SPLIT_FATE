@@ -281,7 +281,7 @@ func _on_died() -> void:
 	velocity = Vector2.ZERO
 	TimelineManager.enemy_killed.emit(timeline)
 	if is_boss:
-		TimelineManager.boss_defeated.emit(timeline)
+		TimelineManager.boss_defeated.emit(timeline, global_position)
 	var tw := create_tween()
 	tw.tween_property(sprite, "modulate:a", 0.0, 0.5)
 	tw.parallel().tween_property(sprite, "scale", Vector2(0.3, 0.3), 0.5)\

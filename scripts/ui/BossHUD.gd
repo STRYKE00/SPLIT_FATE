@@ -47,7 +47,7 @@ func _on_hp_changed(current: int, max_hp: int) -> void:
 	tw.tween_property(_bar, "value", current, 0.2)
 
 
-func _on_boss_defeated(_timeline: String) -> void:
+func _on_boss_defeated(_timeline: String, _last_pos: Vector2 = Vector2.ZERO) -> void:
 	var tw := create_tween()
 	tw.tween_property(_panel, "modulate:a", 0.0, 0.5)
 	tw.tween_callback(func(): _panel.visible = false)

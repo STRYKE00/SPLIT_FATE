@@ -1,5 +1,77 @@
 [gd_scene format=3 uid="uid://c21wltypk8yhi"]
 
-[node name="Node2D" type="Node2D" unique_id=1703489508]
+[ext_resource type="Script" path="res://scripts/Epilogue.gd" id="1_script"]
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1001260687]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
+content_margin_left = 24.0
+content_margin_top = 14.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.04, 0.04, 0.1, 0.88)
+border_width_top = 2
+border_color = Color(0.25, 0.2, 0.45, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+
+[node name="Epilogue" type="Node2D" unique_id=1703489508]
+script = ExtResource("1_script")
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="TypingPlayer" type="AudioStreamPlayer" parent="."]
+volume_db = -8.0
+
+[node name="BGLayer" type="CanvasLayer" parent="."]
+layer = 0
+
+[node name="BG" type="Sprite2D" parent="BGLayer"]
+
+[node name="CharLayer" type="CanvasLayer" parent="."]
+
+[node name="RenSprite" type="Sprite2D" parent="CharLayer"]
+modulate = Color(1, 1, 1, 0)
+
+[node name="MiraSprite" type="Sprite2D" parent="CharLayer"]
+modulate = Color(1, 1, 1, 0)
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="BlackOverlay" type="ColorRect" parent="UILayer"]
+offset_right = 1376.0
+offset_bottom = 768.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="DialoguePanel" type="PanelContainer" parent="UILayer"]
+visible = false
+offset_top = 510.0
+offset_right = 1376.0
+offset_bottom = 768.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_1")
+
+[node name="VBox" type="VBoxContainer" parent="UILayer/DialoguePanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SpeakerLabel" type="Label" parent="UILayer/DialoguePanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 24
+
+[node name="DialogueText" type="RichTextLabel" parent="UILayer/DialoguePanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.92, 0.92, 0.92, 1)
+theme_override_font_sizes/normal_font_size = 21
+bbcode_enabled = true
+scroll_active = false
+
+[node name="AdvanceArrow" type="Label" parent="UILayer/DialoguePanel/VBox"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 0.6)
+theme_override_font_sizes/font_size = 14
+text = "▼"
+horizontal_alignment = 2
