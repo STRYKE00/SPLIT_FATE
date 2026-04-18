@@ -509,14 +509,8 @@ func _on_boss_defeated(_timeline: String, last_pos: Vector2) -> void:
 
 	# Mira and Ren — how do we get home?
 	await _play_dialogue("res://data/dialogue/boss_outro_lost.json")
-<<<<<<< HEAD
-	
-	AudioManager.play_bgm(preload("res://assets/Sounds/Victory & Adventure (Royalty Free Music) - CALL TO ADVENTURE by Scott Buckley.mp3"))
-	
-=======
 	if not _outro_active: return
 
->>>>>>> 5b02874 (Added epilogue and skip button)
 	# Camera shake — rift tremor
 	await _camera_shake(0.6, 4.0)
 	if not _outro_active: return
