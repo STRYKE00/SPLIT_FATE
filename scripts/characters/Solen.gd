@@ -17,10 +17,24 @@ enum TYPE {
 
 var state: STATE = STATE.IDLE_PAST
 var type: TYPE = TYPE.PAST
+var type_str: String = "past"
+var keyboard_roll_action: String = "Shift"
+var keyboard_light_attack_action: String = "Space"
+var keyboard_heavy_attack_action: String = "Q"
+var keyboard_interact_action: String = "E"
 var target: Node2D = null
 var _player_inside: Node2D = null
 var talked: bool = false
+var is_tutorial_interact: bool = false
+var is_tutorial_light_attack: bool = false
+var is_tutorial_heavy_attack: bool = false
+var is_tutorial_roll: bool = false
 var facing: Vector2 = Vector2.DOWN
+
+var _tutorial_queue: Array[String] = []
+var _tutorial_timer: float = 0.0
+var _tutorial_interval: float = 5.0
+
 @export var follow_speed: float = 95.0
 @onready var detection: Area2D            = $Detection
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -37,6 +51,20 @@ func _on_player_detected(body: Node2D) -> void:
 func _physics_process(delta: float) -> void:
 	if target==null:
 		return
+	
+	if type==TYPE.FUTURE:
+		type_str = "future"
+		keyboard_roll_action = "' / '"
+		keyboard_light_attack_action = "Enter"
+		keyboard_heavy_attack_action = "','"
+		keyboard_interact_action = "'.'"
+
+	if not is_tutorial_interact:
+		is_tutorial_interact = true
+		TimelineManager.tutorial_text.emit("Press %s/Cross to interact" % keyboard_interact_action, type_str)
+	
+	_process_tutorial_queue(delta)
+	
 	var interact_action: String = "past_interact" if target.timeline == "past" else "future_interact"
 	if Input.is_action_just_pressed(interact_action):
 		if talked:
@@ -59,6 +87,18 @@ func _physics_process(delta: float) -> void:
 			_state_follow(delta)
 
 	move_and_slide()
+
+func _process_tutorial_queue(delta: float) -> void:
+	if _tutorial_queue.is_empty():
+		return
+	_tutorial_timer -= delta
+	if _tutorial_timer <= 0.0:
+		TimelineManager.tutorial_text.emit(_tutorial_queue.pop_front(), type_str)
+		_tutorial_timer = _tutorial_interval
+
+func _queue_tutorial(text: String) -> void:
+	_tutorial_queue.append(text)
+
 
 func update_animation()->void:
 	match state:
@@ -101,6 +141,7 @@ func _update_flip() -> void:
 func _state_follow(delta: float) -> void:
 	if target == null:
 		return
+	var _type: String
 
 	var dist: float = global_position.distance_to(target.global_position)
 	if dist < 64.0:
@@ -112,3 +153,9 @@ func _state_follow(delta: float) -> void:
 	facing = dir
 	velocity = velocity.lerp(dir * follow_speed, 8.0 * delta)
 	_update_flip()
+	
+	if not is_tutorial_light_attack:
+		is_tutorial_light_attack = true
+		_queue_tutorial("Press %s/Square for light attack" % keyboard_light_attack_action)
+		_queue_tutorial("Press %s/Triangle for heavy attack" % keyboard_heavy_attack_action)
+		_queue_tutorial("Press %s/Circle to roll" % keyboard_roll_action)

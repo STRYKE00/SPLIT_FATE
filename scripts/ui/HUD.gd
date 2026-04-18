@@ -10,6 +10,8 @@ const MAX_HP := 5
 @onready var _boss_panel: VBoxContainer = $Root/BossPanel
 @onready var _past_boss_bar: ProgressBar = $Root/BossPanel/PastBossBar
 @onready var _future_boss_bar: ProgressBar = $Root/BossPanel/FutureBossBar
+@onready var _past_text_banner: Label = $Root/PastTextLabel
+@onready var _future_text_banner: Label = $Root/FutureTextLabel
 
 var _hp_bar_texture: Texture2D
 var _banner: Label
@@ -24,10 +26,10 @@ func _ready() -> void:
 	TimelineManager.boss_spawned.connect(_on_boss_spawned)
 	TimelineManager.boss_defeated.connect(_on_boss_defeated)
 	TimelineManager.gear_collected.connect(_on_gear_collected)
+	TimelineManager.tutorial_text.connect(_on_tutorial_text)
 	TimelineManager.timeline_action.connect(_on_timeline_action)
 	_boss_panel.visible = false
 	_build_banner()
-
 
 func _build_banner() -> void:
 	_banner = Label.new()
@@ -51,8 +53,22 @@ func _on_gear_collected(gear_id: String, timeline: String) -> void:
 	var item_name: String = gear_id.capitalize()
 	var side: String = "PAST" if timeline == "past" else "FUTURE"
 	_show_banner("%s: %s Collected" % [side, item_name], 1.2, 24)
+	
+func _on_tutorial_text(tutorial_text: String, timeline: String) -> void:
+	var label: Label = _past_text_banner if timeline == "past" else _future_text_banner
+	_show_text_banner(label, tutorial_text, 2, 24)
 
-
+func _show_text_banner(label: Label, text: String, hold: float, font_size: int) -> void:
+	label.text = text
+	label.add_theme_font_size_override("font_size", font_size)
+	label.modulate = Color(1, 1, 1, 0)
+	var tween := create_tween()
+	tween.tween_property(label, "modulate:a", 1.0, 0.3)\
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
+	tween.tween_interval(hold)
+	tween.tween_property(label, "modulate:a", 0.0, 0.4)\
+		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_SINE)
+	
 func _on_timeline_action(action_id: String, _src: String) -> void:
 	if action_id == "area1_complete":
 		_show_banner("AREA 1 COMPLETE", 2.4, 56)
