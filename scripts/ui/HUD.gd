@@ -1,7 +1,5 @@
 extends CanvasLayer
 
-const FRAME_W := 322
-const FRAME_H := 129
 const MAX_HP := 5
 
 @onready var _past_hp_bar: TextureRect = $Root/PastHPBar
@@ -13,7 +11,8 @@ const MAX_HP := 5
 @onready var _past_text_banner: Label = $Root/PastTextLabel
 @onready var _future_text_banner: Label = $Root/FutureTextLabel
 
-var _hp_bar_texture: Texture2D
+var _mira_frames: Array[Texture2D] = []
+var _ren_frames: Array[Texture2D] = []
 var _banner: Label
 var _banner_tween: Tween
 var parent: Control
@@ -21,7 +20,9 @@ var BANNER_TOP_PADDING := 50
 
 
 func _ready() -> void:
-	_hp_bar_texture = load("res://assets/ui/hp_bar.png")
+	for i in 6:
+		_mira_frames.append(load("res://assets/ui/HP Bar/HP_MIRA/%d.png" % (35 + i)))
+		_ren_frames.append(load("res://assets/ui/HP Bar/HP_REN/%d.png" % (41 + i)))
 	_sync_bar.max_value = TimelineManager.SYNC_MAX
 	_sync_bar.value = TimelineManager.sync_value
 	TimelineManager.sync_changed.connect(_on_sync_changed)
@@ -139,19 +140,16 @@ func _on_sync_changed(value: float) -> void:
 
 func connect_player_past(player: Node) -> void:
 	var s: StatsComponent = player.stats
-	s.hp_changed.connect(func(cur_hp: int, _max_hp: int): _update_hp_bar(_past_hp_bar, cur_hp))
-	_update_hp_bar(_past_hp_bar, s.hp)
+	s.hp_changed.connect(func(cur_hp: int, _max_hp: int): _update_hp_bar(_past_hp_bar, _mira_frames, cur_hp))
+	_update_hp_bar(_past_hp_bar, _mira_frames, s.hp)
 
 
 func connect_player_future(player: Node) -> void:
 	var s: StatsComponent = player.stats
-	s.hp_changed.connect(func(cur_hp: int, _max_hp: int): _update_hp_bar(_future_hp_bar, cur_hp))
-	_update_hp_bar(_future_hp_bar, s.hp)
+	s.hp_changed.connect(func(cur_hp: int, _max_hp: int): _update_hp_bar(_future_hp_bar, _ren_frames, cur_hp))
+	_update_hp_bar(_future_hp_bar, _ren_frames, s.hp)
 
 
-func _update_hp_bar(bar: TextureRect, hp: int) -> void:
+func _update_hp_bar(bar: TextureRect, frames: Array[Texture2D], hp: int) -> void:
 	var frame_index: int = clampi(MAX_HP - hp, 0, 5)
-	var atlas := AtlasTexture.new()
-	atlas.atlas = _hp_bar_texture
-	atlas.region = Rect2(0, frame_index * FRAME_H, FRAME_W, FRAME_H)
-	bar.texture = atlas
+	bar.texture = frames[frame_index]

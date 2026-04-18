@@ -1,11 +1,6 @@
 [gd_scene format=3 uid="uid://c5o74hyp2wup2"]
 
 [ext_resource type="Script" uid="uid://b6bkx5818wk4r" path="res://scripts/ui/HUD.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://byyy33yebrdjp" path="res://assets/ui/hp_bar.png" id="2_hpbar"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_past"]
-atlas = ExtResource("2_hpbar")
-region = Rect2(0, 0, 322, 129)
 
 [node name="HUD" type="CanvasLayer" unique_id=2065218083]
 layer = 100
@@ -21,6 +16,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="PastLabel" type="Label" parent="Root" unique_id=2123816218]
+visible = false
 layout_mode = 0
 offset_left = 12.0
 offset_top = 6.0
@@ -34,13 +30,13 @@ text = "MIRA"
 layout_mode = 0
 offset_left = 10.0
 offset_top = 24.0
-offset_right = 130.0
-offset_bottom = 72.0
-texture = SubResource("AtlasTexture_past")
+offset_right = 310.0
+offset_bottom = 144.0
 expand_mode = 1
 stretch_mode = 5
 
 [node name="FutureLabel" type="Label" parent="Root" unique_id=604720873]
+visible = false
 layout_mode = 0
 anchor_left = 1.0
 anchor_right = 1.0
@@ -57,11 +53,10 @@ horizontal_alignment = 2
 layout_mode = 0
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -130.0
+offset_left = -310.0
 offset_top = 24.0
 offset_right = -10.0
-offset_bottom = 72.0
-texture = SubResource("AtlasTexture_past")
+offset_bottom = 144.0
 expand_mode = 1
 stretch_mode = 5
 
