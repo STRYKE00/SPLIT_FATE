@@ -64,10 +64,12 @@ func _ready() -> void:
 	_past.position = Vector2(520, 400)
 	_future.position = Vector2(856, 400)
 
-	# Spawn Solen at top of triangle
+	# Spawn Solen at top of triangle (freeze movement during cutscene)
 	_solen = SOLAN_SCENE.instantiate()
 	_solen.position = Vector2(688, 350)
 	_solen.z_index = 10
+	_solen.set_physics_process(false)
+	_solen.set_process(false)
 	(_solen as Solen).set_state(Solen.STATE.IDLE_PAST)
 	add_child(_solen)
 
@@ -242,15 +244,10 @@ func _run_cutscene() -> void:
 		_demon_king.set_physics_process(true)
 		_demon_king.set_process(true)
 
-	# Enable players and restore their cameras
+	# Enable players — camera stays centered, zooms based on player distance
 	_past.set_physics_process(true)
 	_future.set_physics_process(true)
-	_past.camera.enabled = true
-	_future.camera.enabled = true
 	_future.sprite.flip_h = false
-	if _cutscene_camera:
-		_cutscene_camera.queue_free()
-		_cutscene_camera = null
 
 	# Show HUD
 	if _hud:
@@ -266,6 +263,26 @@ func _run_cutscene() -> void:
 func _play_dialogue(path: String) -> void:
 	DialogueManager.start_dialogue(path)
 	await DialogueManager.dialogue_ended
+
+
+func _process(_delta: float) -> void:
+	if _cutscene_active or not _cutscene_camera or not _demon_king:
+		return
+	# Camera follows demon king
+	_cutscene_camera.position = _cutscene_camera.position.lerp(_demon_king.position, 0.1)
+	# Zoom out enough to keep both players visible
+	var half_vp := Vector2(688.0, 384.0)
+	var margin := 80.0
+	var max_offset := Vector2.ZERO
+	for player in [_past, _future]:
+		var diff :Vector2= (player.position - _cutscene_camera.position).abs()
+		max_offset.x = max(max_offset.x, diff.x)
+		max_offset.y = max(max_offset.y, diff.y)
+	var zoom_x := half_vp.x / (max_offset.x + margin)
+	var zoom_y := half_vp.y / (max_offset.y + margin)
+	var z: float = min(zoom_x, zoom_y)
+	z = clamp(z, 0.8, 3.0)
+	_cutscene_camera.zoom = _cutscene_camera.zoom.lerp(Vector2(z, z), 0.05)
 
 
 func _camera_shake(duration: float, intensity: float) -> void:
