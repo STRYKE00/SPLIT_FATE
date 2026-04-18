@@ -10,6 +10,7 @@ var after_clear: bool = false
 var _player_inside: Node2D = null
 var locked: bool = false
 var stats: StatsComponent
+var player: PlayerBase
 
 @onready var _shape: CollisionShape2D = $CollisionShape2D
 @onready var _color_rect: ColorRect = $ColorRect
@@ -41,6 +42,7 @@ func _on_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("players"):
 		return
 	_player_inside = body
+	player = (body as PlayerBase)
 	stats = body.find_child("StatsComponent")
 
 func _on_body_exited(body: Node2D) -> void:

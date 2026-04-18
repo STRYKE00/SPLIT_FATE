@@ -37,6 +37,7 @@ var attack_timer: float = 0.0               # remaining anim time for current sw
 var attack_hit_timer: float = 0.0           # remaining active-hitbox time
 var attack_windup_timer: float = 0.0        # delay before hitbox activates
 var attack_damage: int = 1
+var bonus_attack_damage: int = 0
 var attack_knockback: float = 220.0
 var is_heavy: bool = false
 var combo_stage: int = 0                    # 0 = not in combo; 1..3 = current light stage
@@ -313,7 +314,7 @@ func _begin_light(stage: int) -> void:
 	attack_timer = LIGHT_DURATIONS[idx]
 	attack_windup_timer = LIGHT_HIT_START
 	attack_hit_timer = LIGHT_DURATIONS[idx] - LIGHT_HIT_START
-	attack_damage = LIGHT_DAMAGES[idx]
+	attack_damage = LIGHT_DAMAGES[idx] + bonus_attack_damage
 	attack_knockback = 180.0 + 50.0 * idx
 
 	hitbox_collision.position = facing * LIGHT_RANGE
@@ -335,7 +336,7 @@ func _begin_heavy() -> void:
 	attack_timer = HEAVY_DURATION
 	attack_windup_timer = HEAVY_HIT_START
 	attack_hit_timer = HEAVY_HIT_DURATION
-	attack_damage = HEAVY_DAMAGE
+	attack_damage = HEAVY_DAMAGE + bonus_attack_damage
 	attack_knockback = HEAVY_KNOCKBACK
 	heavy_cooldown_timer = HEAVY_COOLDOWN
 

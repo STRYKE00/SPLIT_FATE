@@ -19,6 +19,7 @@ var _gear_puzzle: GearPuzzleManager
 
 const GEAR_SCENE = {
 	"heal": preload("res://scenes/gear_heal.tscn"),
+	"damage": preload("res://scenes/gear_damage.tscn"),
 	"default": preload("res://scenes/gear_base.tscn")
 	
 }
@@ -42,6 +43,7 @@ func _define_gears() -> void:
 		0: [
 			{"gear_id": "stone", "type": "puzzle", "x": 248, "y": 1016},
 			{"gear_id": "log", "type": "puzzle", "x": -579, "y": 1920},
+			{"gear_id": "damage", "type": "powerup", "x": 1221, "y": 1520},
 		],
 	}
 
