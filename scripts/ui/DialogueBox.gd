@@ -14,6 +14,7 @@ var _speaker_colors := {
 	"Ren":   Color(0.7, 0.5, 1.0),
 	"Solen": Color(1.0, 0.85, 0.4),
 	"Demon King": Color(0.9, 0.15, 0.15),
+	"???": Color(0.6, 0.85, 1.0),
 }
 
 # --- Node references (set up in the DialogueBox.tscn scene file) ---
