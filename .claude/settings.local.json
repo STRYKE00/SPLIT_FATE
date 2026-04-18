@@ -27,7 +27,10 @@
       "Bash(git merge *)",
       "Bash(sort -k2)",
       "Bash(uniq -f1 -d)",
-      "Bash(godot --path . --headless --quit --check-only)"
+      "Bash(godot --path . --headless --quit --check-only)",
+      "Bash(python -c 'from PIL import Image; im=Image.open\\('\\\\''__TRACKED_VAR__.png'\\\\''\\); print\\('\\\\''__TRACKED_VAR__'\\\\'', im.size\\)')",
+      "Bash(identify -format '%f %wx%h\\\\n' __TRACKED_VAR__.png)",
+      "Bash(file *.png)"
     ]
   },
   "enableAllProjectMcpServers": true,
