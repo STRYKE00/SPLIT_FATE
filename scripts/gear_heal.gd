@@ -6,5 +6,7 @@ func _ready() -> void:
 	_set_label_text("H")
 
 func _collect() -> void:
-	super._collect()
+	TimelineManager.tutorial_text.emit("Restore health", "future")
+	_erase_interactive_tiles()
+	queue_free()
 	stats.heal(1)

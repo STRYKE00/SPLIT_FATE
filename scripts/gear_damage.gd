@@ -6,6 +6,8 @@ func _ready() -> void:
 	_set_label_text("D")
 
 func _collect() -> void:
-	super._collect()
+	TimelineManager.tutorial_text.emit("Attack damage increased", "past")
+	_erase_interactive_tiles()
+	queue_free()
 	player.bonus_attack_damage += 1
 	
