@@ -18,18 +18,29 @@ const ROOM_TRANSITION_TIME := 0.6
 var past_world: Node2D
 var future_world: Node2D
 var past_player: PlayerBase
-var future_player: PlayerBase
+var future_player: PlayerFuture
 var past_overlay: ColorRect
 var future_overlay: ColorRect
 var current_past_room: Room
 var current_future_room: Room
 
+var _puzzle: Node
+var _portal: Node
 var _live_enemies: int = 0
+var _live_enemies_past: int = 0
+var _live_enemies_future: int = 0
+var _total_enemies: int = 0
+var _total_enemies_past: int = 0
+var _total_enemies_future: int = 0
 var _past_enemies: Dictionary = {}
 var _future_enemies: Dictionary = {}
 
 var _past_gears: Dictionary = {}
 var _future_gears: Dictionary = {}
+
+var _haze_layer   : CanvasLayer
+var _haze_rect    : ColorRect
+var _haze_material: ShaderMaterial
 
 var _gear_puzzle: GearPuzzleManager
 const BOSS_ROOM_INDEX := 4
@@ -60,52 +71,44 @@ func _ready() -> void:
 	# Each viewport needs its own World2D for independent physics
 	left_viewport.world_2d = World2D.new()
 	right_viewport.world_2d = World2D.new()
-
+	
 	_define_enemies()
-	_define_gears()
 	_spawn_worlds()
 	_spawn_players()
-	_spawn_gear_puzzle()
+	_spawn_enemies() 
+	_spawn_npcs()
 	_load_past_map()
 	_load_future_map()
-	_spawn_npcs()
-	_spawn_enemies()
-	_spawn_gears()
 	_build_overlays()
+	_setup_puzzle()
+	_setup_portal()
 	_connect_hud()
 	_connect_signals()
 	_fade_in_both()
+	AudioManager.play_bgm(preload("res://assets/Sounds/Stage_One_Music.mp3"))
 
-func _define_gears() -> void:
-	_past_gears = {
-		0: [{"type": "puzzle","x": 450, "y": 210}],
-	}
-	
-	_future_gears = {
-	}
-	
 func _define_enemies() -> void:
 	_past_enemies = {
 		0: [
 			{"type": "orc", "x": 632, "y": 904, "hp": 3},
-			{"type": "orc", "x": 616, "y": 1088, "hp": 3},
-			{"type": "orc", "x": 950, "y": 800, "hp": 3},
-			{"type": "orc", "x": 856, "y": 928, "hp": 3},
+			#{"type": "orc", "x": 616, "y": 1088, "hp": 3},
+			#{"type": "orc", "x": 950, "y": 800, "hp": 3},
+			#{"type": "orc", "x": 856, "y": 928, "hp": 3},
 		],
-		1: [
-			{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
-			{"type": "archer", "x": 768, "y": 2088, "hp": 3},
-			{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
-			{"type": "archer", "x": 688, "y": 1816, "hp": 3},
-		],
-		2: [
-			{"type": "orc", "x": -736, "y": 1778, "hp": 3},
-			{"type": "orc", "x": -760, "y": 1950, "hp": 3},
-			{"type": "orc", "x": -368, "y": 2000, "hp": 3},
-			{"type": "archer", "x": -360, "y": 1728, "hp": 3},
-			{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
-			{"type": "archer", "x": -96, "y": 1720, "hp": 3},
-		]
+		#1: [
+			#{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
+			#{"type": "archer", "x": 768, "y": 2088, "hp": 3},
+			#{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
+			#{"type": "archer", "x": 688, "y": 1816, "hp": 3},
+		#],
+		#2: [
+			#{"type": "orc", "x": -736, "y": 1778, "hp": 3},
+			#{"type": "orc", "x": -760, "y": 1950, "hp": 3},
+			#{"type": "orc", "x": -368, "y": 2000, "hp": 3},
+			#{"type": "archer", "x": -360, "y": 1728, "hp": 3},
+			#{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
+			#{"type": "archer", "x": -96, "y": 1720, "hp": 3},
+		#]
 	}
 	_future_enemies = {
 		0: [
@@ -130,12 +133,37 @@ func _define_enemies() -> void:
 		]
 	}
 
+func _setup_puzzle() -> void:
+	var puzzle_script := preload("res://scripts/world/area1/Puzzle.gd")
+	_puzzle = Node.new()
+	_puzzle.set_script(puzzle_script)
+	_puzzle.name = "Puzzle"
+	add_child(_puzzle)
+	_puzzle.setup(past_world, future_world, past_overlay, future_overlay)
+
+
+func _setup_portal() -> void:
+	var portal_script := preload("res://scripts/world/area1/Portal.gd")
+	_portal = Node.new()
+	_portal.set_script(portal_script)
+	_portal.name = "Portal"
+	add_child(_portal)
+	_portal.setup(past_world, future_world, past_overlay, future_overlay, past_player, future_player)
+	_portal.both_portals_reached.connect(_on_both_portals_reached)
+
+
+func _on_both_portals_reached() -> void:
+	await get_tree().create_timer(1.0).timeout
+	get_tree().change_scene_to_file("res://scenes/Boss_Room.tscn")
+
+
 func _load_past_map() -> void:
 	var map := preload("res://scenes/Past_map_1.tscn").instantiate()
 	map.name = "PastMap"
 	past_world.add_child(map)
 	past_player.position = Vector2(540.0, 384.0)
 	GameState.current_room_past = 0
+	_setup_past_haze()
 
 
 func _load_future_map() -> void:
@@ -165,7 +193,6 @@ func _spawn_players() -> void:
 
 	past_world.add_child(past_player)
 	future_world.add_child(future_player)
-
 
 func _build_overlays() -> void:
 	var past_canvas := CanvasLayer.new()
@@ -200,30 +227,27 @@ func _connect_signals() -> void:
 	TimelineManager.reset_sync()
 
 
-func _spawn_gear_puzzle() -> void:
-	_gear_puzzle = GearPuzzleManager.new()
-	_gear_puzzle.name = "GearPuzzleManager"
-	add_child(_gear_puzzle)
+func get_live_enemies() -> int:
+	if _puzzle and _puzzle.has_method("get_live_enemies"):
+		return _puzzle.get_live_enemies()
+	return 0
 
-func _spawn_gears() -> void:
-	_spawn_gears_from_dict(_past_gears, past_world)
-	_spawn_gears_from_dict(_future_gears, future_world)
-				
 
-func _spawn_gears_from_dict(gear_dict: Dictionary, world: Node2D) -> void:
-	for gear_idx in gear_dict:
-		for cfg in gear_dict[gear_idx]:
-			var gear_scene: PackedScene = preload("res://scenes/gear_base.tscn")
-			var gear: GearBase = gear_scene.instantiate()
-			gear.position = Vector2(cfg["x"], cfg["y"])
-			gear.gear_type = cfg["type"]
-			world.add_child(gear)
-			gear.setup()
-	
+func get_live_past_enemies() -> int:
+	return _live_enemies_past
 
 func _spawn_enemies() -> void:
 	_spawn_enemies_from_dict(_past_enemies, "past", past_world)
+	_live_enemies_past = _live_enemies
+	_total_enemies_past = _live_enemies_past
 	_spawn_enemies_from_dict(_future_enemies, "future", future_world)
+	_live_enemies_future = _live_enemies - _total_enemies_past
+	_total_enemies_future = _live_enemies_future
+	_total_enemies = _total_enemies_past + _total_enemies_future
+	if _live_enemies_past > 0:
+		TimelineManager.enemy_killed.connect(_on_past_enemy_killed)
+	if _live_enemies_future > 0:
+		TimelineManager.enemy_killed.connect(_on_future_enemy_killed)
 	if _live_enemies > 0:
 		TimelineManager.enemy_killed.connect(_on_enemy_killed)
 
@@ -251,8 +275,74 @@ func _spawn_enemies_from_dict(enemy_dict: Dictionary, timeline: String, world: N
 func _on_enemy_killed(_timeline: String) -> void:
 	_live_enemies -= 1
 	
-func get_live_enemies() -> int:
-	return _live_enemies
+func _on_past_enemy_killed(_timeline: String) -> void:
+	if _timeline != "past":
+		return
+
+	_live_enemies_past -= 1
+	if (_total_enemies_past-_live_enemies_past)==4:
+		_update_past_haze()
+		DialogueManager.start_dialogue("res://data/dialogue/start_haze.json")
+
+func _on_future_enemy_killed(_timeline:String) -> void:
+	if _timeline!="future":
+		return
+
+	_live_enemies_future -= 1
+	if(_total_enemies_future-_live_enemies_future)==4:
+		_update_future_suppression()
+		DialogueManager.start_dialogue("res://data/dialogue/start_suppression.json")
+
+func _update_future_suppression() -> void:
+	if not future_player:
+		return
+	
+	var progress := 0.0
+	if _total_enemies > 0:
+		progress = 1.0 - (float(_live_enemies)/float(_total_enemies))
+		
+	var t := ease(progress, -2.0)
+	future_player.SUPPRESS_CHANCE       = lerp(0.65, 0.95, t)
+	future_player.SUPPRESS_INTERVAL_MIN = lerp(1.5,  0.2,  t)
+	future_player.SUPPRESS_INTERVAL_MAX = lerp(3.0,  0.6,  t)
+	future_player.SUPPRESS_DURATION_MIN = lerp(0.8,  1.8,  t)
+	future_player.SUPPRESS_DURATION_MAX = lerp(1.8,  4.0,  t)
+	
+	if not future_player._suppress_input:
+		future_player._reset_cooldown()
+	
+
+func _setup_past_haze() -> void:
+	_haze_layer          = CanvasLayer.new()
+	
+	_haze_layer.layer    = 10         
+	past_world.add_child(_haze_layer)
+
+	_haze_rect           = ColorRect.new()
+	_haze_rect.anchor_right  = 1.0
+	_haze_rect.anchor_bottom = 1.0
+	_haze_rect.mouse_filter  = Control.MOUSE_FILTER_IGNORE
+
+	_haze_material        = ShaderMaterial.new()
+	_haze_material.shader = preload("res://scripts/shaders/haze_shader.gdshader")
+	_haze_rect.material   = _haze_material
+
+	_haze_layer.add_child(_haze_rect)   
+
+
+func _update_past_haze() -> void:
+	if not _haze_material:
+		return
+
+	if not past_player:
+		return
+
+	var progress := 0.0
+	if _total_enemies_past > 0:
+		progress = 1.0 - (float(_live_enemies_past) / float(_total_enemies_past))
+
+	var t := ease(progress, -2.0)
+	_haze_material.set_shader_parameter("progress", t)
 
 
 func _spawn_npcs() -> void:
@@ -263,33 +353,9 @@ func _spawn_npcs() -> void:
 	var past_solan := SOLAN_SCENE.instantiate()
 	past_solan.position = Vector2(540, 200)
 	past_solan.z_index = 10
-	past_world.add_child(past_solan)
 	(past_solan as Solen).set_state(Solen.STATE.IDLE_PAST)
-
-	var past_trigger := Area2D.new()
-	past_trigger.position = Vector2(540, 200)
-	past_trigger.collision_layer = 0
-	past_trigger.collision_mask = PLAYER_LAYER
-	var ps := CollisionShape2D.new()
-	var pc := CircleShape2D.new()
-	pc.radius = 40.0
-	ps.shape = pc
-	past_trigger.add_child(ps)
-	var past_fired := [false]
-	past_trigger.body_entered.connect(func(body: Node2D):
-		if past_fired[0] or not body.is_in_group("players"):
-			return
-		if DialogueManager.is_active():
-			return
-		past_fired[0] = true
-		past_trigger.monitoring = false
-		(past_solan as Solen).set_state(Solen.STATE.TALK)
-		DialogueManager.start_dialogue("res://data/dialogue/guide_past.json")
-		DialogueManager.dialogue_ended.connect(func():
-			(past_solan as Solen).set_state(Solen.STATE.IDLE_PAST)
-		, CONNECT_ONE_SHOT)
-	)
-	past_world.add_child(past_trigger)
+	(past_solan as Solen).set_type(Solen.TYPE.PAST)
+	past_world.add_child(past_solan)
 
 	# Future Solan
 	var future_solan := SOLAN_SCENE.instantiate()
@@ -297,31 +363,9 @@ func _spawn_npcs() -> void:
 	future_solan.z_index = 10
 	future_world.add_child(future_solan)
 	(future_solan as Solen).set_state(Solen.STATE.IDLE_FUTURE)
+	(future_solan as Solen).set_type(Solen.TYPE.FUTURE)
 
-	var future_trigger := Area2D.new()
-	future_trigger.position = Vector2(688, 200)
-	future_trigger.collision_layer = 0
-	future_trigger.collision_mask = PLAYER_LAYER
-	var fs := CollisionShape2D.new()
-	var fc := CircleShape2D.new()
-	fc.radius = 40.0
-	fs.shape = fc
-	future_trigger.add_child(fs)
-	var future_fired := [false]
-	future_trigger.body_entered.connect(func(body: Node2D):
-		if future_fired[0] or not body.is_in_group("players"):
-			return
-		if DialogueManager.is_active():
-			return
-		future_fired[0] = true
-		future_trigger.monitoring = false
-		(future_solan as Solen).set_state(Solen.STATE.TALK)
-		DialogueManager.start_dialogue("res://data/dialogue/guide_future.json")
-		DialogueManager.dialogue_ended.connect(func():
-			(future_solan as Solen).set_state(Solen.STATE.IDLE_FUTURE)
-		, CONNECT_ONE_SHOT)
-	)
-	future_world.add_child(future_trigger)
+
 
 
 func _process(delta: float) -> void:

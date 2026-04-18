@@ -356,4 +356,4 @@ script = ExtResource("2_script")
 
 [node name="Sprite" parent="." index="1" unique_id=1346861874]
 sprite_frames = SubResource("SpriteFrames_i30wi")
-animation = &"heavy"
+animation = &"roll"

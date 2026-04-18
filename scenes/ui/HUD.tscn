@@ -1,32 +1,37 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://c5o74hyp2wup2"]
 
-[ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/ui/hp_bar.png" id="2_hpbar"]
+[ext_resource type="Script" uid="uid://b6bkx5818wk4r" path="res://scripts/ui/HUD.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://byyy33yebrdjp" path="res://assets/ui/hp_bar.png" id="2_hpbar"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_past"]
 atlas = ExtResource("2_hpbar")
 region = Rect2(0, 0, 322, 129)
 
-[node name="HUD" type="CanvasLayer"]
+[node name="HUD" type="CanvasLayer" unique_id=2065218083]
 layer = 100
 script = ExtResource("1_script")
 
-[node name="Root" type="Control" parent="."]
+[node name="Root" type="Control" parent="." unique_id=113821809]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 
-[node name="PastLabel" type="Label" parent="Root"]
+[node name="PastLabel" type="Label" parent="Root" unique_id=2123816218]
+layout_mode = 0
 offset_left = 12.0
 offset_top = 6.0
 offset_right = 80.0
 offset_bottom = 22.0
-theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.2, 0.85, 0.7, 1)
+theme_override_font_sizes/font_size = 11
 text = "MIRA"
 
-[node name="PastHPBar" type="TextureRect" parent="Root"]
+[node name="PastHPBar" type="TextureRect" parent="Root" unique_id=1116068834]
+layout_mode = 0
 offset_left = 10.0
 offset_top = 24.0
 offset_right = 130.0
@@ -35,19 +40,21 @@ texture = SubResource("AtlasTexture_past")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="FutureLabel" type="Label" parent="Root"]
+[node name="FutureLabel" type="Label" parent="Root" unique_id=604720873]
+layout_mode = 0
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -80.0
 offset_top = 6.0
 offset_right = -12.0
 offset_bottom = 22.0
-theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.7, 0.5, 1, 1)
-horizontal_alignment = 2
+theme_override_font_sizes/font_size = 11
 text = "REN"
+horizontal_alignment = 2
 
-[node name="FutureHPBar" type="TextureRect" parent="Root"]
+[node name="FutureHPBar" type="TextureRect" parent="Root" unique_id=1925027224]
+layout_mode = 0
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -130.0
@@ -58,48 +65,63 @@ texture = SubResource("AtlasTexture_past")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="SyncLabel" type="Label" parent="Root"]
+[node name="SyncLabel" type="Label" parent="Root" unique_id=777419264]
+layout_mode = 0
 anchor_left = 0.35
 anchor_right = 0.65
 offset_top = 10.0
 offset_bottom = 26.0
-theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.9, 0.8, 0.5, 0.7)
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 10
 text = "TIMELINE SYNC"
+horizontal_alignment = 1
 
-[node name="SyncBar" type="ProgressBar" parent="Root"]
+[node name="SyncBar" type="ProgressBar" parent="Root" unique_id=1395032850]
+layout_mode = 0
 anchor_left = 0.38
 anchor_right = 0.62
 offset_top = 26.0
 offset_bottom = 36.0
-max_value = 100.0
 show_percentage = false
 
-[node name="BossPanel" type="VBoxContainer" parent="Root"]
+[node name="BossPanel" type="VBoxContainer" parent="Root" unique_id=718168485]
 visible = false
+layout_mode = 0
 anchor_left = 0.25
 anchor_right = 0.75
 offset_top = 50.0
 offset_bottom = 100.0
 theme_override_constants/separation = 2
 
-[node name="BossLabel" type="Label" parent="Root/BossPanel"]
-theme_override_font_sizes/font_size = 12
+[node name="BossLabel" type="Label" parent="Root/BossPanel" unique_id=2146218836]
+layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
 text = "THE WARDEN OF HOURS"
+horizontal_alignment = 1
 
-[node name="PastBossBar" type="ProgressBar" parent="Root/BossPanel"]
-custom_minimum_size = Vector2(0, 8)
-max_value = 18.0
-value = 18.0
-show_percentage = false
+[node name="PastBossBar" type="ProgressBar" parent="Root/BossPanel" unique_id=1770450041]
 modulate = Color(0.35, 0.9, 0.75, 1)
-
-[node name="FutureBossBar" type="ProgressBar" parent="Root/BossPanel"]
 custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
 max_value = 18.0
 value = 18.0
 show_percentage = false
+
+[node name="FutureBossBar" type="ProgressBar" parent="Root/BossPanel" unique_id=46024139]
 modulate = Color(0.7, 0.5, 1, 1)
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+max_value = 18.0
+value = 18.0
+show_percentage = false
+
+[node name="PastTextLabel" type="Label" parent="Root" unique_id=1975432167]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="FutureTextLabel" type="Label" parent="Root" unique_id=200235111]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0

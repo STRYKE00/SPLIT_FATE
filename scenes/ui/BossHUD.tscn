@@ -1,0 +1,68 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/BossHUD.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fill"]
+bg_color = Color(0.8, 0.1, 0.1, 1)
+
+[node name="BossHUD" type="CanvasLayer"]
+layer = 90
+script = ExtResource("1_script")
+
+[node name="Root" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="BossPanel" type="Control" parent="Root"]
+anchor_right = 1.0
+offset_left = 204.0
+offset_top = 12.0
+offset_right = -204.0
+offset_bottom = 64.0
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="Root/BossPanel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="Root/BossPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.95, 0.9, 0.9, 1)
+text = "Solen"
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="Root/BossPanel/VBox"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+max_value = 50.0
+value = 50.0
+show_percentage = false
+theme_override_styles/fill = SubResource("StyleBoxFlat_fill")
+
+[node name="PastHPBar" type="TextureRect" parent="Root"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -145.0
+offset_right = 338.0
+offset_bottom = -16.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="FutureHPBar" type="TextureRect" parent="Root"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -338.0
+offset_top = -145.0
+offset_right = -16.0
+offset_bottom = -16.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5

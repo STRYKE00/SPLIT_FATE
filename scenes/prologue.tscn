@@ -1,91 +1,101 @@
 [gd_scene format=3 uid="uid://ceoepp5c6qs5d"]
 
-[ext_resource type="Script" path="res://scripts/Prologue.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://c1vmxxgg7uwt7" path="res://scripts/Prologue.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
+content_margin_left = 24.0
+content_margin_top = 14.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
 bg_color = Color(0.04, 0.04, 0.1, 0.88)
 border_width_top = 2
 border_color = Color(0.25, 0.2, 0.45, 0.9)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
-content_margin_left = 24.0
-content_margin_top = 14.0
-content_margin_right = 24.0
-content_margin_bottom = 12.0
 
-[node name="Prologue" type="Node2D"]
+[node name="Prologue" type="Node2D" unique_id=1666091550]
 script = ExtResource("1_script")
 
-[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
-[node name="ShockedPlayer" type="AudioStreamPlayer" parent="."]
-[node name="TypingPlayer" type="AudioStreamPlayer" parent="."]
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=2002479009]
+
+[node name="ShockedPlayer" type="AudioStreamPlayer" parent="." unique_id=1056796258]
+
+[node name="TypingPlayer" type="AudioStreamPlayer" parent="." unique_id=306272902]
 volume_db = -8.0
 
-[node name="BGLayer" type="CanvasLayer" parent="."]
+[node name="BGLayer" type="CanvasLayer" parent="." unique_id=1327577428]
 layer = 0
 
-[node name="BG" type="Sprite2D" parent="BGLayer"]
+[node name="BG" type="Sprite2D" parent="BGLayer" unique_id=188411053]
 
-[node name="CharLayer" type="CanvasLayer" parent="."]
-layer = 1
+[node name="CharLayer" type="CanvasLayer" parent="." unique_id=1698673552]
 
-[node name="RenSprite" type="Sprite2D" parent="CharLayer"]
+[node name="RenSprite" type="Sprite2D" parent="CharLayer" unique_id=675594475]
 modulate = Color(1, 1, 1, 0)
 
-[node name="MiraSprite" type="Sprite2D" parent="CharLayer"]
+[node name="MiraSprite" type="Sprite2D" parent="CharLayer" unique_id=1936877253]
 modulate = Color(1, 1, 1, 0)
 
-[node name="UILayer" type="CanvasLayer" parent="."]
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=1066042348]
 layer = 10
 
-[node name="BlackOverlay" type="ColorRect" parent="UILayer"]
+[node name="BlackOverlay" type="ColorRect" parent="UILayer" unique_id=1705326448]
 offset_right = 1376.0
 offset_bottom = 768.0
+mouse_filter = 2
 color = Color(0, 0, 0, 1)
-mouse_filter = 2
 
-[node name="RiftFlash" type="ColorRect" parent="UILayer"]
+[node name="RiftFlash" type="ColorRect" parent="UILayer" unique_id=1851677572]
 offset_right = 1376.0
 offset_bottom = 768.0
-color = Color(1, 1, 1, 0)
 mouse_filter = 2
+color = Color(1, 1, 1, 0)
 
-[node name="DialoguePanel" type="PanelContainer" parent="UILayer"]
+[node name="DialoguePanel" type="PanelContainer" parent="UILayer" unique_id=549196959]
+visible = false
 offset_top = 510.0
 offset_right = 1376.0
 offset_bottom = 768.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_1")
-visible = false
 
-[node name="VBox" type="VBoxContainer" parent="UILayer/DialoguePanel"]
+[node name="VBox" type="VBoxContainer" parent="UILayer/DialoguePanel" unique_id=415500257]
+layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="SpeakerLabel" type="Label" parent="UILayer/DialoguePanel/VBox"]
-theme_override_font_sizes/font_size = 24
+[node name="SpeakerLabel" type="Label" parent="UILayer/DialoguePanel/VBox" unique_id=1389726039]
+layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 24
 
-[node name="DialogueText" type="RichTextLabel" parent="UILayer/DialoguePanel/VBox"]
+[node name="DialogueText" type="RichTextLabel" parent="UILayer/DialoguePanel/VBox" unique_id=1983834738]
+layout_mode = 2
 size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.92, 0.92, 0.92, 1)
+theme_override_font_sizes/normal_font_size = 21
 bbcode_enabled = true
 scroll_active = false
-theme_override_font_sizes/normal_font_size = 21
-theme_override_colors/default_color = Color(0.92, 0.92, 0.92, 1)
 
-[node name="AdvanceArrow" type="Label" parent="UILayer/DialoguePanel/VBox"]
+[node name="AdvanceArrow" type="Label" parent="UILayer/DialoguePanel/VBox" unique_id=407451522]
 visible = false
+layout_mode = 2
 size_flags_horizontal = 3
-horizontal_alignment = 2
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(1, 1, 1, 0.6)
+theme_override_font_sizes/font_size = 14
 text = "▼"
+horizontal_alignment = 2
 
-[node name="SkipButton" type="Button" parent="UILayer"]
+[node name="SkipButton" type="Button" parent="UILayer" unique_id=118841170]
+anchors_preset = 1
 anchor_left = 1.0
-anchor_top = 0.0
 anchor_right = 1.0
-anchor_bottom = 0.0
 offset_left = -110.0
 offset_top = 16.0
 offset_right = -16.0
 offset_bottom = 48.0
 text = "Skip ▶▶"
+
+[node name="BossButton" type="Button" parent="UILayer" unique_id=1894823363]
+offset_top = 16.0
+offset_right = 101.0
+offset_bottom = 48.0
+text = "Boss▶▶"

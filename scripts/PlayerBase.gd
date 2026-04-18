@@ -6,8 +6,8 @@ const ACCEL_WEIGHT     := 12.0
 const DECEL_WEIGHT     := 18.0
 const HURT_DURATION    := 0.25
 const INVINCIBLE_TIME  := 0.7
-const KNOCKBACK_FORCE  := 220.0
-const DASH_SPEED       := 360.0
+const KNOCKBACK_FORCE  := 120.0
+const DASH_SPEED       := 200.0
 const DASH_DURATION    := 0.22
 const DASH_COOLDOWN    := 0.7
 
@@ -37,6 +37,7 @@ var attack_timer: float = 0.0               # remaining anim time for current sw
 var attack_hit_timer: float = 0.0           # remaining active-hitbox time
 var attack_windup_timer: float = 0.0        # delay before hitbox activates
 var attack_damage: int = 1
+var bonus_attack_damage: int = 0
 var attack_knockback: float = 220.0
 var is_heavy: bool = false
 var combo_stage: int = 0                    # 0 = not in combo; 1..3 = current light stage
@@ -208,11 +209,16 @@ func _state_move(delta: float) -> void:
 	if _attack_pressed():
 		_begin_light(combo_stage + 1 if combo_window_timer > 0 else 1)
 
+func _play_dash_animation() -> void:
+	_play("walk") 
+
+func _get_dash_duration() -> float:
+	return DASH_DURATION
 
 func _state_dash(delta: float) -> void:
 	dash_timer -= delta
 	velocity = dash_dir * DASH_SPEED
-	_play("walk")
+	_play_dash_animation()
 	if dash_timer <= 0:
 		state = State.IDLE
 		velocity *= 0.4
@@ -274,10 +280,11 @@ func _begin_dash() -> void:
 	facing = dash_dir
 	_update_sprite_flip()
 	state = State.DASH
-	dash_timer = DASH_DURATION
+	var duration := _get_dash_duration()
+	dash_timer = duration
 	dash_cooldown_timer = DASH_COOLDOWN
 	# Immunity for the full dash duration plus a small recovery window
-	invincible_timer = DASH_DURATION + 0.05
+	invincible_timer = duration + 0.05
 	velocity = dash_dir * DASH_SPEED
 	# Visual feedback: brief tinted afterimage flash
 	var tw := create_tween()
@@ -307,7 +314,7 @@ func _begin_light(stage: int) -> void:
 	attack_timer = LIGHT_DURATIONS[idx]
 	attack_windup_timer = LIGHT_HIT_START
 	attack_hit_timer = LIGHT_DURATIONS[idx] - LIGHT_HIT_START
-	attack_damage = LIGHT_DAMAGES[idx]
+	attack_damage = LIGHT_DAMAGES[idx] + bonus_attack_damage
 	attack_knockback = 180.0 + 50.0 * idx
 
 	hitbox_collision.position = facing * LIGHT_RANGE
@@ -329,7 +336,7 @@ func _begin_heavy() -> void:
 	attack_timer = HEAVY_DURATION
 	attack_windup_timer = HEAVY_HIT_START
 	attack_hit_timer = HEAVY_HIT_DURATION
-	attack_damage = HEAVY_DAMAGE
+	attack_damage = HEAVY_DAMAGE + bonus_attack_damage
 	attack_knockback = HEAVY_KNOCKBACK
 	heavy_cooldown_timer = HEAVY_COOLDOWN
 

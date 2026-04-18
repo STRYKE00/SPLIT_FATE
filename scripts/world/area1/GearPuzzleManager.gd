@@ -1,7 +1,7 @@
 extends Node
 class_name GearPuzzleManager
 
-const REQUIRED_GEARS := ["gear_a", "gear_b", "gear_c"]
+const REQUIRED_GEARS := ["stone", "log"]
 
 signal puzzle_state_changed(collected: int, required: int)
 signal puzzle_completed
@@ -23,9 +23,7 @@ func _on_gear_collected(gear_id: String, timeline: String) -> void:
 		return
 	collected[gear_id] = true
 	GameState.set_flag("gear_%s_%s" % [timeline, gear_id], true)
-	puzzle_state_changed.emit(total_collected(), REQUIRED_GEARS.size() * 2)
-	if has_all_gears():
-		try_complete()
+	puzzle_state_changed.emit(total_collected(), REQUIRED_GEARS.size())
 
 
 func total_collected() -> int:
@@ -33,10 +31,9 @@ func total_collected() -> int:
 
 
 func has_all_gears() -> bool:
+	print("puzzles collected: ", _past_collected)
 	for gid in REQUIRED_GEARS:
 		if not _past_collected.has(gid):
-			return false
-		if not _future_collected.has(gid):
 			return false
 	return true
 

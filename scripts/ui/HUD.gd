@@ -10,10 +10,14 @@ const MAX_HP := 5
 @onready var _boss_panel: VBoxContainer = $Root/BossPanel
 @onready var _past_boss_bar: ProgressBar = $Root/BossPanel/PastBossBar
 @onready var _future_boss_bar: ProgressBar = $Root/BossPanel/FutureBossBar
+@onready var _past_text_banner: Label = $Root/PastTextLabel
+@onready var _future_text_banner: Label = $Root/FutureTextLabel
 
 var _hp_bar_texture: Texture2D
 var _banner: Label
 var _banner_tween: Tween
+var parent: Control
+var BANNER_TOP_PADDING := 50
 
 
 func _ready() -> void:
@@ -24,10 +28,34 @@ func _ready() -> void:
 	TimelineManager.boss_spawned.connect(_on_boss_spawned)
 	TimelineManager.boss_defeated.connect(_on_boss_defeated)
 	TimelineManager.gear_collected.connect(_on_gear_collected)
+	TimelineManager.tutorial_text.connect(_on_tutorial_text)
 	TimelineManager.timeline_action.connect(_on_timeline_action)
 	_boss_panel.visible = false
 	_build_banner()
+	_setup_viewport()
+	
 
+func _setup_viewport() -> void:
+	parent = get_parent()
+	if parent.name == "Main":
+		await get_tree().process_frame
+		await get_tree().process_frame
+
+		var split_container: HBoxContainer = parent.get_node_or_null("SplitContainer")
+		if split_container:
+			var split_container_left: SubViewportContainer = split_container.get_node_or_null("LeftContainer")
+			if split_container_left:
+				_past_text_banner.global_position = split_container_left.global_position + Vector2(0, BANNER_TOP_PADDING)
+				_past_text_banner.size = split_container_left.size
+				_past_text_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				_past_text_banner.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+			var split_container_right: SubViewportContainer = split_container.get_node_or_null("RightContainer")
+			if split_container_right:
+				_future_text_banner.global_position = split_container_right.global_position + Vector2(0, BANNER_TOP_PADDING)
+				_future_text_banner.size = split_container_right.size
+				_future_text_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				_future_text_banner.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
 func _build_banner() -> void:
 	_banner = Label.new()
@@ -48,11 +76,25 @@ func _build_banner() -> void:
 
 
 func _on_gear_collected(gear_id: String, timeline: String) -> void:
-	var letter: String = gear_id.substr(gear_id.rfind("_") + 1).to_upper()
+	var item_name: String = gear_id.capitalize()
 	var side: String = "PAST" if timeline == "past" else "FUTURE"
-	_show_banner("%s: Gear %s Collected" % [side, letter], 1.2, 24)
+	_show_banner("%s: %s Collected" % [side, item_name], 1.2, 24)
+	
+func _on_tutorial_text(tutorial_text: String, timeline: String) -> void:
+	var label: Label = _past_text_banner if timeline == "past" else _future_text_banner
+	_show_text_banner(label, tutorial_text, 2, 24)
 
-
+func _show_text_banner(label: Label, text: String, hold: float, font_size: int) -> void:
+	label.text = text
+	label.add_theme_font_size_override("font_size", font_size)
+	label.modulate = Color(1, 1, 1, 0)
+	var tween := create_tween()
+	tween.tween_property(label, "modulate:a", 1.0, 0.3)\
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
+	tween.tween_interval(hold)
+	tween.tween_property(label, "modulate:a", 0.0, 0.4)\
+		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_SINE)
+	
 func _on_timeline_action(action_id: String, _src: String) -> void:
 	if action_id == "area1_complete":
 		_show_banner("AREA 1 COMPLETE", 2.4, 56)

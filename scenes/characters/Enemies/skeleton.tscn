@@ -150,7 +150,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_2wota")
 }],
-"loop": true,
+"loop": false,
 "name": &"attack",
 "speed": 5.0
 }, {
@@ -251,4 +251,4 @@ death_sound = SubResource("AudioStreamMP3_6od8e")
 texture_filter = 1
 scale = Vector2(2.5, 2.5)
 sprite_frames = SubResource("SpriteFrames_p8vd8")
-animation = &"dead"
+animation = &"attack"

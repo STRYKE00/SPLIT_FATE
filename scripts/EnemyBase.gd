@@ -199,11 +199,20 @@ func _begin_attack() -> void:
 	attack_timer = attack_cooldown
 	_has_hit = false
 	hitbox_collision.position = facing * 22.0
-	hitbox.monitoring = true
+	hitbox.monitoring = false
 	velocity = facing * speed * 0.4
 	_play("attack")
 	play_sfx(attack_sound)
+	if not sprite.frame_changed.is_connected(_on_attack_frame_changed):
+		sprite.frame_changed.connect(_on_attack_frame_changed)
 
+func _on_attack_frame_changed() -> void:
+	if sprite.animation != "attack":
+		sprite.frame_changed.disconnect(_on_attack_frame_changed)
+		return
+	if sprite.frame > 2:
+		hitbox.monitoring = true
+		sprite.frame_changed.disconnect(_on_attack_frame_changed)
 
 func receive_hit(damage: int, knockback_dir: Vector2) -> void:
 	print("receive_hit called")

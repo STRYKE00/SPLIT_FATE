@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://l5uanl4x18gq"]
+
+[ext_resource type="Texture2D" uid="uid://buofcjvq7mhht" path="res://assets/Epilogue/Rift back home/25.png" id="1_fl11o"]
+[ext_resource type="Texture2D" uid="uid://djdldehudoaax" path="res://assets/Epilogue/Rift back home/26.png" id="2_46itc"]
+[ext_resource type="Texture2D" uid="uid://bwc5s8mbkm3t8" path="res://assets/Epilogue/Rift back home/27.png" id="3_6t5s5"]
+[ext_resource type="Texture2D" uid="uid://b6buxmlpr6mbi" path="res://assets/Epilogue/Rift back home/28.png" id="4_fup0j"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_6lpi0"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_fl11o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_46itc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_6t5s5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_fup0j")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Node2D" type="AnimatedSprite2D" unique_id=1784459653]
+sprite_frames = SubResource("SpriteFrames_6lpi0")
+frame_progress = 0.20551816
