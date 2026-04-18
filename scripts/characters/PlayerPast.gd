@@ -1,5 +1,7 @@
 extends PlayerBase
 
+var ren_stats: StatsComponent
+var parent
 
 func _ready() -> void:
 	timeline = "past"
@@ -13,7 +15,37 @@ func _ready() -> void:
 	action_dash    = "past_dash"
 	slash_color = Color(0.2, 0.85, 0.7)
 	sprite.play("idle")
+	
+	parent = get_parent()
+	if parent.name == "BossRoom":
+		var ren :PlayerBase = parent.get_node_or_null("PlayerFuture")
+		if ren:
+			ren_stats = ren.get_node_or_null("StatsComponent")
 	_connect_signals()
+
+func _begin_heavy() -> void:
+	if heavy_cooldown_timer > 0.0:
+		return
+	state = State.ATTACK
+	is_heavy = true
+	combo_stage = 0
+	combo_queued = false
+	combo_window_timer = 0.0
+
+	attack_timer = HEAVY_DURATION
+	attack_windup_timer = 0.0
+	attack_hit_timer = 0.0
+	heavy_cooldown_timer = 10
+
+	hitbox.monitoring = false
+	velocity = velocity * 0.2
+	stats.heal(1)
+	
+	if ren_stats:
+		ren_stats.heal(1)
+	
+	_play("heal")
+	shake_amount = 1.5
 
 func _play_dash_animation() -> void:
 	_play("roll")
