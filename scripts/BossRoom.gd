@@ -313,7 +313,7 @@ func _on_player_died(timeline: String) -> void:
 		get_tree().change_scene_to_file(MAIN_MENU_PATH)
 
 
-func _on_boss_defeated(_timeline: String) -> void:
+func _on_boss_defeated(_timeline: String, _last_pos: Vector2) -> void:
 	if _cutscene_active:
 		return
 	if _defeat_fired:
@@ -321,4 +321,8 @@ func _on_boss_defeated(_timeline: String) -> void:
 	_defeat_fired = true
 	AudioManager.stop_bgm()
 	await get_tree().create_timer(OUTRO_DELAY).timeout
-	get_tree().change_scene_to_file(MAIN_MENU_PATH)
+	var future_solan := SOLAN_SCENE.instantiate()
+	future_solan.position = _last_pos
+	future_solan.z_index = 10
+	add_child(future_solan)
+	#get_tree().change_scene_to_file(MAIN_MENU_PATH)

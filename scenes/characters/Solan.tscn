@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://byueia658xp4o"]
 
 [ext_resource type="Script" uid="uid://7b31c73uacjb" path="res://scripts/characters/Solen.gd" id="1_uvlgw"]
+[ext_resource type="Texture2D" uid="uid://l2famhm6c0ce" path="res://assets/Character/Solan/death_row.png" id="2_smps4"]
 [ext_resource type="Texture2D" uid="uid://drs56edgn1dsf" path="res://assets/Character/Solan/idle_after_row.png" id="3_smps4"]
 [ext_resource type="Texture2D" uid="uid://dygo3u8adpwnn" path="res://assets/Character/Solan/idle_before_row.png" id="4_da3gk"]
 [ext_resource type="Texture2D" uid="uid://cyb6g422m5m1l" path="res://assets/Character/Solan/talk_row.png" id="5_sjtyk"]
@@ -10,6 +11,34 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_uvlgw"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_qu2tj"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_da3gk"]
+atlas = ExtResource("2_smps4")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sjtyk"]
+atlas = ExtResource("2_smps4")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4hgi7"]
+atlas = ExtResource("2_smps4")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rfm01"]
+atlas = ExtResource("2_smps4")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_73ebr"]
+atlas = ExtResource("2_smps4")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d3t6c"]
+atlas = ExtResource("2_smps4")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xaimg"]
+atlas = ExtResource("2_smps4")
+region = Rect2(384, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_37rrg"]
 atlas = ExtResource("3_smps4")
@@ -119,6 +148,32 @@ region = Rect2(192, 0, 64, 64)
 animations = [{
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_da3gk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sjtyk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4hgi7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rfm01")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_73ebr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d3t6c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xaimg")
+}],
+"loop": false,
+"name": &"death",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_37rrg")
 }, {
 "duration": 1.0,
@@ -199,7 +254,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_nmgbh")
 }],
-"loop": true,
+"loop": false,
 "name": &"turn_away",
 "speed": 5.0
 }, {
@@ -216,7 +271,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_2jkx0")
 }],
-"loop": true,
+"loop": false,
 "name": &"urgent_boss",
 "speed": 5.0
 }]
@@ -237,4 +292,4 @@ shape = SubResource("CircleShape2D_qu2tj")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=360077019]
 sprite_frames = SubResource("SpriteFrames_73ebr")
-animation = &"urgent_boss"
+animation = &"death"
