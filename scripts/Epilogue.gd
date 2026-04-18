@@ -12,16 +12,16 @@ const SPEAKER_COLORS := {
 }
 
 const DIALOGUE := [
-	{ "speaker": "",     "text": "They're home. Same rooftop. Same sunset. No memory of any of it — the rift, the timelines, the king. Just two people on a rooftop at the start of something.", "ren": 1, "mira": 1 },
+	{ "speaker": "",     "text": "They're home. Same rooftop. Same sunset. No memory of any of it — the rift, the timelines, the king. Just two people on a rooftop at the start of something.", "ren": 3, "mira": 1 },
 	{ "speaker": "",     "text": "But Ren's hand finds Mira's without thinking. And she doesn't pull away.", "ren": 2, "mira": 2 },
-	{ "speaker": "MIRA", "text": "You're humming something.", "ren": 2, "mira": 3 },
-	{ "speaker": "REN",  "text": "Oh. I don't even know where I heard it.", "ren": 3, "mira": 3 },
-	{ "speaker": "MIRA", "text": "I know that song. I don't know how, but I know it.", "ren": 3, "mira": 4 },
-	{ "speaker": "",     "text": "A beat. Their hands are still intertwined. Neither mentions it. The city hums below them. Somewhere, very far away — the world they saved breathes on.", "ren": 4, "mira": 4 },
-	{ "speaker": "REN",  "text": "Hey, Mira.", "ren": 5, "mira": 4 },
-	{ "speaker": "MIRA", "text": "Mm?", "ren": 5, "mira": 5 },
-	{ "speaker": "REN",  "text": "I don't know why — but I feel like I've been wanting to say this for longer than I actually have. I like you.", "ren": 6, "mira": 5 },
-	{ "speaker": "MIRA", "text": "...I know. Me too. I've known for a while.", "ren": 6, "mira": 6 },
+	{ "speaker": "MIRA", "text": "You're humming something.", "ren": 2, "mira": 2 },
+	{ "speaker": "REN",  "text": "Oh. I don't even know where I heard it.", "ren": 2, "mira": 1 },
+	{ "speaker": "MIRA", "text": "I know that song. I don't know how, but I know it.", "ren": 3, "mira": 1 },
+	{ "speaker": "",     "text": "A beat. Their hands are still intertwined. Neither mentions it. The city hums below them. Somewhere, very far away — the world they saved breathes on.", "ren": 2, "mira": 2 },
+	{ "speaker": "REN",  "text": "Hey, Mira.", "ren": 3, "mira": 1 },
+	{ "speaker": "MIRA", "text": "Mm?", "ren": 2, "mira": 2 },
+	{ "speaker": "REN",  "text": "I don't know why — but I feel like I've been wanting to say this for longer than I actually have. I like you.", "ren": 2, "mira": 2 },
+	{ "speaker": "MIRA", "text": "...I know. Me too. I've known for a while.", "ren": 2, "mira": 2 },
 ]
 
 # ── Node refs ─────────────────────────────────────────────────────────────────

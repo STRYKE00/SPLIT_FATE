@@ -1,22 +1,42 @@
 [
-	{
-		"speaker": "Solen",
-		"text": "Don't be afraid. You were brought here because you are needed. Both of you."
-	},
-	{
-		"speaker": "Mira",
-		"text": "Both? Where's Ren? What did you do to him?"
-	},
-	{
-		"speaker": "Solen",
-		"text": "He lives. He is where he must be — as you are where you must be. Time separated you. Time will reunite you."
-	},
-	{
-		"speaker": "Mira",
-		"text": "Who are you?"
-	},
-	{
-		"speaker": "Solen",
-		"text": "A guide. That is all you need to know for now. The bridge ahead — cross it, and you'll be one step closer to him."
-	}
+    {
+        "speaker": "Solen",
+        "text": "Don't be afraid. You were brought here because you are needed. Both of you."
+    },
+    {
+        "speaker": "Mira",
+        "text": "Both? Where's Ren? What did you do to him?!"
+    },
+    {
+        "speaker": "Solen",
+        "text": "He lives — but not here. Not in this time. You stand in the past, Mira. A world still breathing, still fighting... but not for long."
+    },
+    {
+        "speaker": "Mira",
+        "text": "The past? That's impossible. Who are you?"
+    },
+    {
+        "speaker": "Solen",
+        "text": "I am Solen. Once a keeper of the timelines, now merely a guide in their ruins."
+    },
+    {
+        "speaker": "Solen",
+        "text": "This world was whole once — until the Demon King shattered it. He tore time itself in two, splitting past from future so that no one could stand against him."
+    },
+    {
+        "speaker": "Mira",
+        "text": "A Demon King... you can't be serious."
+    },
+    {
+        "speaker": "Solen",
+        "text": "I wish I weren't. His throne lies beyond these lands, in a place where both timelines collapse into one. That is where you must go."
+    },
+    {
+        "speaker": "Solen",
+        "text": "Ren walks the future — a world already scarred by the Demon King's reign. If you wish to see him again, you must push forward. Cross the bridge ahead, and you will be one step closer."
+    },
+    {
+        "speaker": "Mira",
+        "text": "...Then I'll tear through whatever stands in my way."
+    }
 ]

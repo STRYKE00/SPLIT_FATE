@@ -152,7 +152,7 @@ func _state_follow(delta: float) -> void:
 	var _type: String
 
 	var dist: float = global_position.distance_to(target.global_position)
-	if dist < 64.0:
+	if dist < 96.0:
 		velocity = Vector2.ZERO
 		sprite.play("idle_before" if type == TYPE.PAST else "idle_after")
 		return

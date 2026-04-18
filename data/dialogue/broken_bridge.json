@@ -1,6 +1,26 @@
 [
     {
         "speaker": "Mira",
-        "text": "This bridge is broken. How can I fix it?"
+        "text": "The bridge... it's completely destroyed. How am I supposed to cross this?"
+    },
+    {
+        "speaker": "Solen",
+        "text": "The Demon King's forces destroyed it long ago — to trap anyone who might challenge him on this side of time."
+    },
+    {
+        "speaker": "Mira",
+        "text": "Then how do I fix it? There has to be a way."
+    },
+    {
+        "speaker": "Solen",
+        "text": "There is. Scattered across this land are remnants strong enough to mend it. You will need an Ancient Stone — the foundation of the old world. And a Timber Log — from the great trees that once stood before the fracture."
+    },
+    {
+        "speaker": "Solen",
+        "text": "The stone lies to the east, guarded by the Demon King's soldiers. The timber is deeper in, past the second clearing. Collect them both, and the bridge can be restored."
+    },
+    {
+        "speaker": "Mira",
+        "text": "Stone and timber... I'll find them. Whatever it takes."
     }
 ]

@@ -38,6 +38,8 @@ var _future_enemies: Dictionary = {}
 var _past_gears: Dictionary = {}
 var _future_gears: Dictionary = {}
 
+var _haze_curse_activated: bool = false
+
 var _haze_layer   : CanvasLayer
 var _haze_rect    : ColorRect
 var _haze_material: ShaderMaterial
@@ -280,8 +282,13 @@ func _on_past_enemy_killed(_timeline: String) -> void:
 		return
 
 	_live_enemies_past -= 1
+	
+	if _haze_curse_activated:
+		_update_past_haze()
+		
 	if (_total_enemies_past-_live_enemies_past)==4:
 		_update_past_haze()
+		_haze_curse_activated = true
 		DialogueManager.start_dialogue("res://data/dialogue/start_haze.json")
 
 func _on_future_enemy_killed(_timeline:String) -> void:
@@ -336,6 +343,9 @@ func _update_past_haze() -> void:
 
 	if not past_player:
 		return
+	
+	if not _haze_curse_activated:
+		return 
 
 	var progress := 0.0
 	if _total_enemies_past > 0:
