@@ -122,7 +122,7 @@ func _on_boss_spawned(boss: Node) -> void:
 	_boss_panel.visible = true
 
 
-func _on_boss_defeated(tl: String) -> void:
+func _on_boss_defeated(tl: String, _last_pos: Vector2 = Vector2.ZERO) -> void:
 	var bar: ProgressBar = _past_boss_bar if tl == "past" else _future_boss_bar
 	bar.value = 0
 	if _past_boss_bar.value <= 0 and _future_boss_bar.value <= 0:
