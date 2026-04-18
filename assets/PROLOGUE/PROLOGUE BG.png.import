@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dbgfc8uqca1ep"
-path="res://.godot/imported/PROLOGUE BG.png-a38e2f968afc0329a4af578271a24f49.ctex"
+path="res://.godot/imported/PROLOGUE BG.png-6b6930d5b417327b4e97715a8b3035dd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/PROLOGUE/PROLOGUE BG.png"
-dest_files=["res://.godot/imported/PROLOGUE BG.png-a38e2f968afc0329a4af578271a24f49.ctex"]
+source_file="res://assets/Prologue/PROLOGUE BG.png"
+dest_files=["res://.godot/imported/PROLOGUE BG.png-6b6930d5b417327b4e97715a8b3035dd.ctex"]
 
 [params]
 

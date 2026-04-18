@@ -23,6 +23,8 @@ var _solen: Node
 var _dialogue_box: Node
 var _cutscene_active := true
 var _cutscene_camera: Camera2D
+var _skip_btn: Button
+var _outro_active := false
 
 
 func _ready() -> void:
@@ -75,9 +77,10 @@ func _ready() -> void:
 	(_solen as Solen).set_state(Solen.STATE.IDLE_PAST)
 	add_child(_solen)
 
-	# Build overlay and dialogue box
+	# Build overlay, dialogue box, and skip button
 	_build_overlay()
 	_spawn_dialogue_box()
+	_build_skip_button()
 
 	# Start cutscene
 	_run_cutscene()
@@ -106,6 +109,7 @@ func _build_overlay() -> void:
 	_title_label.anchor_bottom = 1.0
 	_title_label.add_theme_color_override("font_color", Color.WHITE)
 	_title_label.add_theme_font_size_override("font_size", 32)
+	_title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_title_label.visible = false
 	_title_layer.add_child(_title_label)
 
@@ -115,17 +119,83 @@ func _spawn_dialogue_box() -> void:
 	add_child(_dialogue_box)
 
 
+func _build_skip_button() -> void:
+	var skip_layer := CanvasLayer.new()
+	skip_layer.layer = 120
+	add_child(skip_layer)
+	_skip_btn = Button.new()
+	_skip_btn.text = "Skip \u25B6\u25B6"
+	_skip_btn.anchor_left = 1.0
+	_skip_btn.anchor_right = 1.0
+	_skip_btn.offset_left = -110.0
+	_skip_btn.offset_top = 16.0
+	_skip_btn.offset_right = -16.0
+	_skip_btn.offset_bottom = 48.0
+	skip_layer.add_child(_skip_btn)
+	_skip_btn.pressed.connect(_on_skip_pressed)
+
+
+func _on_skip_pressed() -> void:
+	if _outro_active:
+		_skip_outro()
+	elif _cutscene_active:
+		_skip_intro()
+
+
+func _skip_intro() -> void:
+	# Stop any ongoing dialogue
+	if GameState.is_dialogue_active:
+		DialogueManager.end_dialogue()
+
+	# Clean up Solen if still present
+	if _solen:
+		_solen.queue_free()
+		_solen = null
+
+	# Position demon king
+	if _demon_king:
+		_demon_king.position = Vector2(688, 400)
+		_demon_king.visible = true
+
+	# Position players for battle
+	_past.position = Vector2(588, 450)
+	_future.position = Vector2(788, 450)
+
+	# Clear overlay
+	_overlay.color = Color(0, 0, 0, 0)
+	_title_label.visible = false
+
+	_start_battle()
+
+
+func _skip_outro() -> void:
+	_outro_active = false
+	_skip_btn.visible = false
+
+	if GameState.is_dialogue_active:
+		DialogueManager.end_dialogue()
+
+	if _solen:
+		_solen.queue_free()
+		_solen = null
+
+	_play_portal_video()
+
+
 func _run_cutscene() -> void:
 	# === Phase 1: The Convergence ===
 	# Screen starts black, fade in over 3 seconds
 	await get_tree().create_timer(1.0).timeout
+	if not _cutscene_active: return
 	var fade_in := create_tween()
 	fade_in.tween_property(_overlay, "color:a", 0.0, 3.0)\
 		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
 	await fade_in.finished
+	if not _cutscene_active: return
 
 	# Brief pause — silence, nobody speaks
 	await get_tree().create_timer(1.5).timeout
+	if not _cutscene_active: return
 
 	# === Phase 2: Reunion ===
 	# Mira and Ren see each other — walk toward each other
@@ -138,14 +208,17 @@ func _run_cutscene() -> void:
 	embrace_tw.tween_property(_future, "position", Vector2(708, 420), 1.2)\
 		.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 	await embrace_tw.finished
+	if not _cutscene_active: return
 	_past.sprite.play("idle")
 	_future.sprite.play("idle")
 
 	# Hold embrace for 3 seconds
 	await get_tree().create_timer(3.0).timeout
+	if not _cutscene_active: return
 
 	# Reunion dialogue
 	await _play_dialogue("res://data/dialogue/boss_cutscene_reunion.json")
+	if not _cutscene_active: return
 
 	# === Phase 3: Gratitude to Solen ===
 	# Mira turns toward Solen
@@ -157,37 +230,45 @@ func _run_cutscene() -> void:
 	approach_tw.tween_property(_future, "position", Vector2(796, 450), 0.6)\
 		.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 	await approach_tw.finished
+	if not _cutscene_active: return
 	_past.sprite.play("idle")
 	_future.sprite.play("idle")
 
 	(_solen as Solen).set_state(Solen.STATE.TALK)
 	await _play_dialogue("res://data/dialogue/boss_cutscene_gratitude.json")
+	if not _cutscene_active: return
 
 	# === Phase 4: The Revelation ===
 	(_solen as Solen).set_state(Solen.STATE.TURN_AWAY)
 	await get_tree().create_timer(1.0).timeout
+	if not _cutscene_active: return
 
 	await _play_dialogue("res://data/dialogue/boss_cutscene_betrayal.json")
+	if not _cutscene_active: return
 
 	# === Phase 5: Transformation ===
 	# Solen raises arms — urgent_boss animation
 	(_solen as Solen).set_state(Solen.STATE.URGENT_BOSS)
 	await get_tree().create_timer(1.5).timeout
+	if not _cutscene_active: return
 
 	# Violet energy — modulate Solen with cracks of purple
 	var crack_tw := create_tween()
 	crack_tw.tween_property(_solen.get_node("AnimatedSprite2D"), "modulate",
 		Color(0.6, 0.2, 0.8, 1.0), 1.5)
 	await crack_tw.finished
+	if not _cutscene_active: return
 
 	# Ground trembles — camera shake
 	await _camera_shake(0.8, 6.0)
+	if not _cutscene_active: return
 
 	# White flash
 	_overlay.color = Color(1, 1, 1, 0)
 	var flash_tw := create_tween()
 	flash_tw.tween_property(_overlay, "color:a", 1.0, 0.3)
 	await flash_tw.finished
+	if not _cutscene_active: return
 
 	# Remove Solen, show Demon King
 	_solen.queue_free()
@@ -197,6 +278,7 @@ func _run_cutscene() -> void:
 	# Full white/black screen — hold for silence
 	_overlay.color = Color(0, 0, 0, 1)
 	await get_tree().create_timer(1.0).timeout
+	if not _cutscene_active: return
 
 	# Show title card text
 	_title_label.text = "The guide was never real.\n\nSolen\nthe Demon King\n\nHe was the threat all along."
@@ -205,14 +287,17 @@ func _run_cutscene() -> void:
 	var title_in := create_tween()
 	title_in.tween_property(_title_label, "modulate:a", 1.0, 0.8)
 	await title_in.finished
+	if not _cutscene_active: return
 
 	# Hold title for 2.5 seconds
 	await get_tree().create_timer(2.5).timeout
+	if not _cutscene_active: return
 
 	# Fade out title
 	var title_out := create_tween()
 	title_out.tween_property(_title_label, "modulate:a", 0.0, 0.6)
 	await title_out.finished
+	if not _cutscene_active: return
 	_title_label.visible = false
 
 	# === Reveal Demon King ===
@@ -230,14 +315,21 @@ func _run_cutscene() -> void:
 	reveal_tw.tween_property(_overlay, "color:a", 0.0, 1.0)\
 		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
 	await reveal_tw.finished
+	if not _cutscene_active: return
 
 	# Camera shake on beat drop
 	await _camera_shake(0.4, 8.0)
+	if not _cutscene_active: return
 
 	# Final dialogue
 	await _play_dialogue("res://data/dialogue/boss_cutscene_final.json")
+	if not _cutscene_active: return
 
 	# === Battle begins ===
+	_start_battle()
+
+
+func _start_battle() -> void:
 	# Start boss music
 	AudioManager.play_bgm(preload("res://assets/Sounds/Boss_music.MP3"))
 
@@ -246,7 +338,7 @@ func _run_cutscene() -> void:
 		_demon_king.set_physics_process(true)
 		_demon_king.set_process(true)
 
-	# Enable players — camera stays centered, zooms based on player distance
+	# Enable players
 	_past.set_physics_process(true)
 	_future.set_physics_process(true)
 	_future.sprite.flip_h = false
@@ -257,9 +349,11 @@ func _run_cutscene() -> void:
 		_hud.connect_player_past(_past)
 		_hud.connect_player_future(_future)
 
-	# End cutscene
+	# End cutscene — hide skip button during battle
 	_cutscene_active = false
 	GameState.is_transitioning = false
+	if _skip_btn:
+		_skip_btn.visible = false
 
 
 func _play_dialogue(path: String) -> void:
@@ -322,8 +416,13 @@ func _on_boss_defeated(_timeline: String, last_pos: Vector2) -> void:
 		return
 	_defeat_fired = true
 	_cutscene_active = true
+	_outro_active = true
 	GameState.is_transitioning = true
 	AudioManager.stop_bgm()
+
+	# Show skip button for outro
+	if _skip_btn:
+		_skip_btn.visible = true
 
 	# Freeze players
 	_past.set_physics_process(false)
@@ -378,40 +477,47 @@ func _on_boss_defeated(_timeline: String, last_pos: Vector2) -> void:
 		_cutscene_camera.zoom = Vector2(2, 2)
 
 	await get_tree().create_timer(1.0).timeout
+	if not _outro_active: return
 
 	# Fade in — reveal Solen reverted
 	var fade_in := create_tween()
 	fade_in.tween_property(_overlay, "color:a", 0.0, 1.5)
 	await fade_in.finished
+	if not _outro_active: return
 
 	# Solen's grief dialogue
 	(_solen as Solen).set_state(Solen.STATE.TALK)
 	await _play_dialogue("res://data/dialogue/boss_outro_solen_grief.json")
+	if not _outro_active: return
 
 	# Solen death animation
 	_solen.sprite.play("death")
 	await _solen.sprite.animation_finished
+	if not _outro_active: return
 
 	await get_tree().create_timer(1.5).timeout
+	if not _outro_active: return
 
 	# Fade out Solen's body
 	var solen_fade := create_tween()
 	solen_fade.tween_property(_solen.sprite, "modulate:a", 0.0, 1.5)
 	await solen_fade.finished
+	if not _outro_active: return
 	var solen_pos: Vector2 = _solen.position
 	_solen.queue_free()
 	_solen = null
 
 	# Mira and Ren — how do we get home?
 	await _play_dialogue("res://data/dialogue/boss_outro_lost.json")
-	
-	AudioManager.play_bgm(preload("res://assets/Sounds/Victory & Adventure (Royalty Free Music) - CALL TO ADVENTURE by Scott Buckley.mp3"))
-	
+	if not _outro_active: return
+
 	# Camera shake — rift tremor
 	await _camera_shake(0.6, 4.0)
+	if not _outro_active: return
 
 	# Mysterious voice
 	await _play_dialogue("res://data/dialogue/boss_outro_voice.json")
+	if not _outro_active: return
 
 	# Spawn portal where Solen died
 	var portal: AnimatedSprite2D = PORTAL_SCENE.instantiate()
@@ -427,8 +533,10 @@ func _on_boss_defeated(_timeline: String, last_pos: Vector2) -> void:
 	var portal_fade := create_tween()
 	portal_fade.tween_property(portal, "modulate:a", 1.0, 1.5)
 	await portal_fade.finished
+	if not _outro_active: return
 
 	await get_tree().create_timer(2.0).timeout
+	if not _outro_active: return
 
 	# Fade to white (stepping through portal)
 	_overlay.color = Color(1, 1, 1, 0)
@@ -436,6 +544,7 @@ func _on_boss_defeated(_timeline: String, last_pos: Vector2) -> void:
 	rift_flash.tween_property(_overlay, "color:a", 1.0, 1.5)\
 		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_SINE)
 	await rift_flash.finished
+	if not _outro_active: return
 
 	# Play portal video
 	_play_portal_video()
