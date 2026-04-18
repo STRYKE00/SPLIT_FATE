@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dv8raxu8d02y2"]
 
 [ext_resource type="Script" uid="uid://c3p0i4msid46" path="res://scripts/Main.gd" id="1_main"]
-[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="2_hud"]
+[ext_resource type="PackedScene" uid="uid://c5o74hyp2wup2" path="res://scenes/ui/HUD.tscn" id="2_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/DialogueBox.tscn" id="3_dialogue"]
 [ext_resource type="PackedScene" path="res://scenes/ui/GameOver.tscn" id="4_gameover"]
 
