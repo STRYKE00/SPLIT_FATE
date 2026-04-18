@@ -22,11 +22,16 @@ GameState="*res://autoloads/GameState.gd"
 TimelineManager="*res://autoloads/TimelineManager.gd"
 AudioManager="*res://autoloads/AudioManager.gd"
 DebugSkipButton="*res://autoloads/DebugSkipButton.gd"
+WindowManager="*res://autoloads/WindowManager.gd"
 
 [display]
 
 window/size/viewport_width=1376
 window/size/viewport_height=768
+window/size/resizable=true
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
+window/stretch/scale_mode="fractional"
 
 [editor_plugins]
 
@@ -156,3 +161,4 @@ ai_assistant_hub/preferences/audio_hints=true
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+textures/canvas_textures/default_texture_filter=0
