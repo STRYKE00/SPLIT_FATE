@@ -49,10 +49,10 @@ func _on_player_detected(body: Node2D) -> void:
 		target = body
 
 func _physics_process(delta: float) -> void:
-	if target==null:
+	if target == null:
 		return
-	
-	if type==TYPE.FUTURE:
+
+	if type == TYPE.FUTURE:
 		type_str = "future"
 		keyboard_roll_action = "' / '"
 		keyboard_light_attack_action = "Enter"
@@ -62,31 +62,37 @@ func _physics_process(delta: float) -> void:
 	if not is_tutorial_interact:
 		is_tutorial_interact = true
 		TimelineManager.tutorial_text.emit("Press %s/Cross to interact" % keyboard_interact_action, type_str)
-	
+
 	_process_tutorial_queue(delta)
-	
-	var interact_action: String = "past_interact" if target.timeline == "past" else "future_interact"
-	if Input.is_action_just_pressed(interact_action):
-		if talked:
-			return
-		
-		if type == TYPE.FUTURE:
-			DialogueManager.start_dialogue("res://data/dialogue/guide_future.json")
-		else:
-			DialogueManager.start_dialogue("res://data/dialogue/guide_past.json")
-			
-			
-		DialogueManager.dialogue_ended.connect(func():
-			talked = true
-			state=STATE.FOLLOW
-		, CONNECT_ONE_SHOT)
-	
+
+	if not DialogueManager.is_active():
+		var interact_action: String = "past_interact" if target.timeline == "past" else "future_interact"
+		if Input.is_action_just_pressed(interact_action):
+			if not talked:
+				if type == TYPE.FUTURE:
+					DialogueManager.start_dialogue("res://data/dialogue/guide_future.json")
+				else:
+					DialogueManager.start_dialogue("res://data/dialogue/guide_past.json")
+
+				DialogueManager.dialogue_ended.connect(func():
+					talked = true
+					state = STATE.FOLLOW
+				, CONNECT_ONE_SHOT)
 
 	match state:
 		STATE.FOLLOW:
 			_state_follow(delta)
 
 	move_and_slide()
+func _unhandled_input(event: InputEvent) -> void:
+	if not DialogueManager.is_active():
+		return
+
+	if not event.is_action_pressed("dialogue_advance"):
+		return
+
+	get_viewport().set_input_as_handled()
+	DialogueManager.next_line()
 
 func _process_tutorial_queue(delta: float) -> void:
 	if _tutorial_queue.is_empty():
