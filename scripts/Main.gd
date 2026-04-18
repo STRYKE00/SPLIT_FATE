@@ -25,6 +25,7 @@ var current_past_room: Room
 var current_future_room: Room
 
 var _puzzle: Node
+var _portal: Node
 var _live_enemies: int = 0
 var _live_enemies_past: int = 0
 var _live_enemies_future: int = 0
@@ -80,32 +81,34 @@ func _ready() -> void:
 	_load_future_map()
 	_build_overlays()
 	_setup_puzzle()
+	_setup_portal()
 	_connect_hud()
 	_connect_signals()
 	_fade_in_both()
+	AudioManager.play_bgm(preload("res://assets/Sounds/Stage_One_Music.mp3"))
 
 func _define_enemies() -> void:
 	_past_enemies = {
 		0: [
 			{"type": "orc", "x": 632, "y": 904, "hp": 3},
-			{"type": "orc", "x": 616, "y": 1088, "hp": 3},
-			{"type": "orc", "x": 950, "y": 800, "hp": 3},
-			{"type": "orc", "x": 856, "y": 928, "hp": 3},
+			#{"type": "orc", "x": 616, "y": 1088, "hp": 3},
+			#{"type": "orc", "x": 950, "y": 800, "hp": 3},
+			#{"type": "orc", "x": 856, "y": 928, "hp": 3},
 		],
-		1: [
-			{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
-			{"type": "archer", "x": 768, "y": 2088, "hp": 3},
-			{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
-			{"type": "archer", "x": 688, "y": 1816, "hp": 3},
-		],
-		2: [
-			{"type": "orc", "x": -736, "y": 1778, "hp": 3},
-			{"type": "orc", "x": -760, "y": 1950, "hp": 3},
-			{"type": "orc", "x": -368, "y": 2000, "hp": 3},
-			{"type": "archer", "x": -360, "y": 1728, "hp": 3},
-			{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
-			{"type": "archer", "x": -96, "y": 1720, "hp": 3},
-		]
+		#1: [
+			#{"type": "orc", "x": 1136, "y": 1920, "hp": 3},
+			#{"type": "archer", "x": 768, "y": 2088, "hp": 3},
+			#{"type": "armored_orc", "x": 1200, "y": 1728, "hp": 3},
+			#{"type": "archer", "x": 688, "y": 1816, "hp": 3},
+		#],
+		#2: [
+			#{"type": "orc", "x": -736, "y": 1778, "hp": 3},
+			#{"type": "orc", "x": -760, "y": 1950, "hp": 3},
+			#{"type": "orc", "x": -368, "y": 2000, "hp": 3},
+			#{"type": "archer", "x": -360, "y": 1728, "hp": 3},
+			#{"type": "armored_orc", "x": -900, "y": 2000, "hp": 3},
+			#{"type": "archer", "x": -96, "y": 1720, "hp": 3},
+		#]
 	}
 	_future_enemies = {
 		0: [
@@ -137,6 +140,21 @@ func _setup_puzzle() -> void:
 	_puzzle.name = "Puzzle"
 	add_child(_puzzle)
 	_puzzle.setup(past_world, future_world, past_overlay, future_overlay)
+
+
+func _setup_portal() -> void:
+	var portal_script := preload("res://scripts/world/area1/Portal.gd")
+	_portal = Node.new()
+	_portal.set_script(portal_script)
+	_portal.name = "Portal"
+	add_child(_portal)
+	_portal.setup(past_world, future_world, past_overlay, future_overlay, past_player, future_player)
+	_portal.both_portals_reached.connect(_on_both_portals_reached)
+
+
+func _on_both_portals_reached() -> void:
+	await get_tree().create_timer(1.0).timeout
+	get_tree().change_scene_to_file("res://scenes/Boss_Room.tscn")
 
 
 func _load_past_map() -> void:
@@ -346,6 +364,8 @@ func _spawn_npcs() -> void:
 	future_world.add_child(future_solan)
 	(future_solan as Solen).set_state(Solen.STATE.IDLE_FUTURE)
 	(future_solan as Solen).set_type(Solen.TYPE.FUTURE)
+
+
 
 
 func _process(delta: float) -> void:

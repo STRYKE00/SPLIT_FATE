@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cj7n145ji7u2n"
-path="res://.godot/imported/1.png-61b96be4e99eecc60d6a6642b783c392.ctex"
+uid="uid://b2tfjglp01hvr"
+path="res://.godot/imported/1.png-0de16adb4ab4c0a78b3ac4b49e4e43f0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/PROLOGUE/MIRA PROLOGUE/1.png"
-dest_files=["res://.godot/imported/1.png-61b96be4e99eecc60d6a6642b783c392.ctex"]
+source_file="res://assets/Prologue/MIRA PROLOGUE/1.png"
+dest_files=["res://.godot/imported/1.png-0de16adb4ab4c0a78b3ac4b49e4e43f0.ctex"]
 
 [params]
 
