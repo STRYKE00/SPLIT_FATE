@@ -1,6 +1,18 @@
 [
     {
         "speaker": "Ren",
-        "text": "This bridge is broken. I can't cross it like this."
+        "text": "This bridge is nothing but rubble. There's no way across."
+    },
+    {
+        "speaker": "Solen",
+        "text": "In this timeline, the bridge has long since crumbled beyond repair. But what is broken in the future... can still be mended in the past."
+    },
+    {
+        "speaker": "Ren",
+        "text": "You mean Mira? She can fix this from her side?"
+    },
+    {
+        "speaker": "Solen",
+        "text": "If she restores the bridge in the past, its echo will carry forward through time. Have faith in her, as she has faith in you."
     }
 ]

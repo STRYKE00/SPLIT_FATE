@@ -1,6 +1,14 @@
 [
     {
         "speaker": "Mira",
-        "text": "I have the stone and the log. I can fix this bridge!"
+        "text": "I have the stone and the timber. I can rebuild this!"
+    },
+    {
+        "speaker": "Solen",
+        "text": "Then do it. When the bridge stands in the past, it will echo through time — Ren's path will open as well."
+    },
+    {
+        "speaker": "Mira",
+        "text": "Hold on, Ren. I'm coming."
     }
 ]

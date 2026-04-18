@@ -1,6 +1,22 @@
 [
     {
         "speaker": "Mira",
-        "text": "Why am I feeling dizzy.."
+        "text": "My vision... everything is blurring. What's happening to me?!"
     },
+    {
+        "speaker": "Solen",
+        "text": "The Demon King's curse. He poisoned the timeline itself — the more you disturb his servants, the deeper the haze takes root."
+    },
+    {
+        "speaker": "Mira",
+        "text": "You mean this gets worse?!"
+    },
+    {
+        "speaker": "Solen",
+        "text": "The past was never meant to be walked by the living. His curse ensures that those who linger here lose themselves to the fog of forgotten time."
+    },
+    {
+        "speaker": "Solen",
+        "text": "But do not stop. If you falter now, the haze will claim you — and Ren will be alone in a dead future."
+    }
 ]
